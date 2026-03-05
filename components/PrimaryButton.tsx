@@ -1,11 +1,19 @@
 import { Pressable, Text } from "react-native";
+import type { PressableProps } from "react-native";
+
+type PrimaryButtonProps = {
+  title: string;
+  onPress?: PressableProps["onPress"];
+  disabled?: boolean;
+  className?: string;
+};
 
 export default function PrimaryButton({
   title,
   onPress,
   disabled = false,
   className = "",
-}) {
+}: PrimaryButtonProps) {
   return (
     <Pressable
       onPress={onPress}

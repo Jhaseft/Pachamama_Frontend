@@ -1,4 +1,18 @@
 import { View, Text, TextInput } from "react-native";
+import type { TextInputProps } from "react-native";
+
+type TextFieldProps = {
+  label?: string;
+  value?: string;
+  onChangeText?: (text: string) => void;
+  placeholder?: string;
+  keyboardType?: TextInputProps["keyboardType"];
+  secureTextEntry?: boolean;
+  autoCapitalize?: TextInputProps["autoCapitalize"];
+  prefix?: string;
+  textContentType?: TextInputProps["textContentType"];
+  maxLength?: number;
+};
 
 export default function TextField({
   label,
@@ -11,7 +25,7 @@ export default function TextField({
   prefix,
   textContentType,
   maxLength,
-}) {
+}: TextFieldProps) {
   return (
     <View className="mb-4">
       {label ? (

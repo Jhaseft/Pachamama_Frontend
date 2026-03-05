@@ -1,8 +1,18 @@
 import { View, Text, Pressable, Image } from "react-native";
+import type { ReactNode } from "react";
 import Screen from "./Screen";
 import Dots from "./Dots";
 
 const logo = require("../assets/logo.png");
+
+type OnboardingFrameProps = {
+  step: number;
+  title: string;
+  description: string;
+  icon: ReactNode;
+  onSkip: () => void;
+  onNext: () => void;
+};
 
 export default function OnboardingFrame({
   step,
@@ -11,7 +21,7 @@ export default function OnboardingFrame({
   icon,
   onSkip,
   onNext,
-}) {
+}: OnboardingFrameProps) {
   return (
     <Screen className="pt-2">
       <View className="flex-row items-center justify-between mb-6">

@@ -14,19 +14,22 @@ import Screen from "../../components/Screen";
 import PrimaryButton from "../../components/PrimaryButton";
 
 export default function Otp() {
-  const { role, phone } = useLocalSearchParams();
+  const { role, phone } = useLocalSearchParams<{
+    role?: string;
+    phone?: string;
+  }>();
   const roleValue = Array.isArray(role) ? role[0] : role || "client";
   const phoneValue = Array.isArray(phone) ? phone[0] : phone || "999999999";
 
   const [code, setCode] = useState("");
-  const inputRef = useRef(null);
+  const inputRef = useRef<TextInput | null>(null);
 
   const digits = useMemo(() => {
     const padded = (code + "      ").slice(0, 6);
     return padded.split("");
   }, [code]);
 
-  const handleChange = (text) => {
+  const handleChange = (text: string) => {
     const onlyNumbers = text.replace(/\D/g, "").slice(0, 6);
     setCode(onlyNumbers);
   };

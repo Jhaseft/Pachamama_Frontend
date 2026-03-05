@@ -1,6 +1,16 @@
 import { Pressable, View, Text } from "react-native";
 
-export default function CheckboxRow({ checked, onToggle, label }) {
+type CheckboxRowProps = {
+  checked: boolean;
+  onToggle: () => void;
+  label: string;
+};
+
+export default function CheckboxRow({
+  checked,
+  onToggle,
+  label,
+}: CheckboxRowProps) {
   return (
     <Pressable onPress={onToggle} className="flex-row items-start">
       <View

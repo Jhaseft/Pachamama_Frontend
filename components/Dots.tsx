@@ -1,6 +1,11 @@
 import { View } from "react-native";
 
-export default function Dots({ count = 3, activeIndex = 0 }) {
+type DotsProps = {
+  count?: number;
+  activeIndex?: number;
+};
+
+export default function Dots({ count = 3, activeIndex = 0 }: DotsProps) {
   return (
     <View className="flex-row items-center">
       {Array.from({ length: count }).map((_, index) => {
