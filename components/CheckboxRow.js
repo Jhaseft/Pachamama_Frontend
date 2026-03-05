@@ -1,0 +1,16 @@
+import { Pressable, View, Text } from "react-native";
+
+export default function CheckboxRow({ checked, onToggle, label }) {
+  return (
+    <Pressable onPress={onToggle} className="flex-row items-start">
+      <View
+        className={`w-5 h-5 rounded border border-white/60 mr-3 items-center justify-center ${
+          checked ? "bg-white" : "bg-transparent"
+        }`}
+      >
+        {checked ? <View className="w-3 h-3 bg-black rounded-sm" /> : null}
+      </View>
+      <Text className="text-white/80 flex-1 text-sm">{label}</Text>
+    </Pressable>
+  );
+}
