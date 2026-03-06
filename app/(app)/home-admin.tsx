@@ -39,18 +39,10 @@ export default function HomeAdmin() {
   }, [accessToken, isHydrated, logout, setSession]);
 
   return (
-    <Screen pad={false} className="items-center justify-center">
-      <Text className="text-white text-2xl font-semibold">Home Admin</Text>
-      <Text className="text-white/60 mt-2">Llegaste OK</Text>
-      <Text className="text-white/70 mt-4">
-        {user?.firstName ? `Hola, ${user.firstName}` : "Hola"}
-      </Text>
-      <Text className="text-white/70 mt-1">
-        {user?.email ? `Email: ${user.email}` : "Email: -"}
-      </Text>
-      {error ? (
-        <Text className="text-red-400 text-sm mt-4 text-center">{error}</Text>
-      ) : null}
+    <Screen>
+      <Text className="text-white text-3xl font-extrabold mt-8 mb-6">Crear perfil Anfitriona</Text>
+      <Text className="text-white text-xl text-center">Datos de la Anfitriona</Text>
+      
     </Screen>
   );
 }
