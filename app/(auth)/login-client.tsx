@@ -11,32 +11,46 @@ import { router } from "expo-router";
 import Screen from "../../components/Screen";
 import TextField from "../../components/TextField";
 import PrimaryButton from "../../components/PrimaryButton";
-import { sendOtp } from "../../src/services/auth";
-import { API_URL } from "../../src/config";
+import { loginWithEmail } from "../../src/services/auth";
+import { useAuth } from "../../src/context/AuthContext";
 
-export default function LoginClient() {
-  const [phone, setPhone] = useState("");
+export default function LoginClientEmail() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const { setSession } = useAuth();
 
-  const handleSend = async () => {
-    const value = phone.trim().replace(/\D/g, "");
-    if (!value) {
-      setError("Ingresa tu número de celular.");
+  const handleLogin = async () => {
+    const trimmedEmail = email.trim().toLowerCase();
+    const trimmedPassword = password.trim();
+
+    if (!trimmedEmail || !trimmedPassword) {
+      setError("Ingresa tu correo y contraseña.");
+      return;
+    }
+
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail);
+    if (!isEmail) {
+      setError("Ingresa un correo válido.");
       return;
     }
 
     try {
       setLoading(true);
       setError("");
-      await sendOtp(value);
-      router.push({
-        pathname: "/(auth)/otp",
-        params: { role: "client", phone: value },
-      });
+      const response = await loginWithEmail(trimmedEmail, trimmedPassword);
+
+      if (response.user.role !== "USER") {
+        setError("Acceso solo para clientes.");
+        return;
+      }
+
+      await setSession(response.access_token, response.user);
+      router.replace("/(app)/home-client");
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : "No se pudo enviar el codigo.";
+        err instanceof Error ? err.message : "No se pudo iniciar sesión.";
       setError(message);
     } finally {
       setLoading(false);
@@ -61,21 +75,27 @@ export default function LoginClient() {
             <Text className="text-white text-base ml-2">Volver</Text>
           </Pressable>
 
-          <Text className="text-white text-3xl font-bold">Crear cuenta</Text>
+          <Text className="text-white text-3xl font-bold">Iniciar sesión</Text>
           <Text className="text-white/70 text-lg mt-2 mb-6">
-            Te enviaremos un codigo de verificacion para validar tu numero. {"\n"} {"\n"}
-            Completa tu registro para crear tu cuenta.
+            Accede con tu correo y contraseña.
           </Text>
 
           <TextField
-            label="Número de celular"
-            placeholder="999 999 999"
-            keyboardType="phone-pad"
-            value={phone}
-            onChangeText={setPhone}
-            prefix="PE +51"
-            textContentType="telephoneNumber"
-            maxLength={15}
+            label="Email"
+            placeholder="correo@ejemplo.com"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            textContentType="emailAddress"
+          />
+
+          <TextField
+            label="Contraseña"
+            placeholder="********"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            textContentType="password"
           />
 
           {error ? (
@@ -83,17 +103,18 @@ export default function LoginClient() {
           ) : null}
 
           <PrimaryButton
-            title={loading ? "Enviando..." : "Enviar codigo"}
-            onPress={handleSend}
+            title={loading ? "Ingresando..." : "Iniciar sesión"}
+            onPress={handleLogin}
             disabled={loading}
+            className="mt-4"
           />
 
           <Pressable
-            onPress={() => router.push("/(auth)/code-help")}
+            onPress={() => router.replace("/(auth)/register-client")}
             className="mt-6"
           >
             <Text className="text-white/60 text-center underline">
-              Problemas con el codigo
+              Soy nuevo, crear cuenta
             </Text>
           </Pressable>
         </ScrollView>

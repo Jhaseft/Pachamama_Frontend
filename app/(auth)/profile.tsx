@@ -104,7 +104,7 @@ export default function Profile() {
           Token temporal no encontrado
         </Text>
         <Text className="text-white/70 text-base mt-4">
-          Vuelve a iniciar sesi\u00f3n para solicitar un nuevo c\u00f3digo.
+          Vuelve a iniciar sesion para solicitar un nuevo codigo.
         </Text>
         <PrimaryButton
           title="Volver a login"

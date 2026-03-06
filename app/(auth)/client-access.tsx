@@ -30,12 +30,12 @@ export default function ClientAccess() {
 
           <PrimaryButton
             title="Ya tengo cuenta"
-            onPress={() => router.push("/(auth)/login-client-email")}
+            onPress={() => router.push("/(auth)/login-client")}
           />
 
           <PrimaryButton
             title="Soy nuevo"
-            onPress={() => router.push("/(auth)/login-client")}
+            onPress={() => router.push("/(auth)/register-client")}
             className="mt-4"
           />
         </ScrollView>
