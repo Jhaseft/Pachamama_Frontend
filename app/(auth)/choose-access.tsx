@@ -17,7 +17,7 @@ export default function ChooseAccess() {
 
       <View className="mt-8">
         <Pressable
-          onPress={() => router.push("/(auth)/login-client")}
+          onPress={() => router.push("/(auth)/client-access")}
           className="bg-[#D9D9D9] border border-neutral-800 rounded-2xl p-5 py-14 mb-4 items-center"
         >
           <Ionicons name="person" size={50} color="black" />

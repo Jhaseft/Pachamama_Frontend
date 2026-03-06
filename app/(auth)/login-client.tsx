@@ -22,7 +22,7 @@ export default function LoginClient() {
   const handleSend = async () => {
     const value = phone.trim().replace(/\D/g, "");
     if (!value) {
-      setError("Ingresa tu n\u00famero de celular.");
+      setError("Ingresa tu número de celular.");
       return;
     }
 
@@ -36,7 +36,7 @@ export default function LoginClient() {
       });
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : "No se pudo enviar el c\u00f3digo.";
+        err instanceof Error ? err.message : "No se pudo enviar el codigo.";
       setError(message);
     } finally {
       setLoading(false);
@@ -61,10 +61,10 @@ export default function LoginClient() {
             <Text className="text-white text-base ml-2">Volver</Text>
           </Pressable>
 
-          <Text className="text-white text-3xl font-bold">Ingresar</Text>
+          <Text className="text-white text-3xl font-bold">Crear cuenta</Text>
           <Text className="text-white/70 text-lg mt-2 mb-6">
-            Te enviaremos un codigo de verificacion. {"\n"} {"\n"}
-            Si es tu primera vez, se creara una cuenta automaticamente.
+            Te enviaremos un codigo de verificacion para validar tu numero. {"\n"} {"\n"}
+            Completa tu registro para crear tu cuenta.
           </Text>
 
           <TextField

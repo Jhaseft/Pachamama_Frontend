@@ -49,13 +49,25 @@ export default function Profile() {
       return;
     }
 
+    const trimmedEmail = email.trim().toLowerCase();
+    if (!trimmedEmail) {
+      setError("Ingresa tu correo electronico.");
+      return;
+    }
+
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail);
+    if (!isEmail) {
+      setError("Ingresa un correo válido.");
+      return;
+    }
+
     if (!password || password.length < 6) {
-      setError("La contrase\u00f1a debe tener al menos 6 caracteres.");
+      setError("La contraseña debe tener al menos 6 caracteres.");
       return;
     }
 
     if (password !== confirm) {
-      setError("Las contrase\u00f1as no coinciden.");
+      setError("Las contraseñas no coinciden.");
       return;
     }
 
@@ -69,7 +81,7 @@ export default function Profile() {
         tempToken,
         firstName,
         lastName,
-        email: email.trim() || undefined,
+        email: trimmedEmail,
         password,
         confirmPassword: confirm,
       });
@@ -96,7 +108,7 @@ export default function Profile() {
         </Text>
         <PrimaryButton
           title="Volver a login"
-          onPress={() => router.replace("/(auth)/login-client")}
+          onPress={() => router.replace("/(auth)/client-access")}
           className="mt-6"
         />
       </Screen>
@@ -172,7 +184,7 @@ export default function Profile() {
           />
 
           <Pressable
-            onPress={() => router.replace("/(auth)/login-client")}
+            onPress={() => router.replace("/(auth)/client-access")}
             className="mt-4"
           >
             <Text className="text-white/60 text-center underline">
