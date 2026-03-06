@@ -47,7 +47,7 @@ export default function LoginAdmin() {
       }
 
       await setSession(response.access_token, response.user);
-      router.replace("/(app)/home-admin");
+      router.replace("/(app)/create-hostess-profile");
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "No se pudo iniciar sesión.";

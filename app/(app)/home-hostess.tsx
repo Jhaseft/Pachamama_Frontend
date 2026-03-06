@@ -5,7 +5,7 @@ import Screen from "../../components/Screen";
 import { useAuth } from "../../src/context/AuthContext";
 import { getProfile } from "../../src/services/auth";
 
-export default function HomeHost() {
+export default function HomeHostess() {
   const { accessToken, user, isHydrated, setSession, logout } = useAuth();
   const [error, setError] = useState("");
 

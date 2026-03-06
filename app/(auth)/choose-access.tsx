@@ -32,7 +32,7 @@ export default function ChooseAccess() {
         </Pressable>
 
         <Pressable
-          onPress={() => router.push("/(auth)/login-host")}
+          onPress={() => router.push("/(auth)/login-hostess")}
           className="bg-[#D9D9D9] border border-neutral-800 rounded-2xl p-5 py-14 mb-4 items-center"
         >
           <Ionicons name="person" size={50} color="black" />

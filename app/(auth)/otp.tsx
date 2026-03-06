@@ -45,8 +45,8 @@ export default function Otp() {
 
   const handleVerify = async () => {
     if (roleValue !== "client") {
-      if (roleValue === "host") {
-        router.replace("/(app)/home-host");
+      if (roleValue === "hostess") {
+        router.replace("/(app)/home-hostess");
         return;
       }
       router.replace("/(auth)/profile");

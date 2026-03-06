@@ -15,7 +15,7 @@ import PrimaryButton from "../../components/PrimaryButton";
 import { loginWithEmail } from "../../src/services/auth";
 import { useAuth } from "../../src/context/AuthContext";
 
-export default function LoginHost() {
+export default function LoginHostess() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -48,7 +48,7 @@ export default function LoginHost() {
       }
 
       await setSession(response.access_token, response.user);
-      router.replace("/(app)/home-host");
+      router.replace("/(app)/home-hostess");
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "No se pudo iniciar sesión.";
