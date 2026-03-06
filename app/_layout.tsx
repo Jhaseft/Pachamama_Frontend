@@ -5,7 +5,7 @@ import { View } from "react-native";
 
 export default function Layout() {
   return (
-    <View className="flex-1">
+    <View className="flex-1 mt-6 ">
       <StatusBar style="dark" />
       <Stack />
     </View>
