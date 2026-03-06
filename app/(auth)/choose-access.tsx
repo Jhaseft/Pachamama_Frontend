@@ -48,7 +48,7 @@ export default function ChooseAccess() {
       </View>
 
       <Pressable
-        onPress={() => Alert.alert("Acceso Admin", "Placeholder")}
+        onPress={() => router.push("/(auth)/login-admin")}
         className="mt-8"
       >
         <Text className="text-white text-lg text-center underline">

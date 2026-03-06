@@ -28,8 +28,8 @@ export default function Profile() {
           keyboardShouldPersistTaps="handled"
           contentContainerClassName="flex-grow"
         >
-          <Text className="text-white text-3xl font-semibold">Tu perfil</Text>
-          <Text className="text-white/70 mt-2 mb-6">
+          <Text className="text-white text-3xl font-bold mt-8">Tu perfil</Text>
+          <Text className="text-white/70 text-lg mt-5 mb-6">
             Completa tu informacion para continuar.
           </Text>
 
@@ -72,7 +72,7 @@ export default function Profile() {
           <CheckboxRow
             checked={accepted}
             onToggle={() => setAccepted((prev) => !prev)}
-            label="He leido y acepto los terminos y condiciones."
+            label="He leido y acepto los Terminos y Condiciones de uso."
           />
 
           <PrimaryButton

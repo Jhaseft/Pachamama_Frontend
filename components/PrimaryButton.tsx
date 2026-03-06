@@ -22,7 +22,7 @@ export default function PrimaryButton({
         disabled ? "opacity-50" : "opacity-100"
       } ${className}`}
     >
-      <Text className="text-white text-base font-semibold">{title}</Text>
+      <Text className="text-white text-xl font-semibold">{title}</Text>
     </Pressable>
   );
 }
