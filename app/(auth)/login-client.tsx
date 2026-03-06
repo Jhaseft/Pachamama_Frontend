@@ -11,16 +11,36 @@ import { router } from "expo-router";
 import Screen from "../../components/Screen";
 import TextField from "../../components/TextField";
 import PrimaryButton from "../../components/PrimaryButton";
+import { sendOtp } from "../../src/services/auth";
+import { API_URL } from "../../src/config";
 
 export default function LoginClient() {
   const [phone, setPhone] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSend = () => {
-    const value = phone.trim() || "999999999";
-    router.push({
-      pathname: "/(auth)/otp",
-      params: { role: "client", phone: value },
-    });
+  const handleSend = async () => {
+    const value = phone.trim().replace(/\D/g, "");
+    if (!value) {
+      setError("Ingresa tu n\u00famero de celular.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError("");
+      await sendOtp(value);
+      router.push({
+        pathname: "/(auth)/otp",
+        params: { role: "client", phone: value },
+      });
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "No se pudo enviar el c\u00f3digo.";
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -58,7 +78,15 @@ export default function LoginClient() {
             maxLength={15}
           />
 
-          <PrimaryButton title="Enviar codigo" onPress={handleSend} />
+          {error ? (
+            <Text className="text-red-400 text-sm mt-2">{error}</Text>
+          ) : null}
+
+          <PrimaryButton
+            title={loading ? "Enviando..." : "Enviar codigo"}
+            onPress={handleSend}
+            disabled={loading}
+          />
 
           <Pressable
             onPress={() => router.push("/(auth)/code-help")}

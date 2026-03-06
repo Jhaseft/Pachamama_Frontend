@@ -13,6 +13,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import Screen from "../../components/Screen";
 import PrimaryButton from "../../components/PrimaryButton";
+import { sendOtp, verifyOtp } from "../../src/services/auth";
+import { useAuth } from "../../src/context/AuthContext";
+import { removeTempToken, setTempToken } from "../../src/storage/authStorage";
 
 export default function Otp() {
   const { role, phone } = useLocalSearchParams<{
@@ -22,7 +25,12 @@ export default function Otp() {
   const roleValue = Array.isArray(role) ? role[0] : role || "client";
   const phoneValue = Array.isArray(phone) ? phone[0] : phone || "999999999";
 
+  const { setSession } = useAuth();
+
   const [code, setCode] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [error, setError] = useState("");
   const inputRef = useRef<TextInput | null>(null);
 
   const digits = useMemo(() => {
@@ -35,12 +43,63 @@ export default function Otp() {
     setCode(onlyNumbers);
   };
 
-  const handleVerify = () => {
-    if (roleValue === "host") {
-      router.replace("/(app)/home-host");
+  const handleVerify = async () => {
+    if (roleValue !== "client") {
+      if (roleValue === "host") {
+        router.replace("/(app)/home-host");
+        return;
+      }
+      router.replace("/(auth)/profile");
       return;
     }
-    router.replace("/(auth)/profile");
+
+    if (code.length < 6) {
+      setError("Ingresa el c\u00f3digo completo.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError("");
+      const result = await verifyOtp(phoneValue, code);
+      if ("access_token" in result) {
+        await setSession(result.access_token, result.user);
+        await removeTempToken();
+        router.replace("/(app)/home-client");
+        return;
+      }
+
+      await setTempToken(result.tempToken);
+      router.replace({
+        pathname: "/(auth)/profile",
+        params: { phone: phoneValue },
+      });
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "No se pudo verificar el c\u00f3digo.";
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    if (roleValue !== "client") {
+      Alert.alert("Reenviar", "Codigo reenviado");
+      return;
+    }
+
+    try {
+      setResending(true);
+      await sendOtp(phoneValue);
+      Alert.alert("Reenviar", "Codigo reenviado");
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "No se pudo reenviar el c\u00f3digo.";
+      setError(message);
+    } finally {
+      setResending(false);
+    }
   };
 
   return (
@@ -77,9 +136,7 @@ export default function Otp() {
                   digit.trim() ? "border-white" : ""
                 }`}
               >
-                <Text className="text-white text-xl">
-                  {digit.trim()}
-                </Text>
+                <Text className="text-white text-xl">{digit.trim()}</Text>
               </View>
             ))}
           </Pressable>
@@ -93,18 +150,20 @@ export default function Otp() {
             className="absolute opacity-0"
           />
 
+          {error ? (
+            <Text className="text-red-400 text-sm mt-4 text-center">{error}</Text>
+          ) : null}
+
           <PrimaryButton
-            title="Verificar"
+            title={loading ? "Verificando..." : "Verificar"}
             onPress={handleVerify}
+            disabled={loading}
             className="mt-8"
           />
 
-          <Pressable
-            onPress={() => Alert.alert("Reenviar", "Codigo reenviado")}
-            className="mt-4"
-          >
+          <Pressable onPress={handleResend} className="mt-4">
             <Text className="text-white/60 text-center underline">
-              Reenviar codigo
+              {resending ? "Reenviando..." : "Reenviar codigo"}
             </Text>
           </Pressable>
 

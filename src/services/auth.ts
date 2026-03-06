@@ -1,0 +1,56 @@
+import { apiFetch } from "./api";
+
+export type User = {
+  id: string;
+  phoneNumber: string;
+  email: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  role: string;
+  isProfileComplete: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  lastLogin?: string | null;
+};
+
+export type SendOtpResponse = { message: string };
+
+export type VerifyOtpResponse =
+  | { access_token: string; user: User }
+  | { needsProfile: true; tempToken: string };
+
+export type CompleteRegistrationInput = {
+  tempToken: string;
+  firstName: string;
+  lastName: string;
+  email?: string;
+  password: string;
+  confirmPassword: string;
+};
+
+export type CompleteRegistrationResponse = { access_token: string; user: User };
+
+export async function sendOtp(phoneNumber: string) {
+  return apiFetch<SendOtpResponse>("/auth/send-otp", {
+    method: "POST",
+    body: JSON.stringify({ phoneNumber }),
+  });
+}
+
+export async function verifyOtp(phoneNumber: string, code: string) {
+  return apiFetch<VerifyOtpResponse>("/auth/verify-otp", {
+    method: "POST",
+    body: JSON.stringify({ phoneNumber, code }),
+  });
+}
+
+export async function completeRegistration(input: CompleteRegistrationInput) {
+  return apiFetch<CompleteRegistrationResponse>("/auth/complete-registration", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export async function getProfile() {
+  return apiFetch<User>("/users/profile", { method: "GET" });
+}
