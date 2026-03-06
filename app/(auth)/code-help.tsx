@@ -1,12 +1,32 @@
-import { Pressable, Text } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { router } from "expo-router";
 import Screen from "../../components/Screen";
-import PrimaryButton from "../../components/PrimaryButton";
-import Ionicons from "@expo/vector-icons/build/Ionicons";
+import { Ionicons } from "@expo/vector-icons";
+
+type ActionButtonProps = {
+  icon: keyof typeof Ionicons.glyphMap;
+  label: string;
+  onPress: () => void;
+  className?: string;
+};
+
+function ActionButton({ icon, label, onPress, className = "" }: ActionButtonProps) {
+  return (
+    <Pressable
+      onPress={onPress}
+      className={`bg-red-600 rounded-2xl py-4 px-4 flex-row items-center ${className}`}
+    >
+      <View className="w-10 h-10 rounded-lg bg-red-800 items-center justify-center">
+        <Ionicons name={icon} size={20} color="white" />
+      </View>
+      <Text className="text-white text-base font-semibold ml-3">{label}</Text>
+    </Pressable>
+  );
+}
 
 export default function CodeHelp() {
   return (
-    <Screen className="items-center justify-center">
+    <Screen>
       <Pressable
         onPress={() => router.back()}
         className="mt-6 mb-6 flex-row items-center"
@@ -18,28 +38,32 @@ export default function CodeHelp() {
       <Text className="text-white text-3xl font-bold">
         ¿No recibiste el código?
       </Text>
-      <Text className="text-white/70 text-center mb-6">
-        Seleccione una opción para ayudarte.
+      <Text className="text-white/70 text-lg mt-5 mb-8">
+        Selecciona una opcion para ayudarte.
       </Text>
-      <PrimaryButton
-        title="Reenviar código OTP"
+
+      <ActionButton
+        icon="chatbubble-ellipses-outline"
+        label="Reenviar OTP"
         onPress={() => router.back()}
       />
-      <PrimaryButton
-        title="Cambiar número."
-        onPress={() => router.back()}
+      <ActionButton
+        icon="call-outline"
+        label="Cambiar numero"
+        onPress={() => router.replace("/(auth)/login-client")}
+        className="mt-4"
       />
-      <PrimaryButton
-        title="Contactar soporte"
+      <ActionButton
+        icon="mail-outline"
+        label="Contactar soporte"
         onPress={() => router.back()}
+        className="mt-4"
       />
 
-      <Pressable
-            onPress={() => router.back()}
-            className="mt-6 mb-6 flex-row items-center"
-          >
-            <Text className="text-white text-base ml-2">Volver al Inicio</Text>
-          </Pressable>
+      <Pressable onPress={() => router.replace("/(auth)/choose-access")}
+        className="mt-12">
+        <Text className="text-white text-center text-lg">Volver al inicio</Text>
+      </Pressable>
     </Screen>
   );
 }
