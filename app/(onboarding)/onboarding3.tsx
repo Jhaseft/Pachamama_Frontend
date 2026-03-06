@@ -7,9 +7,9 @@ export default function Onboarding3() {
     <OnboardingFrame
       step={2}
       title="Sistema de Creditos"
-      description="Gana creditos y canjealos dentro de la plataforma."
+      description="Adquiere creditos fácilmente para acceder a contenido exclusivo."
       descriptionClassName="text-lg"
-      icon={<Ionicons name="wallet-outline" size={96} color="white" />}
+      icon={<Ionicons name="wallet-outline" size={150} color="white" />}
       onSkip={() => router.replace("/(auth)/choose-access")}
       onNext={() => router.replace("/(auth)/choose-access")}
     />

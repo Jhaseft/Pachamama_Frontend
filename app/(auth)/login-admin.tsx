@@ -18,11 +18,7 @@ export default function LoginClient() {
   const [password, setPassword] = useState("");
 
   const handleSend = () => {
-    const value = phone.trim() || "999999999";
-    router.push({
-      pathname: "/(auth)/otp",
-      params: { role: "client", phone: value },
-    });
+    router.replace("/(app)/home-admin");
   };
 
   return (

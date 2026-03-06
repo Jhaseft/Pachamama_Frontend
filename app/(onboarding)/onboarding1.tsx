@@ -7,9 +7,9 @@ export default function Onboarding1() {
     <OnboardingFrame
       step={0}
       title="Chat Privado"
-      description="Conversa de forma directa y segura con tu anfitriona."
+      description="Conecta de manera segura y directa con tus anfitrionas favoritas."
       descriptionClassName="text-xl"
-      icon={<Ionicons name="chatbubbles-outline" size={96} color="white" />}
+      icon={<Ionicons name="chatbubbles-outline" size={150} color="white" />}
       onSkip={() => router.replace("/(auth)/choose-access")}
       onNext={() => router.push("/(onboarding)/onboarding2")}
     />
