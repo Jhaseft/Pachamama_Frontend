@@ -9,6 +9,7 @@ import {
   ScrollView,
   Alert,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import Screen from "../../components/Screen";
 import PrimaryButton from "../../components/PrimaryButton";
@@ -52,18 +53,22 @@ export default function Otp() {
           keyboardShouldPersistTaps="handled"
           contentContainerClassName="flex-grow"
         >
-          <Pressable onPress={() => router.back()} className="mb-6">
-            <Text className="text-white text-base">? Volver</Text>
+          <Pressable
+            onPress={() => router.back()}
+            className="mt-6 mb-6 flex-row items-center"
+          >
+            <Ionicons name="arrow-back" size={20} color="white" />
+            <Text className="text-white text-base ml-2">Volver</Text>
           </Pressable>
 
-          <Text className="text-white text-3xl font-semibold">Codigo OTP</Text>
-          <Text className="text-white/70 mt-2">
+          <Text className="text-white text-3xl font-bold">Codigo OTP</Text>
+          <Text className="text-white/70 text-lg mt-8 mb-10">
             Enviado al +51 {phoneValue}
           </Text>
 
           <Pressable
             onPress={() => inputRef.current?.focus()}
-            className="flex-row justify-between mt-8"
+            className="flex-row justify-between"
           >
             {digits.map((digit, index) => (
               <View

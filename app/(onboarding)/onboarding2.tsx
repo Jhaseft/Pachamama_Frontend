@@ -8,6 +8,7 @@ export default function Onboarding2() {
       step={1}
       title="Seguridad Total"
       description="Protegemos tu informacion y tus transacciones en todo momento."
+      descriptionClassName="text-lg"
       icon={<Ionicons name="shield-checkmark-outline" size={96} color="white" />}
       onSkip={() => router.replace("/(auth)/choose-access")}
       onNext={() => router.push("/(onboarding)/onboarding3")}

@@ -29,7 +29,7 @@ export default function TextField({
   return (
     <View className="mb-4">
       {label ? (
-        <Text className="text-white/80 text-sm mb-2">{label}</Text>
+        <Text className="text-white text-xl font-bold mb-2">{label}</Text>
       ) : null}
       <View className="flex-row items-center bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-3">
         {prefix ? (

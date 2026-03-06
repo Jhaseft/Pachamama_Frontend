@@ -6,6 +6,7 @@ import {
   Platform,
   ScrollView,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import Screen from "../../components/Screen";
 import TextField from "../../components/TextField";
@@ -32,17 +33,22 @@ export default function LoginClient() {
           keyboardShouldPersistTaps="handled"
           contentContainerClassName="flex-grow"
         >
-          <Pressable onPress={() => router.back()} className="mb-6">
-            <Text className="text-white text-base">? Volver</Text>
+          <Pressable
+            onPress={() => router.back()}
+            className="mt-6 mb-6 flex-row items-center"
+          >
+            <Ionicons name="arrow-back" size={20} color="white" />
+            <Text className="text-white text-base ml-2">Volver</Text>
           </Pressable>
 
-          <Text className="text-white text-3xl font-semibold">Ingresar</Text>
-          <Text className="text-white/70 mt-2 mb-6">
-            Ingresa como cliente para continuar.
+          <Text className="text-white text-3xl font-bold">Ingresar</Text>
+          <Text className="text-white/70 text-lg mt-2 mb-6">
+            Te enviaremos un codigo de verificacion. {"\n"} {"\n"}
+            Si es tu primera vez, se creara una cuenta automaticamente.
           </Text>
 
           <TextField
-            label="Numero de celular"
+            label="Número de celular"
             placeholder="999 999 999"
             keyboardType="phone-pad"
             value={phone}

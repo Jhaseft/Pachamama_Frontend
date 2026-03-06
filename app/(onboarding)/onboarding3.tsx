@@ -8,6 +8,7 @@ export default function Onboarding3() {
       step={2}
       title="Sistema de Creditos"
       description="Gana creditos y canjealos dentro de la plataforma."
+      descriptionClassName="text-lg"
       icon={<Ionicons name="wallet-outline" size={96} color="white" />}
       onSkip={() => router.replace("/(auth)/choose-access")}
       onNext={() => router.replace("/(auth)/choose-access")}
