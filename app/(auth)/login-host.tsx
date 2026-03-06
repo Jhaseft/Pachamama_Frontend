@@ -12,13 +12,50 @@ import { router } from "expo-router";
 import Screen from "../../components/Screen";
 import TextField from "../../components/TextField";
 import PrimaryButton from "../../components/PrimaryButton";
+import { loginWithEmail } from "../../src/services/auth";
+import { useAuth } from "../../src/context/AuthContext";
 
 export default function LoginHost() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const { setSession } = useAuth();
 
-  const handleSend = () => {
-    router.replace("/(app)/home-host");
+  const handleSend = async () => {
+    const trimmedEmail = email.trim().toLowerCase();
+    const trimmedPassword = password.trim();
+
+    if (!trimmedEmail || !trimmedPassword) {
+      setError("Ingresa tu correo y contraseña.");
+      return;
+    }
+
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail);
+    if (!isEmail) {
+      setError("Ingresa un correo válido.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError("");
+      const response = await loginWithEmail(trimmedEmail, trimmedPassword);
+
+      if (response.user.role !== "ANFITRIONA") {
+        setError("Acceso solo para anfitrionas aprobadas.");
+        return;
+      }
+
+      await setSession(response.access_token, response.user);
+      router.replace("/(app)/home-host");
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "No se pudo iniciar sesión.";
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -64,7 +101,15 @@ export default function LoginHost() {
             textContentType="password"
           />
 
-          <PrimaryButton title="Iniciar sesión" onPress={handleSend} />
+          {error ? (
+            <Text className="text-red-400 text-sm mt-2">{error}</Text>
+          ) : null}
+
+          <PrimaryButton
+            title={loading ? "Ingresando..." : "Iniciar sesión"}
+            onPress={handleSend}
+            disabled={loading}
+          />
 
           <View className="mt-4 rounded-2xl border border-white/20 bg-[#D9D9D9] px-4 py-3">
             <Text className="text-black text-base font-semibold text-center">
