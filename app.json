@@ -27,6 +27,7 @@
       }
     },
     "android": {
+      "softwareKeyboardLayoutMode": "resize",
       "package": "com.transfercash.lima",
       "adaptiveIcon": {
         "foregroundImage": "./assets/logo.png",
