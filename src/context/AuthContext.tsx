@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
+import { getProfile } from "../services/auth";
 import type { User } from "../services/auth";
 import {
   getAccessToken,
@@ -32,9 +33,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       getAccessToken(),
       getUser(),
     ]);
-    setAccessTokenState(storedToken ?? null);
-    setUserState(storedUser ?? null);
-    setIsHydrated(true);
+
+    if (!storedToken) {
+      setAccessTokenState(null);
+      setUserState(storedUser ?? null);
+      setIsHydrated(true);
+      return;
+    }
+
+    if (storedUser) {
+      setAccessTokenState(storedToken);
+      setUserState(storedUser);
+      setIsHydrated(true);
+      return;
+    }
+
+    try {
+      const profile = await getProfile();
+      await setUser(profile);
+      setAccessTokenState(storedToken);
+      setUserState(profile);
+    } catch {
+      await Promise.all([removeAccessToken(), removeUser(), removeTempToken()]);
+      setAccessTokenState(null);
+      setUserState(null);
+    } finally {
+      setIsHydrated(true);
+    }
   }, []);
 
   const setSession = useCallback(async (token: string, nextUser: User) => {
@@ -68,3 +93,24 @@ export function useAuth() {
   }
   return context;
 }
+
+/*
+Ejemplos de uso (resumen):
+
+1) Esperar hidratacion y redirigir segun rol:
+
+  const { user, isHydrated } = useAuth();
+  useEffect(() => {
+    if (!isHydrated || !user) return;
+    if (user.role === "ADMIN") router.replace("/(app)/home-admin");
+    if (user.role === "ANFITRIONA") router.replace("/(app)/home-hostess");
+    if (user.role === "USER") router.replace("/(app)/home-client");
+  }, [isHydrated, user]);
+
+2) Leer datos del usuario (id, rol, etc) una vez hidratado:
+
+  const { user, isHydrated } = useAuth();
+  if (isHydrated && user) {
+    console.log(user.id, user.role, user.email);
+  }
+*/
