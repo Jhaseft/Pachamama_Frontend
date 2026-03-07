@@ -1,7 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator, RefreshControl } from 'react-native';
-// Importamos SafeAreaView desde la librería correcta
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatCard } from '../components/StartCard';
 import { PlanItem } from '../components/package/PlanItem';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -79,7 +77,7 @@ export default function AdminDashboard() {
     }
   };
   return (
-    <SafeAreaView className="flex-auto bg-black">
+    <>
       <StatusBar style="light" />
 
       <ScrollView
@@ -163,6 +161,6 @@ export default function AdminDashboard() {
       />
 
 
-    </SafeAreaView>
+    </>
   );
 }

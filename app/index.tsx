@@ -3,6 +3,8 @@ import { View, Text } from "react-native";
 import { Redirect } from "expo-router";
 
 export default function Home() {
+  // const router = useRouter();
+
   return (
     <Redirect href="/(onboarding)/splash" />
   );

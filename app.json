@@ -1,41 +1,41 @@
 {
   "expo": {
-    "name": "TransferCash",
-    "slug": "Lima",
-    "scheme": "transfercash",
+    "name": "Pachamama",
+    "slug": "pachamama",
+    "scheme": "pachamama",
     "version": "4.0",
     "orientation": "portrait",
-    "icon": "./assets/logo.png",
+    "icon": "./assets/Black-and-White-X-Letter-Digital.jpg",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/logo-splash.png",
+      "image": "./assets/Black-and-White-X-Letter-Digital.jpg",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "bundleIdentifier": "com.transfercash.lima",
+      "bundleIdentifier": "com.pachamama.app",
       "supportsTablet": true,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       },
-      "icon": "./assets/logo.png",
+      "icon": "./assets/Black-and-White-X-Letter-Digital.jpg",
       "splash": {
-        "image": "./assets/logo.png",
+        "image": "./assets/Black-and-White-X-Letter-Digital.jpg",
         "resizeMode": "contain",
         "backgroundColor": "#ffffff"
       }
     },
     "android": {
-      "package": "com.transfercash.lima",
+      "package": "com.pachamama.app",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/logo.png",
+        "foregroundImage": "./assets/Black-and-White-X-Letter-Digital.jpg",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true
     },
     "web": {
-      "favicon": "./assets/logo.png"
+      "favicon": "./assets/Black-and-White-X-Letter-Digital.jpg"
     },
     "plugins": [
       "expo-dev-client",

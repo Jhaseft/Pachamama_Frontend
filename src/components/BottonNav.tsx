@@ -1,6 +1,5 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Link, usePathname } from "expo-router";
 
 export default function BottomNav() {
@@ -14,7 +13,7 @@ export default function BottomNav() {
     ];
 
     return (
-        <SafeAreaView edges={["bottom"]} className="bg-black">
+       
             <View className="bg-[#A11213] flex-row justify-around items-center py-3 rounded-t-2xl border-t border-red-700/40">
 
                 {tabs.map((tab) => {
@@ -42,6 +41,6 @@ export default function BottomNav() {
                     );
                 })}
             </View>
-        </SafeAreaView>
+  
     );
 }

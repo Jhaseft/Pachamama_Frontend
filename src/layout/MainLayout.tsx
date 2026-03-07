@@ -1,7 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
 import BottomNav from '../components/BottonNav';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 interface Props {
