@@ -1,28 +1,13 @@
 import React, { useState } from "react";
-import { Pressable, Text, TextInput, View } from "react-native";
+import { Alert, Pressable, Text, TextInput, View } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
 import Screen from "@/components/Screen";
 import PrimaryButton from "@/components/PrimaryButton";
 import { useAuth } from "../../src/context/AuthContext";
 import { createAnfitriona } from "../../src/services/anfitrionas";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-
-type HostessForm = {
-  firstName: string;
-  lastName: string;
-  phone: string;
-  dateOfBirth: string;
-  identityNumber: string;
-  email: string;
-  password: string;
-  username: string;
-};
-
-type IdentityFile = {
-  uri: string;
-  name: string;
-  type: string;
-};
+import { HostessForm, IdentityFile } from "../../src/types/hostess";
+import { validateHostessForm } from "../../src/utils/hostessValidation";
 
 export default function CreateHostessProfile() {
   const { accessToken } = useAuth();
@@ -68,22 +53,15 @@ export default function CreateHostessProfile() {
   };
 
   const handleSubmit = async () => {
-    const firstName = form.firstName.trim();
-    const lastName = form.lastName.trim();
-    const phoneNumber = form.phone.trim();
-    const dateOfBirth = form.dateOfBirth.trim();
-    const cedula = form.identityNumber.trim();
-    const username = form.username.trim();
-    const email = form.email.trim();
+    const validation = validateHostessForm(form);
 
-    if (!firstName || !lastName || !phoneNumber || !dateOfBirth || !cedula || !username) {
-      setError("Completa todos los campos obligatorios.");
-      setSuccess("");
+    if (!validation.ok) {
+      Alert.alert("Formulario incompleto", validation.message);
       return;
     }
 
     if (!accessToken) {
-      setError("No hay sesi\u00f3n admin activa.");
+      setError("No hay sesion admin activa.");
       setSuccess("");
       return;
     }
@@ -91,39 +69,17 @@ export default function CreateHostessProfile() {
     setLoading(true);
     setError("");
     setSuccess("");
-
-    try {
-      await createAnfitriona(
-        {
-          firstName,
-          lastName,
-          phoneNumber,
-          dateOfBirth,
-          cedula,
-          username,
-          email: email || undefined,
-          idDoc: idDocFile ?? undefined,
-        },
-        accessToken,
-      );
-      setSuccess("Anfitriona creada correctamente.");
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "No se pudo crear la anfitriona.";
-      setError(message);
-    } finally {
-      setLoading(false);
-    }
+    
   };
 
   return (
     <Screen>
-        <KeyboardAwareScrollView
-          enableOnAndroid
-          keyboardShouldPersistTaps="handled"
-          extraScrollHeight={24}
-          contentContainerStyle={{ paddingBottom: 24 }}
-        >
+      <KeyboardAwareScrollView
+        enableOnAndroid
+        keyboardShouldPersistTaps="handled"
+        extraScrollHeight={24}
+        contentContainerStyle={{ paddingBottom: 24 }}
+      >
         <View>
           <Text className="text-white font-bold text-2xl mt-4 mb-5">
             Crear perfil anfitriona
@@ -220,7 +176,7 @@ export default function CreateHostessProfile() {
             className="mt-4"
           />
         </View>
-        </KeyboardAwareScrollView>
+      </KeyboardAwareScrollView>
     </Screen>
   );
 }
