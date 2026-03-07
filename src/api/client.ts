@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-  baseURL: 'http://192.168.100.9:4000', // tu backend
+  baseURL: 'https://paginas-pachamama-backend.pk1ooa.easypanel.host', // tu backend
   timeout: 5000,
   headers: {
     'Content-Type': 'application/json',
