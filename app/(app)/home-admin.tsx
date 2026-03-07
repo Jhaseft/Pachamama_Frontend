@@ -40,7 +40,7 @@ export default function HomeAdmin() {
 
   return (
     <Screen pad={false} className="items-center ">
-      <Text className="text-white text-2xl font-semibold">HHome Admin</Text>
+      <Text className="text-white text-2xl font-semibold">Home Admin</Text>
       <Text className="text-white/70 mt-4">
         {user?.firstName ? `Hola, ${user.firstName}` : "Hola"}
       </Text>

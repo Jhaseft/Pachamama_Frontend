@@ -9,7 +9,7 @@ export default function BottomNav() {
         { name: "Home", icon: "home", route: "/admin" },
         { name: "Clientes", icon: "users", route: "/admin/userClient" },
         { name: "Anfitrionas", icon: "user-friends", route: "/admin/anfitriona" },
-        { name: "Crear anfitriona", icon: "user-plus", route: "/nuevo" },
+        { name: "Crear anfitriona", icon: "user-plus", route: "/(app)/create-hostess-profile" },
     ];
 
     return (
