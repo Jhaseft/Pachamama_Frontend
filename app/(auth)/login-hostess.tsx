@@ -48,7 +48,7 @@ export default function LoginHostess() {
       }
 
       await setSession(response.access_token, response.user);
-      router.replace("/(app)/home-hostess");
+      router.replace("/(anfitriona)");
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "No se pudo iniciar sesión.";

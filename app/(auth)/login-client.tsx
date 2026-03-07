@@ -47,7 +47,7 @@ export default function LoginClientEmail() {
       }
 
       await setSession(response.access_token, response.user);
-      router.replace("/(app)/home-client");
+      router.replace("/(cliente)");
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "No se pudo iniciar sesión.";
