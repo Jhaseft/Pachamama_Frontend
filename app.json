@@ -1,15 +1,15 @@
 {
   "expo": {
     "name": "Pachamama",
-    "slug": "pachamama",
+    "slug": "Lima",
     "scheme": "pachamama",
     "version": "4.0",
     "orientation": "portrait",
-    "icon": "./assets/Black-and-White-X-Letter-Digital.jpg",
+    "icon": "./assets/BlackandWhiteXLetterDigital.jpg",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/Black-and-White-X-Letter-Digital.jpg",
+      "image": "./assets/BlackandWhiteXLetterDigital.jpg",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -19,9 +19,9 @@
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       },
-      "icon": "./assets/Black-and-White-X-Letter-Digital.jpg",
+      "icon": "./assets/BlackandWhiteXLetterDigital.jpg",
       "splash": {
-        "image": "./assets/Black-and-White-X-Letter-Digital.jpg",
+        "image": "./assets/BlackandWhiteXLetterDigital.jpg",
         "resizeMode": "contain",
         "backgroundColor": "#ffffff"
       }
@@ -30,13 +30,13 @@
       "softwareKeyboardLayoutMode": "resize",
       "package": "com.pachamama.app",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/Black-and-White-X-Letter-Digital.jpg",
+        "foregroundImage": "./assets/BlackandWhiteXLetterDigital.jpg",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true
     },
     "web": {
-      "favicon": "./assets/Black-and-White-X-Letter-Digital.jpg"
+      "favicon": "./assets/BlackandWhiteXLetterDigital.jpg"
     },
     "plugins": [
       "expo-dev-client",
@@ -49,6 +49,7 @@
       "eas": {
         "projectId": "c896182e-bb15-4c0e-96ca-1037184c0576"
       }
-    }
+    },
+    "owner": "jhaseft"
   }
 }

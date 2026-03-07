@@ -17,7 +17,7 @@ export default function HeaderTitle({ title, role }: Props) {
         <>
           <View>
             <Image
-              source={require("../../assets/Black-and-White-X-Letter-Digital.jpg")}
+              source={require("../../assets/BlackandWhiteXLetterDigital.jpg")}
               className="w-[100px] h-[100px]"
               resizeMode="contain"
             />
@@ -40,7 +40,7 @@ export default function HeaderTitle({ title, role }: Props) {
 
           <View>
             <Image
-              source={require("../../assets/Black-and-White-X-Letter-Digital.jpg")}
+              source={require("../../assets/BlackandWhiteXLetterDigital.jpg")}
               className="w-[100px] h-[100px]"
               resizeMode="contain"
             />

@@ -3,7 +3,7 @@ import { Image } from "react-native";
 import { router } from "expo-router";
 import Screen from "../../components/Screen";
 
-const logoSplash = require("../../assets/logo-splash.png");
+const logoSplash = require("../../assets/logosplash.png");
 
 export default function Splash() {
   useEffect(() => {

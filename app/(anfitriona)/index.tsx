@@ -34,7 +34,7 @@ export default function AnfitrianaInicio() {
 
   const USUARIO = {
     nombre: user?.firstName,
-    avatar: require("../../assets/Black-and-White-X-Letter-Digital.jpg"),
+    avatar: require("../../assets/BlackandWhiteXLetterDigital.jpg"),
   };
 
   const GANANCIAS = {
