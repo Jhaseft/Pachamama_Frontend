@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Text,
   Pressable,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  View,
+  Modal,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -12,27 +14,46 @@ import Screen from "../../components/Screen";
 import TextField from "../../components/TextField";
 import PrimaryButton from "../../components/PrimaryButton";
 import { sendOtp } from "../../src/services/auth";
-import { API_URL } from "../../src/config";
+import { COUNTRIES_LATAM, type CountryLatam } from "../../src/constants/countriesLatam";
 
 export default function LoginClient() {
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [countryOpen, setCountryOpen] = useState(false);
+
+  const defaultCountry = useMemo(
+    () => COUNTRIES_LATAM.find((item) => item.code === "PE") ?? COUNTRIES_LATAM[0],
+    [],
+  );
+  const [country, setCountry] = useState<CountryLatam>(defaultCountry);
+
+  const handlePhoneChange = (value: string) => {
+    const onlyNumbers = value.replace(/\D/g, "");
+    setPhone(onlyNumbers);
+  };
 
   const handleSend = async () => {
-    const value = phone.trim().replace(/\D/g, "");
-    if (!value) {
+    const localNumber = phone.trim().replace(/\D/g, "");
+    if (!localNumber) {
       setError("Ingresa tu número de celular.");
       return;
     }
 
+    const fullNumber = `${country.dialCode}${localNumber}`;
+
     try {
       setLoading(true);
       setError("");
-      await sendOtp(value);
+      await sendOtp(fullNumber);
       router.push({
         pathname: "/(auth)/otp",
-        params: { role: "client", phone: value },
+        params: {
+          role: "client",
+          phone: fullNumber,
+          dialCode: country.dialCode,
+          localPhone: localNumber,
+        },
       });
     } catch (err) {
       const message =
@@ -67,13 +88,58 @@ export default function LoginClient() {
             Completa tu registro para crear tu cuenta.
           </Text>
 
+          <View className="mb-4">
+            <Text className="text-white text-xl font-bold mb-2">Pais</Text>
+            <Pressable
+              onPress={() => setCountryOpen(true)}
+              className="flex-row items-center justify-between bg-neutral-900 border border-white rounded-xl px-4 py-3"
+            >
+              <Text className="text-white">{country.name}</Text>
+              <Text className="text-white/70">+{country.dialCode}</Text>
+            </Pressable>
+          </View>
+
+          <Modal
+            visible={countryOpen}
+            transparent
+            animationType="slide"
+            onRequestClose={() => setCountryOpen(false)}
+          >
+            <View className="flex-1 bg-black/60">
+              <Pressable
+                className="flex-1"
+                onPress={() => setCountryOpen(false)}
+              />
+              <View className="bg-neutral-900 border border-white/10 rounded-t-2xl p-4 max-h-[70%]">
+                <Text className="text-white text-lg font-bold mb-3">
+                  Selecciona un pais
+                </Text>
+                <ScrollView>
+                  {COUNTRIES_LATAM.map((item) => (
+                    <Pressable
+                      key={item.code}
+                      onPress={() => {
+                        setCountry(item);
+                        setCountryOpen(false);
+                      }}
+                      className="flex-row items-center justify-between py-3 border-b border-white/10"
+                    >
+                      <Text className="text-white">{item.name}</Text>
+                      <Text className="text-white/70">+{item.dialCode}</Text>
+                    </Pressable>
+                  ))}
+                </ScrollView>
+              </View>
+            </View>
+          </Modal>
+
           <TextField
             label="Número de celular"
             placeholder="999 999 999"
             keyboardType="phone-pad"
             value={phone}
-            onChangeText={setPhone}
-            prefix="PE +51"
+            onChangeText={handlePhoneChange}
+            prefix={`+${country.dialCode}`}
             textContentType="telephoneNumber"
             maxLength={15}
           />
