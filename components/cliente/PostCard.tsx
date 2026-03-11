@@ -3,20 +3,20 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { Bookmark, Diamond, Flame, Heart } from "lucide-react-native";
 import { useState } from "react";
-import { Dimensions, Image, Text, TouchableOpacity, View } from "react-native";
-
-const { width: W, height: H } = Dimensions.get("window");
-const FEED_HEIGHT = H - 193;
+import { Image, Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
 
 type Props = {
   anfitriona: Anfitriona;
+  height?: number;
 };
 
-export default function PostCard({ anfitriona }: Props) {
+export default function PostCard({ anfitriona, height }: Props) {
   const router = useRouter();
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(anfitriona.isFavorite ?? false);
   const [likes, setLikes] = useState(anfitriona.likesCount ?? 0);
+  const { width: W, height: H } = useWindowDimensions();
+  const cardHeight = height && height > 0 ? height : H;
 
   const handleLike = () => {
     setLiked((prev) => {
@@ -33,7 +33,7 @@ export default function PostCard({ anfitriona }: Props) {
   const featuredImage = anfitriona.images[0];
 
   return (
-    <View style={{ width: W, height: FEED_HEIGHT }}>
+    <View style={{ width: W, height: cardHeight }}>
       <TouchableOpacity
         activeOpacity={0.95}
         onPress={handleProfilePress}

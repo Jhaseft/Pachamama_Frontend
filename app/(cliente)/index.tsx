@@ -18,6 +18,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Animated,
+  LayoutChangeEvent,
   Text,
   TouchableOpacity,
   View,
@@ -29,6 +30,14 @@ export default function ClienteInicio() {
   const [error, setError] = useState<string | null>(null);
   const [selectedStory, setSelectedStory] = useState<Story | null>(null);
   const scrollY = useRef(new Animated.Value(0)).current;
+  const [feedHeight, setFeedHeight] = useState(0);
+
+  const handleFeedLayout = (event: LayoutChangeEvent) => {
+    const nextHeight = Math.round(event.nativeEvent.layout.height);
+    if (nextHeight !== feedHeight) {
+      setFeedHeight(nextHeight);
+    }
+  };
 
   const loadAnfitrionas = async () => {
     setLoading(true);
@@ -88,7 +97,7 @@ export default function ClienteInicio() {
 
       {/* Feed */}
       {!loading && !error && anfitrionas.length > 0 && (
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1 }} onLayout={handleFeedLayout}>
           <StoriesBar
             stories={MOCK_STORIES}
             scrollY={scrollY}
@@ -106,7 +115,10 @@ export default function ClienteInicio() {
               { useNativeDriver: true },
             )}
             scrollEventThrottle={16}
-            renderItem={({ item }) => <PostCard anfitriona={item} />}
+            style={{ flex: 1 }}
+            renderItem={({ item }) => (
+              <PostCard anfitriona={item} height={feedHeight} />
+            )}
           />
         </View>
       )}
