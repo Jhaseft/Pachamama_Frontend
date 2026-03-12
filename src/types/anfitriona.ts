@@ -44,6 +44,7 @@ export type AnfitrioneApiDetail = {
   age: number | null;
   bio: string | null;
   avatar: string | null;
+  coverImage: string | null;
   images: string[];
   rateCredits: number | null;
   isOnline: boolean;

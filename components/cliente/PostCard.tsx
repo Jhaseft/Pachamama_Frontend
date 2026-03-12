@@ -26,8 +26,7 @@ export default function PostCard({ anfitriona, height }: Props) {
   };
 
   const handleProfilePress = () => {
-    // TODO (HU2): navigate to anfitriona profile
-    // router.push(`/(cliente)/anfitriona/${anfitriona.id}`);
+    router.push(`/(cliente)/anfitrionas/${anfitriona.id}` as any);
   };
 
   const featuredImage = anfitriona.images[0];
