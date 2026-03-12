@@ -1,24 +1,22 @@
+import { Anfitriona } from "@/src/types/anfitriona";
 import { LinearGradient } from "expo-linear-gradient";
-import { Bookmark, Diamond, Heart, Plus } from "lucide-react-native";
+import { useRouter } from "expo-router";
+import { Bookmark, Diamond, Flame, Heart } from "lucide-react-native";
 import { useState } from "react";
-import { Dimensions, Image, Text, TouchableOpacity, View } from "react-native";
+import { Image, Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
 
-const { width: W, height: H } = Dimensions.get("window");
-const FEED_HEIGHT = H - 193;
-
-export type Post = {
-  id: string;
-  image: string;
-  user: { id: string; name: string; avatar: string };
-  bio: string;
-  likes: number;
-  credits: number;
+type Props = {
+  anfitriona: Anfitriona;
+  height?: number;
 };
 
-export default function PostCard({ post }: { post: Post }) {
+export default function PostCard({ anfitriona, height }: Props) {
+  const router = useRouter();
   const [liked, setLiked] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [likes, setLikes] = useState(post.likes);
+  const [saved, setSaved] = useState(anfitriona.isFavorite ?? false);
+  const [likes, setLikes] = useState(anfitriona.likesCount ?? 0);
+  const { width: W, height: H } = useWindowDimensions();
+  const cardHeight = height && height > 0 ? height : H;
 
   const handleLike = () => {
     setLiked((prev) => {
@@ -27,38 +25,63 @@ export default function PostCard({ post }: { post: Post }) {
     });
   };
 
+  const handleProfilePress = () => {
+    router.push(`/(cliente)/anfitrionas/${anfitriona.id}` as any);
+  };
+
+  const featuredImage = anfitriona.images[0];
+
   return (
-    <View style={{ width: W, height: FEED_HEIGHT }}>
-      <Image
-        source={{ uri: post.image }}
-        style={{ position: "absolute", width: "100%", height: "100%" }}
-        resizeMode="cover"
-      />
+    <View style={{ width: W, height: cardHeight }}>
+      <TouchableOpacity
+        activeOpacity={0.95}
+        onPress={handleProfilePress}
+        style={{ flex: 1 }}
+      >
+        <Image
+          source={{ uri: featuredImage }}
+          style={{ position: "absolute", width: "100%", height: "100%" }}
+          resizeMode="cover"
+        />
+      </TouchableOpacity>
 
       <LinearGradient
         colors={["transparent", "rgba(0,0,0,0.85)"]}
         style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 220 }}
+        pointerEvents="none"
       />
 
       {/* Side actions */}
       <View style={{ position: "absolute", right: 10, bottom: 80, alignItems: "center" }}>
-        <TouchableOpacity style={{ alignItems: "center", marginBottom: 22 }}>
-          <View style={{
-            width: 50, height: 50, borderRadius: 25,
-            borderWidth: 2, borderColor: "white", overflow: "hidden",
-          }}>
-            <Image source={{ uri: post.user.avatar }} style={{ width: "100%", height: "100%" }} />
+
+        {/* Avatar + online indicator */}
+        <TouchableOpacity onPress={handleProfilePress} style={{ alignItems: "center", marginBottom: 22 }}>
+          <View style={{ position: "relative" }}>
+            <View style={{
+              width: 50, height: 50, borderRadius: 25,
+              borderWidth: 2, borderColor: "white", overflow: "hidden",
+            }}>
+              <Image source={{ uri: anfitriona.avatar }} style={{ width: "100%", height: "100%" }} />
+            </View>
+
+            {anfitriona.isOnline && (
+              <View style={{
+                position: "absolute", bottom: 0, right: 0,
+                width: 14, height: 14, borderRadius: 7,
+                backgroundColor: "#ef4444",
+                borderWidth: 2, borderColor: "#111",
+              }} />
+            )}
           </View>
-          <View style={{
-            position: "absolute", bottom: -8,
-            width: 18, height: 18, borderRadius: 9,
-            backgroundColor: "#ec4899",
-            alignItems: "center", justifyContent: "center",
-          }}>
-            <Plus size={12} color="white" strokeWidth={3} />
-          </View>
+
+          {anfitriona.isOnline && (
+            <Text style={{ color: "#ef4444", fontSize: 10, marginTop: 3, fontWeight: "600" }}>
+              En línea
+            </Text>
+          )}
         </TouchableOpacity>
 
+        {/* Likes */}
         <TouchableOpacity onPress={handleLike} style={{ alignItems: "center", marginBottom: 22 }}>
           <Heart
             size={34}
@@ -68,34 +91,41 @@ export default function PostCard({ post }: { post: Post }) {
           <Text style={{ color: "white", fontSize: 12, marginTop: 3 }}>{likes}</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => setSaved((p) => !p)} style={{ alignItems: "center", marginBottom: 22 }}>
+        {/* Popular */}
+        {anfitriona.isPopular && (
+          <View style={{ alignItems: "center", marginBottom: 22 }}>
+            <Flame size={32} color="#f97316" fill="#f97316" />
+            <Text style={{ color: "white", fontSize: 12, marginTop: 3 }}>Popular</Text>
+          </View>
+        )}
+
+        {/* Favoritos */}
+        <TouchableOpacity onPress={() => setSaved((p) => !p)} style={{ alignItems: "center" }}>
           <Bookmark
             size={32}
             color={saved ? "#facc15" : "white"}
             fill={saved ? "#facc15" : "transparent"}
           />
-          <Text style={{ color: "white", fontSize: 12, marginTop: 3 }}>Guardar</Text>
+          <Text style={{ color: "white", fontSize: 12, marginTop: 3 }}>Favoritos</Text>
         </TouchableOpacity>
-
-        <View style={{ alignItems: "center" }}>
-          <Diamond size={30} color="#38bdf8" fill="#38bdf8" />
-          <Text style={{ color: "white", fontSize: 12, marginTop: 3 }}>{post.credits}</Text>
-        </View>
       </View>
 
       {/* Bottom info */}
       <View style={{ position: "absolute", bottom: 20, left: 12, right: 80 }}>
-        <Text style={{ color: "white", fontWeight: "bold", fontSize: 16 }}>
-          {post.user.name}
+        <Text style={{ color: "white", fontWeight: "bold", fontSize: 18 }}>
+          {anfitriona.name}
         </Text>
         <Text style={{ color: "#e5e7eb", fontSize: 13, marginTop: 4 }}>
-          {post.bio}
+          {anfitriona.shortDescription}
         </Text>
         <View style={{ flexDirection: "row", alignItems: "center", marginTop: 8, gap: 12 }}>
           <Text style={{ color: "#9ca3af", fontSize: 12 }}>Desde</Text>
+          <Text style={{ color: "white", fontSize: 13 }}>
+            {anfitriona.solPrice != null ? `${anfitriona.solPrice} sol / ` : ""}{anfitriona.credits} cred
+          </Text>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
             <Diamond size={12} color="#38bdf8" fill="#38bdf8" />
-            <Text style={{ color: "white", fontSize: 13 }}>{post.credits}</Text>
+            <Text style={{ color: "white", fontSize: 13 }}>{anfitriona.credits}</Text>
           </View>
         </View>
       </View>

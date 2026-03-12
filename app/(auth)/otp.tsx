@@ -18,12 +18,18 @@ import { useAuth } from "../../src/context/AuthContext";
 import { removeTempToken, setTempToken } from "../../src/storage/authStorage";
 
 export default function Otp() {
-  const { role, phone } = useLocalSearchParams<{
+  const { role, phone, dialCode, localPhone } = useLocalSearchParams<{
     role?: string;
     phone?: string;
+    dialCode?: string;
+    localPhone?: string;
   }>();
   const roleValue = Array.isArray(role) ? role[0] : role || "client";
   const phoneValue = Array.isArray(phone) ? phone[0] : phone || "999999999";
+  const dialValue = Array.isArray(dialCode) ? dialCode[0] : dialCode || "";
+  const localValue = Array.isArray(localPhone) ? localPhone[0] : localPhone || "";
+  const hasLocal = Boolean(localValue) && Boolean(dialValue);
+  const displayPhone = hasLocal ? `+${dialValue} ${localValue}` : `+${phoneValue}`;
 
   const { setSession } = useAuth();
 
@@ -122,7 +128,7 @@ export default function Otp() {
 
           <Text className="text-white text-3xl font-bold">Codigo OTP</Text>
           <Text className="text-white/70 text-lg mt-8 mb-10">
-            Enviado al +51 {phoneValue}
+            Enviado al {displayPhone}
           </Text>
 
           <Pressable

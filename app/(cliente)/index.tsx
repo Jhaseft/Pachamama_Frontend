@@ -1,56 +1,127 @@
 import ScreenHeader from "@/components/Menu/ScreenHeader";
-import PostCard, { Post } from "@/components/cliente/PostCard";
+import PostCard from "@/components/cliente/PostCard";
 import StoriesBar from "@/components/cliente/StoriesBar";
 import StoryModal from "@/components/cliente/StoryModal";
 import { Story } from "@/components/cliente/StoryItem";
-import { useRef, useState } from "react";
-import { Animated, View } from "react-native";
+import { MOCK_ANFITRIONAS } from "@/src/mocks/anfitrionas";
+import { getPublicHostesses } from "@/src/services/hostesses";
+import type { Anfitriona } from "@/src/types/anfitriona";
 
-// ─── Mock Data ────────────────────────────────────────────────────────────────
-
-const STORIES: Story[] = [
-  { id: "1", name: "Maria",     avatar: "https://picsum.photos/seed/mstock1/200/200" },
-  { id: "2", name: "Sofia",     avatar: "https://picsum.photos/seed/mstock2/200/200" },
-  { id: "3", name: "Valentina", avatar: "https://picsum.photos/seed/mstock3/200/200" },
-  { id: "4", name: "Isabella",  avatar: "https://picsum.photos/seed/mstock4/200/200" },
-  { id: "5", name: "Camila",    avatar: "https://picsum.photos/seed/mstock5/200/200" },
-  { id: "6", name: "Lucia",     avatar: "https://picsum.photos/seed/mstock6/200/200" },
-];
-
-const POSTS: Post[] = [
-  { id: "1", image: "https://picsum.photos/seed/pstock1/500/900", user: { id: "1", name: "Maria",     avatar: "https://picsum.photos/seed/mstock1/200/200" }, bio: "Conversaciones alegres",  likes: 124, credits: 10 },
-  { id: "2", image: "https://picsum.photos/seed/pstock2/500/900", user: { id: "2", name: "Sofia",     avatar: "https://picsum.photos/seed/mstock2/200/200" }, bio: "Disponible ahora mismo", likes: 89,  credits: 15 },
-  { id: "3", image: "https://picsum.photos/seed/pstock3/500/900", user: { id: "3", name: "Valentina", avatar: "https://picsum.photos/seed/mstock3/200/200" }, bio: "Buenas noches",           likes: 213, credits: 12 },
-  { id: "4", image: "https://picsum.photos/seed/pstock4/500/900", user: { id: "4", name: "Isabella",  avatar: "https://picsum.photos/seed/mstock4/200/200" }, bio: "Nueva foto",              likes: 67,  credits: 8  },
-];
-
-
+// Stories remain on mock data (outside HU1 scope)
+const MOCK_STORIES = MOCK_ANFITRIONAS.map((a) => ({
+  id: a.id,
+  name: a.name,
+  avatar: a.avatar,
+  isOnline: a.isOnline,
+}));
+import { useEffect, useRef, useState } from "react";
+import {
+  ActivityIndicator,
+  Animated,
+  LayoutChangeEvent,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export default function ClienteInicio() {
+  const [anfitrionas, setAnfitrionas] = useState<Anfitriona[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedStory, setSelectedStory] = useState<Story | null>(null);
   const scrollY = useRef(new Animated.Value(0)).current;
+  const [feedHeight, setFeedHeight] = useState(0);
+
+  const handleFeedLayout = (event: LayoutChangeEvent) => {
+    const nextHeight = Math.round(event.nativeEvent.layout.height);
+    if (nextHeight !== feedHeight) {
+      setFeedHeight(nextHeight);
+    }
+  };
+
+  const loadAnfitrionas = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await getPublicHostesses();
+      setAnfitrionas(data);
+    } catch {
+      setError("No se pudieron cargar las anfitrionas. Verifica tu conexión.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void loadAnfitrionas();
+  }, []);
+
 
   return (
     <View className="flex-1 bg-black">
       <ScreenHeader title="ANFITRIONAS" role="cliente" />
 
-      <View style={{ flex: 1 }}>
-        <StoriesBar stories={STORIES} scrollY={scrollY} onStoryPress={setSelectedStory} />
+      {/* Loading */}
+      {loading && (
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color="#ec4899" />
+        </View>
+      )}
 
-        <Animated.FlatList
-          data={POSTS}
-          keyExtractor={(item) => item.id}
-          pagingEnabled
-          decelerationRate="fast"
-          showsVerticalScrollIndicator={false}
-          onScroll={Animated.event(
-            [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-            { useNativeDriver: true }
-          )}
-          scrollEventThrottle={16}
-          renderItem={({ item }) => <PostCard post={item} />}
-        />
-      </View>
+      {/* Error */}
+      {!loading && error && (
+        <View className="flex-1 items-center justify-center px-6">
+          <Text className="text-white text-center text-base mb-4">{error}</Text>
+          <TouchableOpacity
+            onPress={loadAnfitrionas}
+            style={{
+              backgroundColor: "#ec4899",
+              paddingHorizontal: 24,
+              paddingVertical: 12,
+              borderRadius: 999,
+            }}
+          >
+            <Text style={{ color: "white", fontWeight: "600" }}>Reintentar</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Empty */}
+      {!loading && !error && anfitrionas.length === 0 && (
+        <View className="flex-1 items-center justify-center">
+          <Text style={{ color: "#6b7280", fontSize: 16 }}>
+            No hay anfitrionas disponibles por el momento.
+          </Text>
+        </View>
+      )}
+
+      {/* Feed */}
+      {!loading && !error && anfitrionas.length > 0 && (
+        <View style={{ flex: 1 }} onLayout={handleFeedLayout}>
+          <StoriesBar
+            stories={MOCK_STORIES}
+            scrollY={scrollY}
+            onStoryPress={setSelectedStory}
+          />
+
+          <Animated.FlatList
+            data={anfitrionas}
+            keyExtractor={(item) => item.id}
+            pagingEnabled
+            decelerationRate="fast"
+            showsVerticalScrollIndicator={false}
+            onScroll={Animated.event(
+              [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+              { useNativeDriver: true },
+            )}
+            scrollEventThrottle={16}
+            style={{ flex: 1 }}
+            renderItem={({ item }) => (
+              <PostCard anfitriona={item} height={feedHeight} />
+            )}
+          />
+        </View>
+      )}
 
       <StoryModal story={selectedStory} onClose={() => setSelectedStory(null)} />
     </View>
