@@ -1,23 +1,42 @@
-import HeaderTitle from "@/components/Menu/HeaderTitle";
 import { Stack } from "expo-router";
+import HeaderTitle from "@/components/Menu/HeaderTitle";
 
-type Role = "anfitriona" | "cliente"
+type Role = "anfitriona" | "cliente";
 
 type Props = {
   title: string;
-  role:Role;
+  role: Role;
+
+  showBackButton?: boolean;
+
+  backgroundColor?: string;
 };
 
-export default function ScreenHeader({ title,role }: Props) {
+export default function ScreenHeader({
+  title,
+  role,
+  showBackButton = false,
+  backgroundColor = "black",
+}: Props) {
   return (
     <Stack.Screen
       options={{
-        headerTitle: () => <HeaderTitle title={title} role={role} />,
-        headerBackVisible: false,
+        headerShown: true,
+        headerBackVisible: showBackButton,
         headerTitleAlign: "left",
+
+        headerTitle: () => (
+          <HeaderTitle
+            title={title}
+            role={role}
+          />
+        ),
+
         headerStyle: {
-          backgroundColor: "black",
+          backgroundColor,
         },
+
+        headerShadowVisible: false,
       }}
     />
   );

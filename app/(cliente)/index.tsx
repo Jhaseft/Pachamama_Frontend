@@ -6,6 +6,9 @@ import { Story } from "@/components/cliente/StoryItem";
 import { MOCK_ANFITRIONAS } from "@/src/mocks/anfitrionas";
 import { getPublicHostesses } from "@/src/services/hostesses";
 import type { Anfitriona } from "@/src/types/anfitriona";
+import { StoriesBarFeed } from "@/src/components/user/StoriesBarFeed";
+import { useRouter } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 // Stories remain on mock data (outside HU1 scope)
 const MOCK_STORIES = MOCK_ANFITRIONAS.map((a) => ({
@@ -23,6 +26,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { apiGetStoriesFeed } from "@/src/api/anfitrionaHistory";
+import { HistoryFeedItem } from "@/src/types/historyViewClient";
 
 export default function ClienteInicio() {
   const [anfitrionas, setAnfitrionas] = useState<Anfitriona[]>([]);
@@ -31,6 +36,25 @@ export default function ClienteInicio() {
   const [selectedStory, setSelectedStory] = useState<Story | null>(null);
   const scrollY = useRef(new Animated.Value(0)).current;
   const [feedHeight, setFeedHeight] = useState(0);
+
+  const router = useRouter();
+  const [feed, setFeed] = useState<HistoryFeedItem[]>([]);
+
+  // cargar historias
+  const loadFeed = async () => {
+    try {
+      const data = await apiGetStoriesFeed();
+      setFeed(data ?? []);
+    } catch (error) {
+      console.error("Error cargando historias:", error);
+      setFeed([]);
+    }
+  };
+
+
+  useEffect(() => {
+    loadFeed();
+  }, []);
 
   const handleFeedLayout = (event: LayoutChangeEvent) => {
     const nextHeight = Math.round(event.nativeEvent.layout.height);
@@ -58,8 +82,38 @@ export default function ClienteInicio() {
 
 
   return (
-    <View className="flex-1 bg-black">
+    <SafeAreaView className="flex-1 -mt-8 bg-black">
       <ScreenHeader title="ANFITRIONAS" role="cliente" />
+
+      <StoriesBarFeed
+        stories={feed}
+        onSelect={(item) => {
+          console.log("ITEM CLICK:", item);
+          if (!item.stories || item.stories.length === 0) {
+            console.warn(`La anfitriona ${item.name} no tiene historias activas.`);
+            return;
+          }
+
+          const formattedStories = item.stories.map((s) => ({
+            id: s.id,
+            uri: s.mediaUrl,
+            type: s.mediaType === "VIDEO" ? "video" : "image",
+            duration: 5,
+          }));
+
+          router.push({
+            pathname: "/story-viewer",
+            params: {
+              data: JSON.stringify({
+                id: item.userId,
+                name: item.name,
+                avatar: item.avatar,
+                stories: formattedStories,
+              }),
+            },
+          });
+        }}
+      />
 
       {/* Loading */}
       {loading && (
@@ -124,6 +178,6 @@ export default function ClienteInicio() {
       )}
 
       <StoryModal story={selectedStory} onClose={() => setSelectedStory(null)} />
-    </View>
+    </SafeAreaView>
   );
 }

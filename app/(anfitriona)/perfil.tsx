@@ -1,14 +1,15 @@
 import ScreenHeader from "@/components/Menu/ScreenHeader";
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, Text } from "react-native";
+import AnfitrionaDashboard from "@/src/screens/user/anfitriona/AnfitrionaDashboard";
 
 export default function AnfitrianaPerfil() {
   return (
-    <View className="flex-1 items-center justify-center bg-white px-6">
-      <ScreenHeader title="Perfil" role="anfitriona"/>
-      <Text className="text-2xl font-bold text-gray-800">Perfil</Text>
-      <Text className="text-base text-gray-500 mt-2">
-        Tu información personal
-      </Text>
-    </View>
+      <View className="flex-1">
+        <AnfitrionaDashboard />
+      </View>
   );
 }
+
+//nota SafeAreaView agrega panding automaticamente en la parte inferior y superior
+

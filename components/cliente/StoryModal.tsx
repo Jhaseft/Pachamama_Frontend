@@ -23,7 +23,7 @@ export default function StoryModal({ story, onClose }: Props) {
       >
         {story && (
           <View style={{ alignItems: "center" }}>
-           
+
             <View style={{ flexDirection: "row", gap: 4, marginBottom: 12, width: W * 0.88 }}>
               {[0, 1, 2].map((i) => (
                 <View
@@ -42,7 +42,7 @@ export default function StoryModal({ story, onClose }: Props) {
               resizeMode="cover"
             />
 
-          
+
             <View style={{ flexDirection: "row", alignItems: "center", marginTop: 14, gap: 10 }}>
               <Image
                 source={{ uri: story.avatar }}

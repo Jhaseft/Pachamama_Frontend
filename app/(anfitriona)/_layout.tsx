@@ -5,7 +5,7 @@ import BottomNav from "@/components/Menu/BottomNav";
 export default function AnfitrianaLayout() {
   return (
     <View style={{ flex: 1 }}>
-      <Stack />
+      <Stack screenOptions={{ headerShown: false }}/>
       <BottomNav role="anfitriona" />
     </View>
   );

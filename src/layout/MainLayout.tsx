@@ -15,7 +15,7 @@ export default function MainLayout({ children }: Props) {
                 {children}
             </View>
 
-                <BottomNav />
+            <BottomNav />
         </View>
     );
 };

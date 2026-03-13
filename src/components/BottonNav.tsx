@@ -13,34 +13,34 @@ export default function BottomNav() {
     ];
 
     return (
-       
-            <View className="bg-[#A11213] flex-row justify-around items-center py-3 rounded-t-2xl border-t border-red-700/40">
 
-                {tabs.map((tab) => {
-                    const isActive = pathname === tab.route;
+        <View className="bg-[#A11213] flex-row justify-around items-center py-3 rounded-t-2xl border-t border-red-700/40">
 
-                    return (
-                        <Link key={tab.route} href={tab.route} asChild>
-                            <TouchableOpacity className="items-center flex-1">
+            {tabs.map((tab) => {
+                const isActive = pathname === tab.route;
 
-                                <FontAwesome5
-                                    name={tab.icon as any}
-                                    size={24}
-                                    color={isActive ? "#ffffff" : "#fca5a5"}
-                                />
+                return (
+                    <Link key={tab.route} href={tab.route} asChild>
+                        <TouchableOpacity className="items-center flex-1">
 
-                                <Text
-                                    className={`text-[11px] mt-1 font-bold ${isActive ? "text-white" : "text-red-200"
-                                        }`}
-                                >
-                                    {tab.name}
-                                </Text>
+                            <FontAwesome5
+                                name={tab.icon as any}
+                                size={24}
+                                color={isActive ? "#ffffff" : "#fca5a5"}
+                            />
 
-                            </TouchableOpacity>
-                        </Link>
-                    );
-                })}
-            </View>
-  
+                            <Text
+                                className={`text-[11px] mt-1 font-bold ${isActive ? "text-white" : "text-red-200"
+                                    }`}
+                            >
+                                {tab.name}
+                            </Text>
+
+                        </TouchableOpacity>
+                    </Link>
+                );
+            })}
+        </View>
+
     );
 }

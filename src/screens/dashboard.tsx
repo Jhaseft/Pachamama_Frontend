@@ -8,6 +8,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Link } from "expo-router";
 import ConfirmDialog from '../components/ConfirmDialog';
 
+
 import { apiGetAllPackages, apiDeletePackage } from '../api/package';
 import { PackageData } from '../types/package';
 import { useRouter, useFocusEffect } from 'expo-router';
@@ -93,7 +94,7 @@ export default function AdminDashboard() {
             Bienvenido Administrador
           </Text>
         </View>
-
+        
         <View className="bg-[#A11213] border border-gray-50/50 p-2 rounded-[30px] mb-4 items-center shadow-xl">
           <Text className="text-white text-lg font-bold mb-1 italic">Ganancias acumuladas</Text>
           <Text className="text-green-500 text-4xl font-black">{`${stats.ganancias} $`}</Text>
