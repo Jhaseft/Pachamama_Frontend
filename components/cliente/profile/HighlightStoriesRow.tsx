@@ -15,7 +15,7 @@ function HighlightItem({ item }: { item: HighlightStory }) {
           borderRadius: 35,
           backgroundColor: "#1f1f2e",
           borderWidth: 2,
-          borderColor: item.locked ? "#4b5563" : "#ec4899",
+          borderColor: item.locked ? "#4b5563" : "#E30708",
           alignItems: "center",
           justifyContent: "center",
           position: "relative",

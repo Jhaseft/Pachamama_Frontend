@@ -5,6 +5,7 @@ export const MOCK_ANFITRIONAS: Anfitriona[] = [
   {
     id: "1",
     name: "Maria",
+    username: "maria_lopez",
     age: 24,
     shortDescription: "Conversaciones alegres 🌸✨",
     solPrice: 10,
@@ -19,6 +20,7 @@ export const MOCK_ANFITRIONAS: Anfitriona[] = [
   {
     id: "2",
     name: "Sofia",
+    username: "sofia_star",
     age: 22,
     shortDescription: "Disponible ahora mismo 💃",
     solPrice: 15,
@@ -33,6 +35,7 @@ export const MOCK_ANFITRIONAS: Anfitriona[] = [
   {
     id: "3",
     name: "Valentina",
+    username: "vale_night",
     age: 26,
     shortDescription: "Buenas noches 🌙",
     solPrice: 12,
@@ -47,6 +50,7 @@ export const MOCK_ANFITRIONAS: Anfitriona[] = [
   {
     id: "4",
     name: "Isabella",
+    username: "isa_bella",
     age: 23,
     shortDescription: "Nueva foto 📸",
     solPrice: 8,
@@ -61,6 +65,7 @@ export const MOCK_ANFITRIONAS: Anfitriona[] = [
   {
     id: "5",
     name: "Camila",
+    username: "camila_rose",
     age: 25,
     shortDescription: "Aquí para ti 🌹",
     solPrice: 11,
@@ -75,6 +80,7 @@ export const MOCK_ANFITRIONAS: Anfitriona[] = [
   {
     id: "6",
     name: "Lucia",
+    username: "lucia_smile",
     age: 21,
     shortDescription: "Siempre sonriendo 😊",
     solPrice: 9,

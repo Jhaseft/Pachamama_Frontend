@@ -3,6 +3,7 @@
 export type Anfitriona = {
   id: string;
   name: string;
+  username: string;
   age?: number;
   shortDescription: string;
   /** Price in app credits per conversation */
@@ -24,6 +25,7 @@ export type Anfitriona = {
 export type AnfitrioneApiListItem = {
   id: string;
   name: string;
+  username: string;
   avatar: string | null;
   shortDescription: string | null;
   rateCredits: number | null;

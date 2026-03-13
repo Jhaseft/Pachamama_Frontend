@@ -1,7 +1,9 @@
-import { Image, Text, View, useWindowDimensions } from "react-native";
+import { Image, Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
+import { useState } from "react";
+import ImageViewerModal from "./ImageViewerModal";
 
 type Props = {
-  name: string;
+  username: string;
   avatar: string;
   coverImage: string;
   isOnline: boolean;
@@ -11,19 +13,26 @@ const COVER_HEIGHT = 260;
 const AVATAR_SIZE = 90;
 const AVATAR_LEFT = 20;
 
-export default function ProfileHeader({ name, avatar, coverImage, isOnline }: Props) {
+export default function ProfileHeader({ username, avatar, coverImage, isOnline }: Props) {
   const { width } = useWindowDimensions();
+  const [viewerVisible, setViewerVisible] = useState(false);
 
   return (
     <View style={{ paddingBottom: AVATAR_SIZE / 2 + 12 }}>
-      {/* Cover image */}
-      <View style={{ width, height: COVER_HEIGHT, backgroundColor: "#1a1a1a" }}>
-        <Image
-          source={{ uri: coverImage }}
-          style={{ width: "100%", height: "100%" }}
-          resizeMode="cover"
-        />
-      </View>
+      {/* Cover image — tappable */}
+      <TouchableOpacity
+        activeOpacity={0.9}
+        onPress={() => coverImage ? setViewerVisible(true) : undefined}
+        disabled={!coverImage}
+      >
+        <View style={{ width, height: COVER_HEIGHT, backgroundColor: "#1a1a1a" }}>
+          <Image
+            source={{ uri: coverImage }}
+            style={{ width: "100%", height: "100%" }}
+            resizeMode="cover"
+          />
+        </View>
+      </TouchableOpacity>
 
       {/* Avatar */}
       <View
@@ -38,7 +47,7 @@ export default function ProfileHeader({ name, avatar, coverImage, isOnline }: Pr
             height: AVATAR_SIZE,
             borderRadius: AVATAR_SIZE / 2,
             borderWidth: 3,
-            borderColor: "#ec4899",
+            borderColor: "#E30708",
             backgroundColor: "#7c3aed",
             overflow: "hidden",
           }}
@@ -48,15 +57,15 @@ export default function ProfileHeader({ name, avatar, coverImage, isOnline }: Pr
           ) : (
             <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
               <Text style={{ color: "white", fontSize: 36, fontWeight: "bold" }}>
-                {name.charAt(0).toUpperCase()}
+                {username.charAt(0).toUpperCase()}
               </Text>
             </View>
           )}
         </View>
 
-        {/* Name + online status */}
+        {/* Username + online status */}
         <Text style={{ color: "white", fontSize: 20, fontWeight: "bold", marginTop: 10 }}>
-          {name}
+          @{username}
         </Text>
         <View style={{ flexDirection: "row", alignItems: "center", marginTop: 4, gap: 6 }}>
           <View
@@ -72,6 +81,14 @@ export default function ProfileHeader({ name, avatar, coverImage, isOnline }: Pr
           </Text>
         </View>
       </View>
+
+      {/* Viewer para el banner */}
+      <ImageViewerModal
+        images={coverImage ? [coverImage] : []}
+        initialIndex={0}
+        visible={viewerVisible}
+        onClose={() => setViewerVisible(false)}
+      />
     </View>
   );
 }

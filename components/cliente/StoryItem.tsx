@@ -13,7 +13,7 @@ export default function StoryItem({ story, onPress }: { story: Story; onPress: (
       <View style={{ position: "relative" }}>
         <View
           className="w-16 h-16 rounded-full"
-          style={{ borderWidth: 2, borderColor: "#ec4899" }}
+          style={{ borderWidth: 2, borderColor: "#E30708" }}
         >
           <Image
             source={{ uri: story.avatar }}

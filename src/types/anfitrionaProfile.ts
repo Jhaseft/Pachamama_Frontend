@@ -14,6 +14,7 @@ export type TrustItem = {
 export type AnfitrioneProfileDetail = {
   id: string;
   name: string;
+  username: string;
   avatar: string;
   coverImage: string;
   isOnline: boolean;

@@ -26,6 +26,7 @@ function mapListItemToAnfitriona(item: AnfitrioneApiListItem): Anfitriona {
   return {
     id: item.id,
     name: item.name,
+    username: item.username,
     avatar: item.avatar ?? "",
     shortDescription: item.shortDescription ?? "",
     credits: item.rateCredits ?? 0,
@@ -77,6 +78,7 @@ function mapDetailToProfile(data: AnfitrioneApiDetail): AnfitrioneProfileDetail 
   return {
     id: data.id,
     name: data.name,
+    username: data.username,
     avatar: data.avatar ?? "",
     coverImage: data.coverImage ?? data.images[0] ?? "",
     isOnline: data.isOnline,

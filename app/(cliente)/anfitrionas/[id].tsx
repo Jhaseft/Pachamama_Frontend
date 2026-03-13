@@ -66,7 +66,7 @@ export default function AnfitrioneProfileScreen() {
       {/* Loading */}
       {loading && (
         <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-          <ActivityIndicator size="large" color="#ec4899" />
+          <ActivityIndicator size="large" color="#E30708" />
         </View>
       )}
 
@@ -106,7 +106,7 @@ export default function AnfitrioneProfileScreen() {
           contentContainerStyle={{ paddingBottom: insets.bottom + 20 }}
         >
           <ProfileHeader
-            name={profile.name}
+            username={profile.username}
             avatar={profile.avatar}
             coverImage={profile.coverImage}
             isOnline={profile.isOnline}

@@ -64,7 +64,7 @@ export default function ClienteInicio() {
       {/* Loading */}
       {loading && (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#ec4899" />
+          <ActivityIndicator size="large" color="#E30708" />
         </View>
       )}
 
