@@ -1,8 +1,9 @@
 import { Anfitriona } from "@/src/types/anfitriona";
+import { toggleAnfitrianaLike } from "@/src/services/hostesses";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { Bookmark, Diamond, Flame, Heart } from "lucide-react-native";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Image, Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
 
 type Props = {
@@ -17,12 +18,29 @@ export default function PostCard({ anfitriona, height }: Props) {
   const [likes, setLikes] = useState(anfitriona.likesCount ?? 0);
   const { width: W, height: H } = useWindowDimensions();
   const cardHeight = height && height > 0 ? height : H;
+  const isLiking = useRef(false);
 
-  const handleLike = () => {
-    setLiked((prev) => {
-      setLikes((c) => (prev ? c - 1 : c + 1));
-      return !prev;
-    });
+  const handleLike = async () => {
+    if (isLiking.current) return;
+    isLiking.current = true;
+
+    // Actualización optimista
+    const wasLiked = liked;
+    setLiked(!wasLiked);
+    setLikes((c) => (wasLiked ? c - 1 : c + 1));
+
+    try {
+      const result = await toggleAnfitrianaLike(anfitriona.id);
+      // Sincronizar con la respuesta real del servidor
+      setLiked(result.liked);
+      setLikes(result.likesCount);
+    } catch {
+      // Revertir si falla
+      setLiked(wasLiked);
+      setLikes((c) => (wasLiked ? c + 1 : c - 1));
+    } finally {
+      isLiking.current = false;
+    }
   };
 
   const handleProfilePress = () => {
@@ -82,7 +100,7 @@ export default function PostCard({ anfitriona, height }: Props) {
         </TouchableOpacity>
 
         {/* Likes */}
-        <TouchableOpacity onPress={handleLike} style={{ alignItems: "center", marginBottom: 22 }}>
+        <TouchableOpacity onPress={() => { void handleLike(); }} style={{ alignItems: "center", marginBottom: 22 }}>
           <Heart
             size={34}
             color={liked ? "#ec4899" : "white"}

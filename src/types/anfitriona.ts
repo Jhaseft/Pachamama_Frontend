@@ -30,6 +30,7 @@ export type AnfitrioneApiListItem = {
   mainImage: string | null;
   images: string[];
   isOnline: boolean;
+  likesCount: number;
 };
 
 export type AnfitrioneApiListResponse = {
@@ -48,4 +49,12 @@ export type AnfitrioneApiDetail = {
   images: string[];
   rateCredits: number | null;
   isOnline: boolean;
+  likesCount: number;
+  isLiked: boolean;
+};
+
+/** Response of POST /anfitrionas/public/:id/like */
+export type ToggleLikeResponse = {
+  liked: boolean;
+  likesCount: number;
 };

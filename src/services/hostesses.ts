@@ -4,6 +4,7 @@ import type {
   AnfitrioneApiDetail,
   AnfitrioneApiListItem,
   AnfitrioneApiListResponse,
+  ToggleLikeResponse,
 } from "../types/anfitriona";
 import type { AnfitrioneProfileDetail } from "../types/anfitrionaProfile";
 
@@ -11,8 +12,6 @@ import type { AnfitrioneProfileDetail } from "../types/anfitrionaProfile";
 
 /**
  * Converts a backend list item to the UI Anfitriona model.
- * Fields not yet available from backend (likesCount, isPopular, isFavorite, solPrice)
- * receive safe defaults so components don't crash.
  */
 function mapListItemToAnfitriona(item: AnfitrioneApiListItem): Anfitriona {
   // Prefer explicit images array; fall back to mainImage if present
@@ -31,8 +30,7 @@ function mapListItemToAnfitriona(item: AnfitrioneApiListItem): Anfitriona {
     credits: item.rateCredits ?? 0,
     images,
     isOnline: item.isOnline,
-    // Not yet returned by backend — defaults
-    likesCount: 0,
+    likesCount: item.likesCount ?? 0,
     isPopular: false,
     isFavorite: false,
   };
@@ -43,7 +41,6 @@ function mapListItemToAnfitriona(item: AnfitrioneApiListItem): Anfitriona {
 /**
  * GET /anfitrionas/public
  * Public — no auth token required.
- * TODO: when isFavorite is added to backend, pass userId from auth context here.
  */
 export async function getPublicHostesses(): Promise<Anfitriona[]> {
   const response = await apiFetch<AnfitrioneApiListResponse>(
@@ -56,7 +53,6 @@ export async function getPublicHostesses(): Promise<Anfitriona[]> {
 /**
  * GET /anfitrionas/public/:id
  * Public — no auth token required.
- * Returns the raw backend shape. Use getPublicHostessProfile for the UI model.
  */
 export async function getPublicHostessById(
   id: string,
@@ -67,11 +63,21 @@ export async function getPublicHostessById(
 }
 
 /**
+ * POST /anfitrionas/public/:id/like
+ * Requiere autenticación con rol USER.
+ * Alterna el like: si ya dio like lo quita, si no lo da.
+ */
+export async function toggleAnfitrianaLike(
+  anfitrionaId: string,
+): Promise<ToggleLikeResponse> {
+  return apiFetch<ToggleLikeResponse>(
+    `/anfitrionas/public/${anfitrionaId}/like`,
+    { method: "POST" },
+  );
+}
+
+/**
  * Converts raw backend detail response to the UI profile model.
- *
- * Fields not yet in backend (highlightedStories, trustItems) default to []
- * so existing UI sections render as empty rather than crashing.
- * Remove defaults here when the backend adds those fields.
  */
 function mapDetailToProfile(data: AnfitrioneApiDetail): AnfitrioneProfileDetail {
   return {
