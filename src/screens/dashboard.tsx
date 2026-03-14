@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator, RefreshControl } from 'react-native';
 import { StatCard } from '../components/StartCard';
 import { PlanItem } from '../components/package/PlanItem';
@@ -39,7 +39,8 @@ export default function AdminDashboard() {
       const data = await apiGetAllPackages();
       setPackages(data);
     } catch (error: any) {
-      Alert.alert("Error", "No se pudieron cargar los paquetes");
+      const message = error instanceof Error ? error.message : "No se pudieron cargar los paquetes";
+      Alert.alert("Error", message);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -70,8 +71,9 @@ export default function AdminDashboard() {
     try {
       await apiDeletePackage(deleteId);
       fetchPackages();
-    } catch {
-      Alert.alert("Error", "No se pudo eliminar");
+    } catch (error: any) {
+      const message = error instanceof Error ? error.message : "No se pudo eliminar";
+      Alert.alert("Error", message);
     } finally {
       setConfirmVisible(false);
       setDeleteId(null);

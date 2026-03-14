@@ -2,8 +2,14 @@ import apiClient from './client';
 import { PackageData } from '../types/package';
 
 /**
- * Servicio para la gestión de paquetes en Pachamama
+ * Servicio para la gestion de paquetes en Pachamama
  */
+function parseApiError(error: any, fallback: string) {
+    const rawMessage = error?.response?.data?.message ?? error?.message;
+    if (Array.isArray(rawMessage)) return rawMessage.join(', ');
+    if (typeof rawMessage === 'string' && rawMessage.trim().length > 0) return rawMessage;
+    return fallback;
+}
 
 // CREAR UN NUEVO PAQUETE
 export const apiCreatePackage = async (packageData: PackageData) => {
@@ -11,10 +17,7 @@ export const apiCreatePackage = async (packageData: PackageData) => {
         const response = await apiClient.post('/packages/create', packageData);
         return response.data;
     } catch (error: any) {
-        throw (
-            error?.response?.data?.message ||
-            'Error al crear el paquete'
-        );
+        throw new Error(parseApiError(error, 'Error al crear el paquete'));
     }
 };
 
@@ -24,10 +27,7 @@ export const apiGetAllPackages = async () => {
         const response = await apiClient.get('/packages');
         return response.data;
     } catch (error: any) {
-        throw (
-            error?.response?.data?.message ||
-            'Error al obtener la lista de paquetes'
-        );
+        throw new Error(parseApiError(error, 'Error al obtener la lista de paquetes'));
     }
 };
 
@@ -37,10 +37,7 @@ export const apiUpdatePackage = async (id: string, updateData: Partial<PackageDa
         const response = await apiClient.patch(`/packages/${id}`, updateData);
         return response.data;
     } catch (error: any) {
-        throw (
-            error?.response?.data?.message ||
-            'Error al actualizar el paquete'
-        );
+        throw new Error(parseApiError(error, 'Error al actualizar el paquete'));
     }
 };
 
@@ -50,25 +47,16 @@ export const apiDeletePackage = async (id: string) => {
         const response = await apiClient.delete(`/packages/${id}`);
         return response.data;
     } catch (error: any) {
-        throw (
-            error?.response?.data?.message ||
-            error?.message ||
-            'Error al intentar eliminar el paquete'
-        );
+        throw new Error(parseApiError(error, 'Error al intentar eliminar el paquete'));
     }
 };
 
-
-//OBTNER UN PAQUETE POR ID
+// OBTENER UN PAQUETE POR ID
 export const apiGetPackageById = async (id: string) => {
   try {
     const response = await apiClient.get(`/packages/${id}`);
     return response.data;
   } catch (error: any) {
-    throw (
-      error?.response?.data?.message ||
-      error?.message ||
-      'No se pudo obtener la información del paquete'
-    );
+    throw new Error(parseApiError(error, 'No se pudo obtener la informacion del paquete'));
   }
 };

@@ -131,7 +131,7 @@ export default function PostCard({ anfitriona, height }: Props) {
       {/* Bottom info */}
       <View style={{ position: "absolute", bottom: 20, left: 12, right: 80 }}>
         <Text style={{ color: "white", fontWeight: "bold", fontSize: 18 }}>
-          {anfitriona.name}
+          @{anfitriona.username ?? anfitriona.name}
         </Text>
         <Text style={{ color: "#e5e7eb", fontSize: 13, marginTop: 4 }}>
           {anfitriona.shortDescription}

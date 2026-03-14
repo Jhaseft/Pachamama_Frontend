@@ -25,6 +25,7 @@ function mapListItemToAnfitriona(item: AnfitrioneApiListItem): Anfitriona {
   return {
     id: item.id,
     name: item.name,
+    username: item.username ?? undefined,
     avatar: item.avatar ?? "",
     shortDescription: item.shortDescription ?? "",
     credits: item.rateCredits ?? 0,
@@ -38,16 +39,33 @@ function mapListItemToAnfitriona(item: AnfitrioneApiListItem): Anfitriona {
 
 // ─── Service functions ────────────────────────────────────────────────────────
 
+export type HostessesPaginatedResult = {
+  anfitrionas: Anfitriona[];
+  total: number;
+  page: number;
+  limit: number;
+  hasMore: boolean;
+};
+
 /**
- * GET /anfitrionas/public
+ * GET /anfitrionas/public?page=1&limit=10
  * Public — no auth token required.
  */
-export async function getPublicHostesses(): Promise<Anfitriona[]> {
+export async function getPublicHostesses(
+  page = 1,
+  limit = 10,
+): Promise<HostessesPaginatedResult> {
   const response = await apiFetch<AnfitrioneApiListResponse>(
-    "/anfitrionas/public",
+    `/anfitrionas/public?page=${page}&limit=${limit}`,
     { method: "GET" },
   );
-  return response.data.map(mapListItemToAnfitriona);
+  return {
+    anfitrionas: response.data.map(mapListItemToAnfitriona),
+    total: response.total,
+    page: response.page,
+    limit: response.limit,
+    hasMore: response.page * response.limit < response.total,
+  };
 }
 
 /**
