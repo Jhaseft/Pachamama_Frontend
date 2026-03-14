@@ -21,7 +21,8 @@ export default function ClientsScreen() {
             setClients(response.data); // 'data' contiene el arreglo de clientes
         } catch (error: any) {
             console.error(error);
-            alert(error?.response?.data?.message || "Error al cargar clientes");
+            const message = error instanceof Error ? error.message : "Error al cargar clientes";
+            alert(message);
         }
     };
 
@@ -47,7 +48,8 @@ export default function ClientsScreen() {
             await apiToggleClientStatus(user.id, !user.isActive);
             loadClients(search); // Recargamos para ver el cambio (X a Check)
         } catch (error) {
-            alert("Error: " + error);
+            const message = error instanceof Error ? error.message : "Error al actualizar estado";
+            alert("Error: " + message);
         }
     };
 

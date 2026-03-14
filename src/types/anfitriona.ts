@@ -3,6 +3,7 @@
 export type Anfitriona = {
   id: string;
   name: string;
+  username?: string;
   age?: number;
   shortDescription: string;
   /** Price in app credits per conversation */
@@ -24,6 +25,7 @@ export type Anfitriona = {
 export type AnfitrioneApiListItem = {
   id: string;
   name: string;
+  username: string | null;
   avatar: string | null;
   shortDescription: string | null;
   rateCredits: number | null;
@@ -35,6 +37,9 @@ export type AnfitrioneApiListItem = {
 
 export type AnfitrioneApiListResponse = {
   data: AnfitrioneApiListItem[];
+  total: number;
+  page: number;
+  limit: number;
 };
 
 /** Shape returned by GET /anfitrionas/public/:id */

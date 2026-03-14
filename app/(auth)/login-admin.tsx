@@ -69,7 +69,7 @@ export default function LoginAdmin() {
           contentContainerClassName="flex-grow"
         >
           <Pressable
-            onPress={() => router.back()}
+            onPress={() => router.replace("/(auth)/choose-access")}
             className="mt-6 mb-6 flex-row items-center"
           >
             <Ionicons name="arrow-back" size={20} color="white" />
