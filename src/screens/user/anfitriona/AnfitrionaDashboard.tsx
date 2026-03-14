@@ -9,24 +9,20 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 
 import { apiCreateHistory, apiDeleteHistory, apiGetMyStories } from '@/src/api/anfitrionaHistory';
+import { apiGetMyProfile, type MyProfileData } from '@/src/api/anfitrionaProfile';
 import { HistoryItem } from '@/src/types/anfitrionaHistory';
 
 import { HistoryViewer } from '@/src/components/user/HistoryViewer';
 
 import * as ImagePicker from 'expo-image-picker';
 
-const PROFILE_DATA = {
-    name: "Maria Gonzalez",
-    clients: 323,
-    diamonds: 1233,
-    avatar: "https://randomuser.me/api/portraits/women/44.jpg",
-    cover: "https://res.cloudinary.com/dcyx3nqj5/image/upload/v1772893219/WhatsApp_Image_2026-03-06_at_7.19.57_va3q9n.jpg",
-};
+const FALLBACK_COVER = "https://res.cloudinary.com/dcyx3nqj5/image/upload/v1772893219/WhatsApp_Image_2026-03-06_at_7.19.57_va3q9n.jpg";
 
 export default function AnfitrionaDashboard() {
     const [stories, setStories] = useState<HistoryItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
+    const [profile, setProfile] = useState<MyProfileData | null>(null);
 
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedMedia, setSelectedMedia] = useState<any>(null);
@@ -83,7 +79,7 @@ export default function AnfitrionaDashboard() {
         }
     };
 
-    // Función para cargar historias desde el backend
+    // Función para cargar historias y perfil desde el backend
     const loadStories = async () => {
         try {
             const data = await apiGetMyStories();
@@ -96,15 +92,26 @@ export default function AnfitrionaDashboard() {
         }
     };
 
+    const loadProfile = async () => {
+        try {
+            const data = await apiGetMyProfile();
+            setProfile(data);
+        } catch (error) {
+            console.error("Error cargando perfil:", error);
+        }
+    };
+
     // Cargar al montar el componente
     useEffect(() => {
         loadStories();
+        loadProfile();
     }, []);
 
     // Función para el gesto de "palar" hacia abajo
     const onRefresh = () => {
         setRefreshing(true);
         loadStories();
+        loadProfile();
     };
 
     //funcion para eliminar una historia
@@ -147,7 +154,15 @@ export default function AnfitrionaDashboard() {
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#ef4444" />
                 }
             >
-                <ProfileHeader profile={PROFILE_DATA} />
+                <ProfileHeader profile={{
+                    name: profile
+                        ? [profile.firstName, profile.lastName].filter(Boolean).join(' ') || profile.username
+                        : '...',
+                    clients: 0,
+                    diamonds: 0,
+                    avatar: profile?.avatarUrl ?? "https://randomuser.me/api/portraits/women/44.jpg",
+                    cover: FALLBACK_COVER,
+                }} />
 
                 {/* Acciones */}
                 <View className="px-6 py-6 items-center">
