@@ -9,6 +9,7 @@ import type { Anfitriona } from "@/src/types/anfitriona";
 import { StoriesBarFeed } from "@/src/components/user/StoriesBarFeed";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useFocusEffect } from "@react-navigation/native";
 
 // Stories remain on mock data (outside HU1 scope)
 const MOCK_STORIES = MOCK_ANFITRIONAS.map((a) => ({
@@ -17,7 +18,7 @@ const MOCK_STORIES = MOCK_ANFITRIONAS.map((a) => ({
   avatar: a.avatar,
   isOnline: a.isOnline,
 }));
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Animated,
@@ -52,9 +53,11 @@ export default function ClienteInicio() {
   };
 
 
-  useEffect(() => {
-    loadFeed();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      loadFeed();
+    }, [])
+  );
 
   const handleFeedLayout = (event: LayoutChangeEvent) => {
     const nextHeight = Math.round(event.nativeEvent.layout.height);
@@ -88,7 +91,7 @@ export default function ClienteInicio() {
       <StoriesBarFeed
         stories={feed}
         onSelect={(item) => {
-          console.log("ITEM CLICK:", item);
+          //     console.log("ITEM CLICK:", item);
           if (!item.stories || item.stories.length === 0) {
             console.warn(`La anfitriona ${item.name} no tiene historias activas.`);
             return;

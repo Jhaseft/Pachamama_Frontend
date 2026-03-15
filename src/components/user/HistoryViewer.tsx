@@ -9,11 +9,12 @@ export const HistoryViewer = ({ isVisible, item, onClose, onDelete }: any) => {
     const insets = useSafeAreaInsets();
 
     // Configuramos el reproductor nuevo
-    const player = useVideoPlayer(item?.mediaUrl, (player) => {
-        player.loop = true;
-        player.muted = false;
-        if (isVisible) player.play();
-    });
+    const player = useVideoPlayer(
+        isVisible && item?.mediaType === "VIDEO" ? item.mediaUrl : null,
+        (player) => {
+            player.loop = true;
+        }
+    );
 
     // Escuchamos cuando el video termina
     useEffect(() => {
@@ -39,12 +40,36 @@ export const HistoryViewer = ({ isVisible, item, onClose, onDelete }: any) => {
 
     // Controlamos el play/pause según la visibilidad del Modal
     useEffect(() => {
-        if (isVisible && item?.mediaType === 'VIDEO') {
+        if (!player) return;
+
+        if (isVisible && item?.mediaType === "VIDEO") {
+            player.currentTime = 0; // reinicia el video
             player.play();
-        } else {
-            player.pause();
         }
-    }, [isVisible, item]);
+    }, [isVisible, item?.mediaUrl]);
+
+    //limpiar el player de video
+    useEffect(() => {
+        if (!isVisible) {
+            player.pause();
+            player.currentTime = 0;
+        }
+    }, [isVisible]);
+
+    // 4. Timer para imágenes (10 segundos)
+    useEffect(() => {
+        if (isVisible && item?.mediaType === 'IMAGE') {
+            const timer = setTimeout(() => onClose(), 10000);
+            return () => clearTimeout(timer);
+        }
+    }, [isVisible, item, onClose]);
+
+    //limpiar el player al cerrar
+    useEffect(() => {
+        return () => {
+            player?.pause();
+        };
+    }, []);
 
     if (!item) return null;
 
@@ -53,7 +78,7 @@ export const HistoryViewer = ({ isVisible, item, onClose, onDelete }: any) => {
             <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
 
                 <View style={[styles.topBar, { top: insets.top + 10 }]}>
-                    
+
                     <TouchableOpacity
                         onPress={() => onDelete(item.id)}
                         style={styles.actionButton}
@@ -72,9 +97,11 @@ export const HistoryViewer = ({ isVisible, item, onClose, onDelete }: any) => {
                 <View style={styles.content}>
                     {item.mediaType === "VIDEO" ? (
                         <VideoView
+                            key={item.id}
                             player={player}
                             style={styles.media}
-                            contentFit="contain" 
+                            contentFit="contain"
+                            nativeControls={false}
                             allowsFullscreen={false}
                             allowsPictureInPicture={false}
                         />
@@ -119,7 +146,7 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         flexDirection: 'row',
-        justifyContent: 'flex-end', 
+        justifyContent: 'flex-end',
         paddingHorizontal: 20,
         zIndex: 100,
     },

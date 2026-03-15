@@ -7,6 +7,7 @@ import { HistoryCard } from '../../../components/user/HistoryCard';
 import { Link } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
+import CreateHistoryModal from '@/src/components/user/CreateHistoryModal';
 
 import { apiCreateHistory, apiDeleteHistory, apiGetMyStories } from '@/src/api/anfitrionaHistory';
 import { HistoryItem } from '@/src/types/anfitrionaHistory';
@@ -45,7 +46,7 @@ export default function AnfitrionaDashboard() {
     // Función para abrir la galería
     const pickImage = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ['images', 'videos'], 
+            mediaTypes: ['images', 'videos'],
             allowsEditing: false,
             //aspect: [4, 5],
             quality: 0.8,
@@ -114,9 +115,9 @@ export default function AnfitrionaDashboard() {
             "¿Estás segura de que quieres borrar esta historia permanentemente?",
             [
                 { text: "Cancelar", style: "cancel" },
-                { 
-                    text: "Eliminar", 
-                    style: "destructive", 
+                {
+                    text: "Eliminar",
+                    style: "destructive",
                     onPress: async () => {
                         try {
                             await apiDeleteHistory(id);
@@ -126,7 +127,7 @@ export default function AnfitrionaDashboard() {
                         } catch (error) {
                             Alert.alert("Error", String(error));
                         }
-                    } 
+                    }
                 }
             ]
         );
@@ -171,7 +172,7 @@ export default function AnfitrionaDashboard() {
                     <View className="flex-row w-full items-center">
                         <View className="items-center mr-6">
                             <TouchableOpacity
-                                onPress={pickImage} // <--- AÑADE ESTO
+                                onPress={pickImage} 
                                 className="w-16 h-16 bg-red-600 rounded-full justify-center items-center border-2 border-white/20"
                             >
                                 <Text className="text-white text-3xl">+</Text>
@@ -184,15 +185,15 @@ export default function AnfitrionaDashboard() {
 
                 {/* Grid de Historias */}
                 <FlatList
-                    data={stories} 
+                    data={stories}
                     renderItem={({ item }) => (
                         <HistoryCard
                             item={{
                                 ...item,
                                 isLocked: item.priceCredits > 0 // Lógica para mostrar candado si tiene precio
                             }}
-                            onPress={()=> handleViewHistory(item)}
-                            onDelete={()=> handleDelete(item.id)}
+                            onPress={() => handleViewHistory(item)}
+                            onDelete={() => handleDelete(item.id)}
                         />
                     )}
                     keyExtractor={item => item.id}
@@ -208,72 +209,17 @@ export default function AnfitrionaDashboard() {
                 />
             </ScrollView>
 
-            {/* --- INSERTA EL MODAL AQUÍ --- */}
-            <Modal
-                animationType="slide"
-                transparent={true}
+            <CreateHistoryModal
                 visible={modalVisible}
-                onRequestClose={() => setModalVisible(false)}
-            >
-                <View className="flex-1 justify-center items-center bg-black/80 px-6">
-                    <View className="w-full bg-zinc-900 border border-zinc-700 rounded-3xl overflow-hidden">
-                        {/* Título de la ventana */}
-                        <View className="bg-zinc-800 p-4 border-b border-zinc-700">
-                            <Text className="text-white text-center font-bold">Crear nueva publicacion</Text>
-                        </View>
+                selectedMedia={selectedMedia}
+                credits={credits}
+                uploading={uploading}
+                onChangeCredits={setCredits}
+                onClose={() => setModalVisible(false)}
+                onPublish={handlePublish}
+            />
 
-                        <View className="p-4 items-center">
-                            {/* Previsualización del medio seleccionado */}
-                            {selectedMedia && (
-                                <View className="w-full h-64 bg-black rounded-xl overflow-hidden border border-zinc-700">
-                                    <Image
-                                        source={{ uri: selectedMedia.uri }}
-                                        className="w-full h-full"
-                                        resizeMode="contain"
-                                    />
-                                </View>
-                            )}
-
-                            {/* Input de Créditos (Estilo de tu Mockup) */}
-                            <View className="flex-row items-center bg-red-600 rounded-lg mt-6 px-4 py-3 w-full border border-white/20">
-                                <Text className="text-white font-bold flex-1">Creditos:</Text>
-                                <TextInput
-                                    className="text-white font-bold text-right flex-1 p-0"
-                                    keyboardType="numeric"
-                                    value={credits}
-                                    onChangeText={setCredits}
-                                    placeholder="0"
-                                    placeholderTextColor="#ffcccc"
-                                />
-                            </View>
-
-                            {/* Botones de acción */}
-                            <View className="flex-row justify-between w-full mt-8 gap-4">
-                                <TouchableOpacity
-                                    onPress={() => setModalVisible(false)}
-                                    className="flex-1 bg-red-600 py-3 rounded-lg border border-white/20 items-center"
-                                >
-                                    <Text className="text-white font-bold">Cancelar</Text>
-                                </TouchableOpacity>
-
-                                <TouchableOpacity
-                                    onPress={handlePublish}
-                                    disabled={uploading}
-                                    className="flex-1 bg-red-600 py-3 rounded-lg border border-white/20 items-center"
-                                >
-                                    {uploading ? (
-                                        <ActivityIndicator color="white" size="small" />
-                                    ) : (
-                                        <Text className="text-white font-bold">Publicar</Text>
-                                    )}
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
-
-            <HistoryViewer 
+            <HistoryViewer
                 isVisible={viewerVisible}
                 item={selectedHistory}
                 onClose={() => setViewerVisible(false)}

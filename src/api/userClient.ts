@@ -5,20 +5,16 @@ import { UserClientData } from '../types/userClient';
 // Definimos la estructura de respuesta paginada que viene del Backend
 interface PaginatedClients {
     data: UserClientData[];
-    meta: {
-        total: number;
-        page: number;
-        lastPage: number;
-        limit: number;
-    };
+    nextCursor?: string | null;
 }
 
+
 // LISTAR Y BUSCAR CLIENTES (Soporta la barra roja de búsqueda)
-export const apiGetAllClients = async (search?: string, page: number = 1): Promise<PaginatedClients> => {
+export const apiGetAllClients = async (search?: string, cursor?: string): Promise<PaginatedClients> => {
     try {
         // Enviamos los query params que definimos en el Controller
         const response = await apiClient.get('/admin/clients', {
-            params: { search, page, limit: 10 }
+            params: { search, cursor, limit: 10 }
         });
         return response.data;
     } catch (error: any) {

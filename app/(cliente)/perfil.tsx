@@ -13,7 +13,7 @@ export default function ClientePerfil() {
         {/* Enlace a la pantalla principal de anfitriona */}
         <Link href="/(auth)/choose-access" asChild>
           <TouchableOpacity className="mt-6 bg-black py-3 px-8 rounded-xl">
-            <Text className="text-white font-bold">Ir a Panel Anfitriona</Text>
+            <Text className="text-white font-bold">Ir a Panel Login</Text>
           </TouchableOpacity>
         </Link>
       </View>
