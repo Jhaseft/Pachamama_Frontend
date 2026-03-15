@@ -14,6 +14,7 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(async (config) => {
   const token = await getAccessToken();
 
+console.log("DEBUG - URL COMPLETA:", (config.baseURL || '') + (config.url || ''));
   console.log("🚀 Enviando petición a:", config.url);
   console.log("🔑 Token detectado:", token ? "SÍ (empieza por " + token.substring(0, 10) + "...)" : "NO");
   if (token) {
