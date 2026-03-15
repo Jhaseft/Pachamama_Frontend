@@ -3,6 +3,7 @@
 export type Anfitriona = {
   id: string;
   name: string;
+  username?: string;
   age?: number;
   shortDescription: string;
   /** Price in app credits per conversation */
@@ -24,16 +25,21 @@ export type Anfitriona = {
 export type AnfitrioneApiListItem = {
   id: string;
   name: string;
+  username: string | null;
   avatar: string | null;
   shortDescription: string | null;
   rateCredits: number | null;
   mainImage: string | null;
   images: string[];
   isOnline: boolean;
+  likesCount: number;
 };
 
 export type AnfitrioneApiListResponse = {
   data: AnfitrioneApiListItem[];
+  total: number;
+  page: number;
+  limit: number;
 };
 
 /** Shape returned by GET /anfitrionas/public/:id */
@@ -48,4 +54,12 @@ export type AnfitrioneApiDetail = {
   images: string[];
   rateCredits: number | null;
   isOnline: boolean;
+  likesCount: number;
+  isLiked: boolean;
+};
+
+/** Response of POST /anfitrionas/public/:id/like */
+export type ToggleLikeResponse = {
+  liked: boolean;
+  likesCount: number;
 };

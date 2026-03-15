@@ -8,9 +8,18 @@ interface PaginatedClients {
     nextCursor?: string | null;
 }
 
+function parseApiError(error: any, fallback: string) {
+    const rawMessage = error?.response?.data?.message ?? error?.message;
+    if (Array.isArray(rawMessage)) return rawMessage.join(', ');
+    if (typeof rawMessage === 'string' && rawMessage.trim().length > 0) return rawMessage;
+    return fallback;
+}
+
+
 
 // LISTAR Y BUSCAR CLIENTES (Soporta la barra roja de búsqueda)
 export const apiGetAllClients = async (search?: string, cursor?: string): Promise<PaginatedClients> => {
+
     try {
         // Enviamos los query params que definimos en el Controller
         const response = await apiClient.get('/admin/clients', {
@@ -18,7 +27,7 @@ export const apiGetAllClients = async (search?: string, cursor?: string): Promis
         });
         return response.data;
     } catch (error: any) {
-        throw error?.response?.data?.message || 'Error al obtener clientes';
+        throw new Error(parseApiError(error, 'Error al obtener clientes'));
     }
 };
 
@@ -30,6 +39,6 @@ export const apiToggleClientStatus = async (id: string, isActive: boolean) => {
         });
         return response.data;
     } catch (error: any) {
-        throw error?.response?.data?.message || 'Error al actualizar estado';
+        throw new Error(parseApiError(error, 'Error al actualizar estado'));
     }
 };

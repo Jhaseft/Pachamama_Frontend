@@ -4,6 +4,7 @@ import type {
   AnfitrioneApiDetail,
   AnfitrioneApiListItem,
   AnfitrioneApiListResponse,
+  ToggleLikeResponse,
 } from "../types/anfitriona";
 import type { AnfitrioneProfileDetail } from "../types/anfitrionaProfile";
 
@@ -11,8 +12,6 @@ import type { AnfitrioneProfileDetail } from "../types/anfitrionaProfile";
 
 /**
  * Converts a backend list item to the UI Anfitriona model.
- * Fields not yet available from backend (likesCount, isPopular, isFavorite, solPrice)
- * receive safe defaults so components don't crash.
  */
 function mapListItemToAnfitriona(item: AnfitrioneApiListItem): Anfitriona {
   // Prefer explicit images array; fall back to mainImage if present
@@ -26,13 +25,13 @@ function mapListItemToAnfitriona(item: AnfitrioneApiListItem): Anfitriona {
   return {
     id: item.id,
     name: item.name,
+    username: item.username ?? undefined,
     avatar: item.avatar ?? "",
     shortDescription: item.shortDescription ?? "",
     credits: item.rateCredits ?? 0,
     images,
     isOnline: item.isOnline,
-    // Not yet returned by backend — defaults
-    likesCount: 0,
+    likesCount: item.likesCount ?? 0,
     isPopular: false,
     isFavorite: false,
   };
@@ -40,23 +39,38 @@ function mapListItemToAnfitriona(item: AnfitrioneApiListItem): Anfitriona {
 
 // ─── Service functions ────────────────────────────────────────────────────────
 
+export type HostessesPaginatedResult = {
+  anfitrionas: Anfitriona[];
+  total: number;
+  page: number;
+  limit: number;
+  hasMore: boolean;
+};
+
 /**
- * GET /anfitrionas/public
+ * GET /anfitrionas/public?page=1&limit=10
  * Public — no auth token required.
- * TODO: when isFavorite is added to backend, pass userId from auth context here.
  */
-export async function getPublicHostesses(): Promise<Anfitriona[]> {
+export async function getPublicHostesses(
+  page = 1,
+  limit = 10,
+): Promise<HostessesPaginatedResult> {
   const response = await apiFetch<AnfitrioneApiListResponse>(
-    "/anfitrionas/public",
+    `/anfitrionas/public?page=${page}&limit=${limit}`,
     { method: "GET" },
   );
-  return response.data.map(mapListItemToAnfitriona);
+  return {
+    anfitrionas: response.data.map(mapListItemToAnfitriona),
+    total: response.total,
+    page: response.page,
+    limit: response.limit,
+    hasMore: response.page * response.limit < response.total,
+  };
 }
 
 /**
  * GET /anfitrionas/public/:id
  * Public — no auth token required.
- * Returns the raw backend shape. Use getPublicHostessProfile for the UI model.
  */
 export async function getPublicHostessById(
   id: string,
@@ -67,11 +81,21 @@ export async function getPublicHostessById(
 }
 
 /**
+ * POST /anfitrionas/public/:id/like
+ * Requiere autenticación con rol USER.
+ * Alterna el like: si ya dio like lo quita, si no lo da.
+ */
+export async function toggleAnfitrianaLike(
+  anfitrionaId: string,
+): Promise<ToggleLikeResponse> {
+  return apiFetch<ToggleLikeResponse>(
+    `/anfitrionas/public/${anfitrionaId}/like`,
+    { method: "POST" },
+  );
+}
+
+/**
  * Converts raw backend detail response to the UI profile model.
- *
- * Fields not yet in backend (highlightedStories, trustItems) default to []
- * so existing UI sections render as empty rather than crashing.
- * Remove defaults here when the backend adds those fields.
  */
 function mapDetailToProfile(data: AnfitrioneApiDetail): AnfitrioneProfileDetail {
   return {

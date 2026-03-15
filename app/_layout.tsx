@@ -10,7 +10,7 @@ export default function Layout() {
   return (
 
       <AuthProvider>
-        <View className="flex-1 bg-black" style={{ paddingBottom: insets.bottom,  backgroundColor:'black' }}>
+        <View className="flex-1 bg-black" style={{ paddingBottom: insets.bottom,  paddingTop: insets.top, backgroundColor:'black' }}>
           <StatusBar style="light" />
           <Stack screenOptions={{ headerShown: false }} />
         </View>
