@@ -46,10 +46,10 @@ export default function EditarPerfil() {
       const data = await apiGetMyProfile();
       setFirstName(data.firstName ?? '');
       setLastName(data.lastName ?? '');
-      setUsername(data.username);
-      setBio(data.bio);
-      setRateCredits(String(data.rateCredits));
-      setAvatarUri(data.avatarUrl);
+      setUsername(data.username ?? '');
+      setBio(data.bio ?? '');
+      setRateCredits(String(data.rateCredits ?? 0));
+      setAvatarUri(data.avatarUrl ?? null);
     } catch (e) {
       Alert.alert('Error', 'No se pudo cargar el perfil.');
     } finally {
@@ -72,7 +72,10 @@ export default function EditarPerfil() {
 
   const handleSave = async () => {
     if (!username.trim()) {
-      Alert.alert('Validación', 'El nombre de usuario no puede estar vacío.');
+      Alert.alert(
+        'Nombre de usuario requerido',
+        'Este campo es obligatorio. Por favor ingresa un nombre de usuario único para tu perfil.',
+      );
       return;
     }
 
@@ -218,11 +221,12 @@ export default function EditarPerfil() {
         <Field label="Nombre" value={firstName} onChangeText={setFirstName} placeholder="Tu nombre" />
         <Field label="Apellido" value={lastName} onChangeText={setLastName} placeholder="Tu apellido" />
         <Field
-          label="Nombre de usuario"
+          label={`Nombre de usuario${!username.trim() ? '  ⚠️ Obligatorio' : ''}`}
           value={username}
           onChangeText={setUsername}
-          placeholder="@usuario"
+          placeholder="Ej: maria_g (requerido)"
           autoCapitalize="none"
+          highlight={!username.trim()}
         />
         <Field
           label="Descripción (bio)"
@@ -270,6 +274,7 @@ type FieldProps = {
   numberOfLines?: number;
   keyboardType?: 'default' | 'numeric' | 'email-address';
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
+  highlight?: boolean;
 };
 
 function Field({
@@ -281,10 +286,11 @@ function Field({
   numberOfLines,
   keyboardType = 'default',
   autoCapitalize = 'words',
+  highlight = false,
 }: FieldProps) {
   return (
     <View style={{ marginBottom: 18 }}>
-      <Text style={{ color: '#e4e4e7', fontSize: 13, fontWeight: '600', marginBottom: 6 }}>
+      <Text style={{ color: highlight ? '#fca5a5' : '#e4e4e7', fontSize: 13, fontWeight: '600', marginBottom: 6 }}>
         {label}
       </Text>
       <TextInput
@@ -299,7 +305,7 @@ function Field({
         style={{
           backgroundColor: '#18181b',
           borderWidth: 1,
-          borderColor: '#3f3f46',
+          borderColor: highlight ? '#dc2626' : '#3f3f46',
           borderRadius: 10,
           paddingHorizontal: 14,
           paddingVertical: 12,
