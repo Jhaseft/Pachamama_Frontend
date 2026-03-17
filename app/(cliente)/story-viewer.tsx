@@ -1,7 +1,7 @@
 import { View, Image, Text, TouchableOpacity, Dimensions, StyleSheet } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState, useEffect, useRef } from "react";
-import { Video } from "expo-av";
+import { Video, ResizeMode } from "expo-av";
 import { apiMarkAsViewed } from "@/src/api/anfitrionaHistory";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback } from "react";
@@ -31,13 +31,7 @@ export default function StoryViewer() {
 
             if (current.type === "image") {
                 intervalRef.current = setInterval(() => {
-                    setProgress((prev) => {
-                        if (prev >= 1) {
-                            handleNext();
-                            return 1;
-                        }
-                        return prev + 0.01;
-                    });
+                    setProgress((prev) => prev + 0.01);
                 }, 50);
             }
 
@@ -53,6 +47,12 @@ export default function StoryViewer() {
             };
         }, [index, current.id])
     );
+
+    useEffect(() => {
+        if (progress >= 1) {
+            handleNext();
+        }
+    }, [progress]);
 
     const handleNext = () => {
         if (index < storyData.stories.length - 1) {
@@ -86,7 +86,7 @@ export default function StoryViewer() {
                     ref={videoRef}
                     source={{ uri: current.uri }}
                     style={styles.media}
-                    resizeMode="cover"
+                    resizeMode={ResizeMode.COVER}
                     shouldPlay={true}
                     progressUpdateIntervalMillis={50}
                     onPlaybackStatusUpdate={(status: any) => {
@@ -185,12 +185,12 @@ const styles = StyleSheet.create({
         right: 20,
         flexDirection: "row",
         alignItems: "center",
-        zIndex: 25, 
+        zIndex: 25,
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.5,
         shadowRadius: 4,
-        elevation: 5, 
+        elevation: 5,
     },
 
     avatar: {
