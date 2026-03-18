@@ -26,8 +26,8 @@ export default function ProfileHeader({ name, avatar, coverImage, isOnline }: Pr
   const [viewingImage, setViewingImage] = useState<string | null>(null);
 
   return (
-    <View style={{ paddingBottom: AVATAR_SIZE / 2 + 12 }}>
-      {/* Cover image */}
+    <View style={{ paddingBottom: AVATAR_SIZE / 5 }}>
+    
       <TouchableOpacity
         activeOpacity={0.9}
         onPress={() => coverImage && setViewingImage(coverImage)}
@@ -58,7 +58,7 @@ export default function ProfileHeader({ name, avatar, coverImage, isOnline }: Pr
         </TouchableWithoutFeedback>
       </Modal>
 
-      {/* Avatar */}
+    
       <View
         style={{
           marginTop: -(AVATAR_SIZE / 2),
@@ -87,7 +87,7 @@ export default function ProfileHeader({ name, avatar, coverImage, isOnline }: Pr
           )}
         </View>
 
-        {/* Name + online status */}
+    
         <Text style={{ color: "white", fontSize: 20, fontWeight: "bold", marginTop: 10 }}>
           {name}
         </Text>
