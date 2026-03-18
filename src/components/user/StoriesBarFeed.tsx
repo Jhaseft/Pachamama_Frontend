@@ -11,8 +11,8 @@ interface Props {
 export const StoriesBarFeed = ({ stories, onSelect }: Props) => {
     return (
         <View className="bg-black py-1 border-b border-zinc-900">
-            <View className="flex-row justify-between items-center px-4 mb-4">
-                <Text className="text-white text-[20px] font-semibold">Historias</Text>
+            <View className="flex-row justify-between items-center px-4 mb-2">
+                <Text className="text-white text-[14px] font-semibold">Historias</Text>
             </View>
 
             <FlatList

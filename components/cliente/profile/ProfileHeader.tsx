@@ -1,4 +1,14 @@
-import { Image, Text, View, useWindowDimensions } from "react-native";
+import { useState } from "react";
+import {
+  Image,
+  Modal,
+  StatusBar,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+  useWindowDimensions,
+} from "react-native";
 
 type Props = {
   name: string;
@@ -12,18 +22,41 @@ const AVATAR_SIZE = 90;
 const AVATAR_LEFT = 20;
 
 export default function ProfileHeader({ name, avatar, coverImage, isOnline }: Props) {
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
+  const [viewingImage, setViewingImage] = useState<string | null>(null);
 
   return (
     <View style={{ paddingBottom: AVATAR_SIZE / 2 + 12 }}>
       {/* Cover image */}
-      <View style={{ width, height: COVER_HEIGHT, backgroundColor: "#1a1a1a" }}>
+      <TouchableOpacity
+        activeOpacity={0.9}
+        onPress={() => coverImage && setViewingImage(coverImage)}
+        style={{ width, height: COVER_HEIGHT, backgroundColor: "#1a1a1a" }}
+      >
         <Image
           source={{ uri: coverImage }}
           style={{ width: "100%", height: "100%" }}
           resizeMode="cover"
         />
-      </View>
+      </TouchableOpacity>
+
+      <Modal visible={!!viewingImage} transparent animationType="fade" statusBarTranslucent>
+        <StatusBar hidden />
+        <TouchableWithoutFeedback onPress={() => setViewingImage(null)}>
+          <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.95)", alignItems: "center", justifyContent: "center" }}>
+            {viewingImage && (
+              <Image
+                source={{ uri: viewingImage }}
+                style={{ width, height: height * 0.85 }}
+                resizeMode="contain"
+              />
+            )}
+            <Text style={{ color: "rgba(255,255,255,0.4)", marginTop: 16, fontSize: 13 }}>
+              Toca para cerrar
+            </Text>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
 
       {/* Avatar */}
       <View
