@@ -69,10 +69,10 @@ export default function PostCard({ anfitriona, height }: Props) {
         pointerEvents="none"
       />
 
-      {/* Side actions */}
+
       <View style={{ position: "absolute", right: 10, bottom: 80, alignItems: "center" }}>
 
-        {/* Avatar + online indicator */}
+        
         <TouchableOpacity onPress={handleProfilePress} style={{ alignItems: "center", marginBottom: 22 }}>
           <View style={{ position: "relative" }}>
             <View style={{
@@ -99,7 +99,7 @@ export default function PostCard({ anfitriona, height }: Props) {
           )}
         </TouchableOpacity>
 
-        {/* Likes */}
+       
         <TouchableOpacity onPress={() => { void handleLike(); }} style={{ alignItems: "center", marginBottom: 22 }}>
           <Heart
             size={34}
@@ -109,7 +109,7 @@ export default function PostCard({ anfitriona, height }: Props) {
           <Text style={{ color: "white", fontSize: 12, marginTop: 3 }}>{likes}</Text>
         </TouchableOpacity>
 
-        {/* Popular */}
+     
         {anfitriona.isPopular && (
           <View style={{ alignItems: "center", marginBottom: 22 }}>
             <Flame size={32} color="#f97316" fill="#f97316" />
@@ -117,7 +117,7 @@ export default function PostCard({ anfitriona, height }: Props) {
           </View>
         )}
 
-        {/* Favoritos */}
+       
         <TouchableOpacity onPress={() => setSaved((p) => !p)} style={{ alignItems: "center" }}>
           <Bookmark
             size={32}
@@ -128,7 +128,7 @@ export default function PostCard({ anfitriona, height }: Props) {
         </TouchableOpacity>
       </View>
 
-      {/* Bottom info */}
+    
       <View style={{ position: "absolute", bottom: 20, left: 12, right: 80 }}>
         <Text style={{ color: "white", fontWeight: "bold", fontSize: 18 }}>
           @{anfitriona.username ?? anfitriona.name}
