@@ -107,6 +107,27 @@ export default function HostessFormComponent({
           onChangeText={(text) => onChange("username", text)}
         />
 
+        <Text className="text-white mt-4">Correo electrónico</Text>
+        <TextInput
+          className="bg-white/10 rounded-2xl p-3 mt-2 text-white"
+          placeholder="correo@ejemplo.com"
+          placeholderTextColor="#c9c9c9"
+          keyboardType="email-address"
+          autoCapitalize="none"
+          value={form.email}
+          onChangeText={(text) => onChange("email", text)}
+        />
+
+        <Text className="text-white mt-4">Contraseña</Text>
+        <TextInput
+          className="bg-white/10 rounded-2xl p-3 mt-2 text-white"
+          placeholder="Mínimo 6 caracteres"
+          placeholderTextColor="#c9c9c9"
+          secureTextEntry
+          value={form.password}
+          onChangeText={(text) => onChange("password", text)}
+        />
+
         <Text className="text-white mt-4">Documento de identidad</Text>
         <TextInput
           className="bg-white/10 rounded-2xl p-3 mt-2 text-white"

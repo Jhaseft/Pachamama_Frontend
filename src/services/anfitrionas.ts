@@ -8,7 +8,8 @@ export type CreateAnfitrionaInput = {
   dateOfBirth: string;
   cedula: string;
   username: string;
-  email?: string;
+  email: string;
+  password: string;
   idDoc?: {
     uri: string;
     name: string;
@@ -47,9 +48,8 @@ export async function createAnfitriona(
   formData.append("dateOfBirth", input.dateOfBirth);
   formData.append("cedula", input.cedula);
   formData.append("username", input.username);
-  if (input.email) {
-    formData.append("email", input.email);
-  }
+  formData.append("email", input.email);
+  formData.append("password", input.password);
   if (input.idDoc) {
     formData.append(
       "idDoc",
