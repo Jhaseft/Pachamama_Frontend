@@ -13,7 +13,7 @@ type Props = {
 
 export default function PostCard({ anfitriona, height }: Props) {
   const router = useRouter();
-  const [liked, setLiked] = useState(false);
+  const [liked, setLiked] = useState(anfitriona.isLiked ?? false);
   const [saved, setSaved] = useState(anfitriona.isFavorite ?? false);
   const [likes, setLikes] = useState(anfitriona.likesCount ?? 0);
   const { width: W, height: H } = useWindowDimensions();

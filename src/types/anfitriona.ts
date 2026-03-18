@@ -15,6 +15,7 @@ export type Anfitriona = {
   // Fields not yet returned by backend — optional, mapper provides defaults
   solPrice?: number;
   likesCount?: number;
+  isLiked?: boolean;
   isPopular?: boolean;
   isFavorite?: boolean;
 };
@@ -33,6 +34,7 @@ export type AnfitrioneApiListItem = {
   images: string[];
   isOnline: boolean;
   likesCount: number;
+  isLiked: boolean;
 };
 
 export type AnfitrioneApiListResponse = {
