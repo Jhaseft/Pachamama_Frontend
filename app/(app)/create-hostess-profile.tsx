@@ -92,9 +92,9 @@ export default function CreateHostessProfile() {
           dateOfBirth: form.dateOfBirth.trim(),
           cedula: form.identityNumber.trim(),
           username: form.username.trim(),
-          email: form.email.trim() || undefined,
+          email: form.email.trim(),
+          password: form.password.trim(),
           idDoc: idDocFile ?? undefined,
-          // El backend actual no soporta password, foto de perfil.
         },
         accessToken,
       );

@@ -32,6 +32,7 @@ function mapListItemToAnfitriona(item: AnfitrioneApiListItem): Anfitriona {
     images,
     isOnline: item.isOnline,
     likesCount: item.likesCount ?? 0,
+    isLiked: item.isLiked ?? false,
     isPopular: false,
     isFavorite: false,
   };
@@ -106,6 +107,8 @@ function mapDetailToProfile(data: AnfitrioneApiDetail): AnfitrioneProfileDetail 
     isOnline: data.isOnline,
     galleryImages: data.images,
     introMessage: data.bio ?? "",
+    likesCount: data.likesCount,
+    isLiked: data.isLiked,
     // TODO: replace with real backend data when trust/stories endpoints are added
     highlightedStories: [],
     trustItems: [

@@ -30,5 +30,22 @@ export function validateHostessForm(form: HostessForm): ValidationResult {
         return { ok: false, message: "El nombre de usuario es obligatorio" };
     }
 
+    if (!form.email.trim()) {
+        return { ok: false, message: "El correo electrónico es obligatorio" };
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(form.email.trim())) {
+        return { ok: false, message: "El correo electrónico no es válido" };
+    }
+
+    if (!form.password.trim()) {
+        return { ok: false, message: "La contraseña es obligatoria" };
+    }
+
+    if (form.password.trim().length < 6) {
+        return { ok: false, message: "La contraseña debe tener al menos 6 caracteres" };
+    }
+
     return { ok: true, message: "" };
 }

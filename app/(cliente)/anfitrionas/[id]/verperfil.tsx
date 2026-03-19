@@ -9,6 +9,7 @@ import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Pressable,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -46,7 +47,7 @@ export default function AnfitrioneProfileScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: "#111" }}>
       <Stack.Screen options={{ headerShown: false }} />
-      {/* Back button */}
+
       <TouchableOpacity
         onPress={() => router.back()}
         style={{
@@ -63,14 +64,14 @@ export default function AnfitrioneProfileScreen() {
         <Text style={{ color: "white", fontSize: 14, fontWeight: "600" }}>← Volver</Text>
       </TouchableOpacity>
 
-      {/* Loading */}
+
       {loading && (
         <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
           <ActivityIndicator size="large" color="#ec4899" />
         </View>
       )}
 
-      {/* Error */}
+
       {!loading && error && (
         <View style={{ flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 24 }}>
           <Text style={{ color: "white", textAlign: "center", fontSize: 16, marginBottom: 16 }}>
@@ -90,7 +91,6 @@ export default function AnfitrioneProfileScreen() {
         </View>
       )}
 
-      {/* Not found */}
       {!loading && !error && !profile && (
         <View style={{ flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 24 }}>
           <Text style={{ color: "#9ca3af", textAlign: "center", fontSize: 16 }}>
@@ -99,7 +99,7 @@ export default function AnfitrioneProfileScreen() {
         </View>
       )}
 
-      {/* Profile content */}
+
       {!loading && !error && profile && (
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -111,6 +111,15 @@ export default function AnfitrioneProfileScreen() {
             coverImage={profile.coverImage}
             isOnline={profile.isOnline}
           />
+
+          <Pressable
+            onPress={() => router.push(`/(cliente)` as any)}
+            className="bg-red-500 w-full p-4 rounded-xl items-center mx-auto my-3 active:bg-red-600"
+          >
+            <Text className="text-white font-bold">
+              Chatear ahora
+            </Text>
+          </Pressable>
 
           <HighlightStoriesRow stories={profile.highlightedStories} />
 

@@ -1,4 +1,15 @@
-import { FlatList, Image, Text, View } from "react-native";
+import { useState } from "react";
+import {
+  FlatList,
+  Image,
+  Modal,
+  StatusBar,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+  useWindowDimensions,
+} from "react-native";
 
 type Props = {
   images: string[];
@@ -7,6 +18,9 @@ type Props = {
 const THUMB_SIZE = 130;
 
 export default function GallerySection({ images }: Props) {
+  const [selected, setSelected] = useState<string | null>(null);
+  const { width, height } = useWindowDimensions();
+
   if (images.length === 0) return null;
 
   return (
@@ -30,7 +44,9 @@ export default function GallerySection({ images }: Props) {
         keyExtractor={(_, i) => String(i)}
         ItemSeparatorComponent={() => <View style={{ width: 10 }} />}
         renderItem={({ item }) => (
-          <View
+          <TouchableOpacity
+            activeOpacity={0.85}
+            onPress={() => setSelected(item)}
             style={{
               width: THUMB_SIZE,
               height: THUMB_SIZE * 1.3,
@@ -44,9 +60,27 @@ export default function GallerySection({ images }: Props) {
               style={{ width: "100%", height: "100%" }}
               resizeMode="cover"
             />
-          </View>
+          </TouchableOpacity>
         )}
       />
+
+      <Modal visible={!!selected} transparent animationType="fade" statusBarTranslucent>
+        <StatusBar hidden />
+        <TouchableWithoutFeedback onPress={() => setSelected(null)}>
+          <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.95)", alignItems: "center", justifyContent: "center" }}>
+            {selected && (
+              <Image
+                source={{ uri: selected }}
+                style={{ width, height: height * 0.85 }}
+                resizeMode="contain"
+              />
+            )}
+            <Text style={{ color: "rgba(255,255,255,0.4)", marginTop: 16, fontSize: 13 }}>
+              Toca para cerrar
+            </Text>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     </View>
   );
 }

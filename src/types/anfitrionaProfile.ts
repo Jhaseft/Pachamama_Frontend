@@ -21,4 +21,6 @@ export type AnfitrioneProfileDetail = {
   galleryImages: string[];
   introMessage: string;
   trustItems: TrustItem[];
+  likesCount: number;
+  isLiked: boolean;
 };

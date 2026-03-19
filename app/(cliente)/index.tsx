@@ -13,7 +13,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
-  Animated,
+  FlatList,
   LayoutChangeEvent,
   Text,
   TouchableOpacity,
@@ -32,13 +32,6 @@ export default function ClienteInicio() {
   const [page, setPage] = useState(1);
   const hasMore = useRef(true);
 
-  const scrollY = useRef(new Animated.Value(0)).current;
-  const storiesTranslateY = scrollY.interpolate({
-    inputRange: [0, storiesBarHeight || 80],
-    outputRange: [0, -(storiesBarHeight || 80)],
-    extrapolate: "clamp",
-  });
-
   const router = useRouter();
   const [feed, setFeed] = useState<HistoryFeedItem[]>([]);
 
@@ -46,8 +39,8 @@ export default function ClienteInicio() {
     try {
       const data = await apiGetStoriesFeed();
       setFeed(data ?? []);
-    } catch (error) {
-      console.error("Error cargando historias:", error);
+    } catch (e) {
+      console.error("Error cargando historias:", e);
       setFeed([]);
     }
   };
@@ -61,9 +54,7 @@ export default function ClienteInicio() {
 
   const handleFeedLayout = (event: LayoutChangeEvent) => {
     const nextHeight = Math.round(event.nativeEvent.layout.height);
-    if (nextHeight !== feedHeight) {
-      setFeedHeight(nextHeight);
-    }
+    if (nextHeight !== feedHeight) setFeedHeight(nextHeight);
   };
 
   const loadAnfitrionas = async () => {
@@ -92,7 +83,7 @@ export default function ClienteInicio() {
       setPage(nextPage);
       hasMore.current = result.hasMore;
     } catch {
-      // silencioso: el usuario puede seguir viendo las que ya cargaron
+      // silencioso
     } finally {
       setLoadingMore(false);
     }
@@ -101,6 +92,30 @@ export default function ClienteInicio() {
   useEffect(() => {
     void loadAnfitrionas();
   }, []);
+
+  const handleStorySelect = (item: HistoryFeedItem) => {
+    if (!item.stories || item.stories.length === 0) {
+      console.warn(`La anfitriona ${item.name} no tiene historias activas.`);
+      return;
+    }
+    const formattedStories = item.stories.map((s) => ({
+      id: s.id,
+      uri: s.mediaUrl,
+      type: s.mediaType === "VIDEO" ? "video" : "image",
+      duration: 5,
+    }));
+    router.push({
+      pathname: "/story-viewer",
+      params: {
+        data: JSON.stringify({
+          id: item.userId,
+          name: item.name,
+          avatar: item.avatar,
+          stories: formattedStories,
+        }),
+      },
+    });
+  };
 
   return (
     <SafeAreaView className="flex-1 -mt-8 bg-black">
@@ -126,9 +141,7 @@ export default function ClienteInicio() {
               borderRadius: 999,
             }}
           >
-            <Text style={{ color: "white", fontWeight: "600" }}>
-              Reintentar
-            </Text>
+            <Text style={{ color: "white", fontWeight: "600" }}>Reintentar</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -142,10 +155,10 @@ export default function ClienteInicio() {
         </View>
       )}
 
-      {/* Feed + stories overlay */}
+      {/* Feed */}
       {!loading && !error && anfitrionas.length > 0 && (
         <View style={{ flex: 1 }} onLayout={handleFeedLayout}>
-          <Animated.FlatList
+          <FlatList
             data={anfitrionas}
             keyExtractor={(item) => item.id}
             pagingEnabled
@@ -154,13 +167,21 @@ export default function ClienteInicio() {
             style={{ flex: 1 }}
             onEndReached={loadMore}
             onEndReachedThreshold={0.5}
-            onScroll={Animated.event(
-              [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-              { useNativeDriver: true },
-            )}
-            scrollEventThrottle={16}
-            renderItem={({ item }) => (
-              <PostCard anfitriona={item} height={feedHeight} />
+            ListHeaderComponent={
+              <View
+                onLayout={(e) => {
+                  const h = Math.round(e.nativeEvent.layout.height);
+                  if (h !== storiesBarHeight) setStoriesBarHeight(h);
+                }}
+              >
+                <StoriesBarFeed stories={feed} onSelect={handleStorySelect} />
+              </View>
+            }
+            renderItem={({ item, index }) => (
+              <PostCard
+                anfitriona={item}
+                height={index === 0 ? feedHeight - storiesBarHeight : feedHeight}
+              />
             )}
             ListFooterComponent={
               loadingMore ? (
@@ -176,51 +197,6 @@ export default function ClienteInicio() {
               ) : null
             }
           />
-
-          {/* Stories bar — flota sobre el feed y sube con el scroll */}
-          <Animated.View
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              transform: [{ translateY: storiesTranslateY }],
-            }}
-            onLayout={(e) => {
-              const h = Math.round(e.nativeEvent.layout.height);
-              if (h !== storiesBarHeight) setStoriesBarHeight(h);
-            }}
-          >
-            <StoriesBarFeed
-              stories={feed}
-              onSelect={(item) => {
-                //     console.log("ITEM CLICK:", item);
-                if (!item.stories || item.stories.length === 0) {
-                  console.warn(`La anfitriona ${item.name} no tiene historias activas.`);
-                  return;
-                }
-
-                const formattedStories = item.stories.map((s) => ({
-                  id: s.id,
-                  uri: s.mediaUrl,
-                  type: s.mediaType === "VIDEO" ? "video" : "image",
-                  duration: 5,
-                }));
-
-                router.push({
-                  pathname: "/story-viewer",
-                  params: {
-                    data: JSON.stringify({
-                      id: item.userId,
-                      name: item.name,
-                      avatar: item.avatar,
-                      stories: formattedStories,
-                    }),
-                  },
-                });
-              }}
-            />
-          </Animated.View>
         </View>
       )}
     </SafeAreaView>
