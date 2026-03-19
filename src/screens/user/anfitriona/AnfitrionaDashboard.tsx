@@ -14,6 +14,7 @@ import { apiGetMyProfile, type MyProfileData } from '@/src/api/anfitrionaProfile
 import { HistoryItem } from '@/src/types/anfitrionaHistory';
 
 import { HistoryViewer } from '@/src/components/user/HistoryViewer';
+import ConfirmDialog from '@/src/components/ConfirmDialog';
 
 import * as ImagePicker from 'expo-image-picker';
 
@@ -32,6 +33,9 @@ export default function AnfitrionaDashboard() {
 
     const [selectedHistory, setSelectedHistory] = useState<HistoryItem | null>(null);
     const [viewerVisible, setViewerVisible] = useState(false);
+
+    const [historyToDelete, setHistoryToDelete] = useState<string | null>(null);
+    const [confirmVisible, setConfirmVisible] = useState(false);
 
     // Función para abrir el visor
     const handleViewHistory = (item: HistoryItem) => {
@@ -52,6 +56,12 @@ export default function AnfitrionaDashboard() {
             setSelectedMedia(result.assets[0]);
             setModalVisible(true);
         }
+    };
+
+    //funcion que habre el modal de confirmacion para elimiar una historia
+    const showDeleteConfirmation = (id: string) => {
+        setHistoryToDelete(id);
+        setConfirmVisible(true);
     };
 
     // Función para subir al Backend
@@ -116,29 +126,19 @@ export default function AnfitrionaDashboard() {
     };
 
     //funcion para eliminar una historia
-    const handleDelete = async (id: string) => {
-        Alert.alert(
-            "Eliminar historia",
-            "¿Estás segura de que quieres borrar esta historia permanentemente?",
-            [
-                { text: "Cancelar", style: "cancel" },
-                {
-                    text: "Eliminar",
-                    style: "destructive",
-                    onPress: async () => {
-                        try {
-                            await apiDeleteHistory(id);
-                            setViewerVisible(false); // Cierra el visor
-                            loadStories(); // Recarga la lista
-                            Alert.alert("Eliminado", "La historia ha sido borrada.");
-                        } catch (error) {
-                            Alert.alert("Error", String(error));
-                        }
-                    }
-                }
-            ]
-        );
-    };
+    const handleConfirmDelete = async () => {
+        if (!historyToDelete) return;
+
+        try {
+            await apiDeleteHistory(historyToDelete);
+            setConfirmVisible(false); // cierra el modal de confirmacion
+            setViewerVisible(false); //cierra el visor si esta abierto
+            loadStories(); //reacarga la lista
+            setHistoryToDelete(null);
+        } catch (error) {
+            Alert.alert("Error", "No se pudo eliminar la historia.");
+        }
+    }
 
     if (loading) {
         return (
@@ -187,7 +187,7 @@ export default function AnfitrionaDashboard() {
                     <View className="flex-row w-full items-center">
                         <View className="items-center mr-6">
                             <TouchableOpacity
-                                onPress={pickImage} 
+                                onPress={pickImage}
                                 className="w-16 h-16 bg-red-600 rounded-full justify-center items-center border-2 border-white/20"
                             >
                                 <Text className="text-white text-3xl">+</Text>
@@ -208,7 +208,7 @@ export default function AnfitrionaDashboard() {
                                 isLocked: item.priceCredits > 0 // Lógica para mostrar candado si tiene precio
                             }}
                             onPress={() => handleViewHistory(item)}
-                            onDelete={() => handleDelete(item.id)}
+                            onDelete={() => showDeleteConfirmation(item.id)}
                         />
                     )}
                     keyExtractor={item => item.id}
@@ -238,7 +238,18 @@ export default function AnfitrionaDashboard() {
                 isVisible={viewerVisible}
                 item={selectedHistory}
                 onClose={() => setViewerVisible(false)}
-                onDelete={handleDelete}
+                onDelete={(id: string) => showDeleteConfirmation(id)}
+            />
+
+            <ConfirmDialog
+                visible={confirmVisible}
+                title="¿Eliminar historia?"
+                message="Esta acción no se puede deshacer. La imagen se borrará permanentemente."
+                onConfirm={handleConfirmDelete}
+                onCancel={() => {
+                    setConfirmVisible(false);
+                    setHistoryToDelete(null);
+                }}
             />
         </>
     );
