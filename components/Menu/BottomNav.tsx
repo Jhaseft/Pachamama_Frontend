@@ -42,6 +42,7 @@ export default function BottomNav({ role }: { role: Role }) {
   };
 
   const handlePress = (tabName: string) => {
+    if (isActive(tabName)) return;
     if (tabName === "index") {
       router.push(`/(${role})` as any);
     } else {

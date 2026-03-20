@@ -4,7 +4,9 @@ import BottomNav from "@/components/Menu/BottomNav";
 
 export default function AnfitrianaLayout() {
   const pathname = usePathname();
-  const hideNav = pathname.includes("/chat/");
+  const hideNav =
+  pathname.includes("/chat/") ||
+  pathname.includes("/precios");
 
   return (
     <View style={{ flex: 1 }}>

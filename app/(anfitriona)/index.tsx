@@ -71,13 +71,12 @@ export default function AnfitrianaInicio() {
   const mensajesNuevos = MENSAJES.filter((m) => !m.leido).length;
   const totalClientes = CLIENTES.length;
 
-  const ACCESOS = [
-    { Icon: MessageCircle, label: "Mensajes", sub: `${mensajesNuevos} nuevos` },
-    { Icon: DollarSign, label: "Ganancias", sub: `S/ ${GANANCIAS.hoy}` },
-    { Icon: Settings, label: "Mis precios", sub: null },
-    { Icon: Users, label: "Clientes", sub: `${totalClientes} total` },
-  ];
-
+const ACCESOS = [
+  { Icon: MessageCircle, label: "Mensajes", sub: `${mensajesNuevos} nuevos`, route: "/(anfitriona)/chats" },
+  { Icon: DollarSign, label: "Ganancias", sub: `S/ ${GANANCIAS.hoy}`, route: "/(anfitriona)/ganancias" },
+  { Icon: Settings, label: "Mis precios", sub: null, route: "/(anfitriona)/precios" },
+  { Icon: Users, label: "Clientes", sub: `${totalClientes} total`, route: "/(anfitriona)/clientes" },
+];
 
 
   return (
@@ -120,16 +119,17 @@ export default function AnfitrianaInicio() {
 
         <Text className="text-white text-lg font-bold mb-3">Accesos Rapidos</Text>
         <View className="flex-row flex-wrap gap-3 mb-6">
-          {ACCESOS.map(({ Icon, label, sub }) => (
+          {ACCESOS.map(({ Icon, label, sub ,route}) => (
             <Pressable
-              key={label}
-              className="bg-red-600 rounded-xl p-4 items-center justify-center active:opacity-70"
-              style={{ width: "47%" }}
-            >
-              <Icon size={32} color="white" />
-              <Text className="text-white font-semibold mt-2">{label}</Text>
-              {sub && <Text className="text-white text-xs opacity-80">{sub}</Text>}
-            </Pressable>
+            key={label}
+            onPress={() => router.push(route as any)}
+            className="bg-red-600 rounded-xl p-4 items-center justify-center active:opacity-70"
+            style={{ width: "47%" }}
+          >
+            <Icon size={32} color="white" />
+            <Text className="text-white font-semibold mt-2">{label}</Text>
+            {sub && <Text className="text-white text-xs opacity-80">{sub}</Text>}
+          </Pressable>
           ))}
         </View>
 
