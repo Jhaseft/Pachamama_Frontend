@@ -2,6 +2,7 @@ import React from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
 import type { HostessForm, IdentityFile } from "../types/hostess";
 import PrimaryButton from "@/components/PrimaryButton";
+import HeaderBack from "./HeaderBack";
 
 type HostessFormProps = {
   form: HostessForm;
@@ -25,7 +26,8 @@ export default function HostessFormComponent({
   onSubmit,
 }: HostessFormProps) {
   return (
-    <View>
+    <View className="pt-10">
+      <HeaderBack href="/admin" title="Crear anfitriona" />
       <View className="mt-4">
         <Text className="text-white text-3xl font-bold">
           Crear anfitriona

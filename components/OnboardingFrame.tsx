@@ -25,7 +25,7 @@ export default function OnboardingFrame({
   onNext,
 }: OnboardingFrameProps) {
   return (
-    <Screen className="pt-2">
+    <Screen className="pt-10">
       <View className="flex-row items-center justify-between mb-6">
         <Image source={logo} className="w-8 h-8" resizeMode="contain" />
         <Pressable onPress={onSkip}>

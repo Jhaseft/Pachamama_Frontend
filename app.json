@@ -5,11 +5,11 @@
     "scheme": "pachamama",
     "version": "4.0",
     "orientation": "portrait",
-    "icon": "./assets/mascara.jpg",
+    "icon": "./assets/logofull.jpeg",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/mascara.jpg",
+      "image": "./assets/logofull.jpeg",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -19,9 +19,9 @@
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       },
-      "icon": "./assets/mascara.jpg",
+      "icon": "./assets/logofull.jpeg",
       "splash": {
-        "image": "./assets/mascara.jpg",
+        "image": "./assets/logofull.jpeg",
         "resizeMode": "contain",
         "backgroundColor": "#ffffff"
       }
@@ -30,13 +30,13 @@
       "softwareKeyboardLayoutMode": "resize",
       "package": "com.pachamama.app",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/mascara.jpg",
+        "foregroundImage": "./assets/logofull.jpeg",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true
     },
     "web": {
-      "favicon": "./assets/mascara.jpg"
+      "favicon": "./assets/logofull.jpeg"
     },
     "plugins": [
       "expo-dev-client",

@@ -87,7 +87,7 @@ export default function Profile() {
       });
       await setSession(response.access_token, response.user);
       await removeTempToken();
-      router.replace("/(app)/home-client");
+      router.replace("/(cliente)");
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "No se pudo completar el registro.";

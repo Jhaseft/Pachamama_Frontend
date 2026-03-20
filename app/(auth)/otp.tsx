@@ -71,7 +71,7 @@ export default function Otp() {
       if ("access_token" in result) {
         await setSession(result.access_token, result.user);
         await removeTempToken();
-        router.replace("/(app)/home-client");
+        router.replace("/(cliente)");
         return;
       }
 
