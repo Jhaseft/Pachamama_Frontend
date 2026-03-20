@@ -13,7 +13,7 @@ export default function Screen({
   pad = true,
 }: ScreenProps) {
   return (
-    <View className={`flex-1 ${pad ? "px-6" : ""} ${className} bg-black`}>
+    <View className={`flex-1 ${pad ? "px-6" : ""} ${className} bg-black pt-10`}>
       {children}
     </View>
   );

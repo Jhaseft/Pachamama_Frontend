@@ -1,6 +1,7 @@
 import { View, Pressable, Text } from "react-native";
 import { useRouter, usePathname } from "expo-router";
 import { Home, MessageCircle,  User,  Gem, CircleDollarSign } from "lucide-react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type Role = "anfitriona" | "cliente";
 
@@ -28,6 +29,7 @@ const activeColor: Record<Role, string> = {
 export default function BottomNav({ role }: { role: Role }) {
   const router = useRouter();
   const pathname = usePathname();
+  const insets = useSafeAreaInsets();
 
   const tabs = tabsByRole[role];
   const color = activeColor[role];
@@ -48,7 +50,7 @@ export default function BottomNav({ role }: { role: Role }) {
   };
 
   return (
-    <View className="flex-row bg-black ">
+    <View className="flex-row bg-black">
       {tabs.map((tab) => {
         const Icon = tab.icon;
         const active = isActive(tab.name);

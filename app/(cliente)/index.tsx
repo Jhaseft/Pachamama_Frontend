@@ -13,6 +13,8 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  AppState,
+  AppStateStatus,
   FlatList,
   LayoutChangeEvent,
   Text,
@@ -31,6 +33,7 @@ export default function ClienteInicio() {
   const [storiesBarHeight, setStoriesBarHeight] = useState(0);
   const [page, setPage] = useState(1);
   const hasMore = useRef(true);
+  const feedContainerRef = useRef<View>(null);
 
   const router = useRouter();
   const [feed, setFeed] = useState<HistoryFeedItem[]>([]);
@@ -51,6 +54,20 @@ export default function ClienteInicio() {
       loadFeed();
     }, [])
   );
+
+  // Re-mide el contenedor cuando la app vuelve del segundo plano
+  useEffect(() => {
+    const handleAppState = (nextState: AppStateStatus) => {
+      if (nextState === "active") {
+        feedContainerRef.current?.measure((_x, _y, _w, height) => {
+          const h = Math.round(height);
+          if (h > 0) setFeedHeight(h);
+        });
+      }
+    };
+    const sub = AppState.addEventListener("change", handleAppState);
+    return () => sub.remove();
+  }, []);
 
   const handleFeedLayout = (event: LayoutChangeEvent) => {
     const nextHeight = Math.round(event.nativeEvent.layout.height);
@@ -118,17 +135,16 @@ export default function ClienteInicio() {
   };
 
   return (
-    <SafeAreaView className="flex-1 -mt-8 bg-black">
+    <SafeAreaView edges={["top"]} className="flex-1 bg-black">
       <ScreenHeader title="ANFITRIONAS" role="cliente" />
 
-      {/* Loading */}
+
       {loading && (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color="#ec4899" />
         </View>
       )}
 
-      {/* Error */}
       {!loading && error && (
         <View className="flex-1 items-center justify-center px-6">
           <Text className="text-white text-center text-base mb-4">{error}</Text>
@@ -146,7 +162,7 @@ export default function ClienteInicio() {
         </View>
       )}
 
-      {/* Empty */}
+   
       {!loading && !error && anfitrionas.length === 0 && (
         <View className="flex-1 items-center justify-center">
           <Text style={{ color: "#6b7280", fontSize: 16 }}>
@@ -155,9 +171,9 @@ export default function ClienteInicio() {
         </View>
       )}
 
-      {/* Feed */}
+  
       {!loading && !error && anfitrionas.length > 0 && (
-        <View style={{ flex: 1 }} onLayout={handleFeedLayout}>
+        <View ref={feedContainerRef} style={{ flex: 1 }} onLayout={handleFeedLayout}>
           <FlatList
             data={anfitrionas}
             keyExtractor={(item) => item.id}

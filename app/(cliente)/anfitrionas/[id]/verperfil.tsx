@@ -5,6 +5,7 @@ import ProfileHeader from "@/components/cliente/profile/ProfileHeader";
 import TrustSection from "@/components/cliente/profile/TrustSection";
 import { getPublicHostessProfile } from "@/src/services/hostesses";
 import type { AnfitrioneProfileDetail } from "@/src/types/anfitrionaProfile";
+import { useAuth } from "@/src/context/AuthContext";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -21,6 +22,7 @@ export default function AnfitrioneProfileScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { user } = useAuth();
 
   const [profile, setProfile] = useState<AnfitrioneProfileDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -113,7 +115,17 @@ export default function AnfitrioneProfileScreen() {
           />
 
           <Pressable
-            onPress={() => router.push(`/(cliente)` as any)}
+            onPress={() =>
+              router.push({
+                pathname: '/(cliente)/chat/[conversationId]' as any,
+                params: {
+                  conversationId: 'new',
+                  otherUserId: id,
+                  otherUserName: profile.name,
+                  otherUserAvatar: profile.avatar ?? '',
+                },
+              })
+            }
             className="bg-red-500 w-full p-4 rounded-xl items-center mx-auto my-3 active:bg-red-600"
           >
             <Text className="text-white font-bold">
