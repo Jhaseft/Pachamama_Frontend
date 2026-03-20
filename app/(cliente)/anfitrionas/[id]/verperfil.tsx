@@ -1,3 +1,4 @@
+
 import GallerySection from "@/components/cliente/profile/GallerySection";
 import HighlightStoriesRow from "@/components/cliente/profile/HighlightStoriesRow";
 import IntroCard from "@/components/cliente/profile/IntroCard";
