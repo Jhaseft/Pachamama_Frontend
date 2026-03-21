@@ -18,8 +18,9 @@ import type { GalleryItemPublic } from "../../../src/types/gallery";
 
 type Props = {
   images: GalleryItemPublic[];
-  anfitrionaId: string;
-  onImageUnlocked: (imageId: string) => void;
+  anfitrionaId?: string;
+  onImageUnlocked?: (imageId: string) => void;
+  readOnly?: boolean;
 };
 
 const ITEM_GAP = 12;
@@ -33,12 +34,14 @@ function GalleryCarouselItem({
   onPress,
   onUnlock,
   isUnlocking,
+  readOnly,
 }: {
   item: GalleryItemPublic;
   itemWidth: number;
   onPress: () => void;
   onUnlock: () => void;
   isUnlocking: boolean;
+  readOnly: boolean;
 }) {
   const itemHeight = itemWidth * 1.35;
   const isLocked = item.isPremium && !item.isUnlockedByViewer;
@@ -62,6 +65,7 @@ function GalleryCarouselItem({
           unlockCredits={item.unlockCredits}
           isUnlocking={isUnlocking}
           onUnlock={onUnlock}
+          readOnly={readOnly}
         />
       ) : (
         // ── Imagen visible (normal o premium ya desbloqueada) ─────────────────
@@ -147,8 +151,9 @@ function GalleryViewer({
 
 export default function GallerySection({
   images,
-  anfitrionaId,
+  anfitrionaId = '',
   onImageUnlocked,
+  readOnly = false,
 }: Props) {
   const [selected, setSelected] = useState<GalleryItemPublic | null>(null);
   const { width } = useWindowDimensions();
@@ -230,10 +235,11 @@ export default function GallerySection({
             onPress={() => handlePress(item)}
             onUnlock={() =>
               unlockImage(anfitrionaId, item.id, () =>
-                onImageUnlocked(item.id),
+                onImageUnlocked?.(item.id),
               )
             }
             isUnlocking={unlockingImageId === item.id}
+            readOnly={readOnly}
           />
         )}
       />

@@ -38,6 +38,14 @@ export default function GalleryItemCard({ item, onPress }: Props) {
           </View>
         </View>
       )}
+
+      {/* Overlay oculta — imagen no visible en el perfil público */}
+      {!item.isVisible && (
+        <View className="absolute inset-0 bg-black/60 justify-center items-center">
+          <MaterialCommunityIcons name="eye-off" size={28} color="#a1a1aa" />
+          <Text className="text-zinc-400 text-[10px] mt-1">Oculta</Text>
+        </View>
+      )}
     </TouchableOpacity>
   );
 }

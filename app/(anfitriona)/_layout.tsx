@@ -6,7 +6,8 @@ export default function AnfitrianaLayout() {
   const pathname = usePathname();
   const hideNav =
   pathname.includes("/chat/") ||
-  pathname.includes("/precios");
+  pathname.includes("/precios") ||
+  pathname.includes("/vista-previa");
 
   return (
     <View style={{ flex: 1 }}>

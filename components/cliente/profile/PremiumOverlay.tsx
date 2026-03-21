@@ -10,6 +10,7 @@ type Props = {
   unlockCredits: number | null;
   isUnlocking: boolean;
   onUnlock: () => void;
+  readOnly?: boolean;
 };
 
 /**
@@ -20,6 +21,7 @@ export default function PremiumOverlay({
   unlockCredits,
   isUnlocking,
   onUnlock,
+  readOnly = false,
 }: Props) {
   return (
     <View
@@ -74,40 +76,40 @@ export default function PremiumOverlay({
           </View>
         )}
 
-        {/* Botón de desbloqueo */}
-        <TouchableOpacity
-          onPress={onUnlock}
-          disabled={isUnlocking}
-          activeOpacity={0.8}
-          style={{
-            marginTop: 4,
-            backgroundColor: isUnlocking ? "#7f1d1d" : "#ef4444",
-            paddingHorizontal: 18,
-            paddingVertical: 9,
-            borderRadius: 999,
-            flexDirection: "row",
-            alignItems: "center",
-            gap: 6,
-          }}
-        >
-          {isUnlocking ? (
-            <>
-              <ActivityIndicator size="small" color="white" />
-              <Text style={{ color: "white", fontWeight: "700", fontSize: 13 }}>
-                Desbloqueando…
-              </Text>
-            </>
-          ) : (
-            <>
-              <MaterialCommunityIcons name="lock-open" size={14} color="white" />
-              <Text style={{ color: "white", fontWeight: "700", fontSize: 13 }}>
-                {unlockCredits != null
-                  ? `Desbloquear`
-                  : "Desbloquear"}
-              </Text>
-            </>
-          )}
-        </TouchableOpacity>
+        {/* Botón de desbloqueo — oculto en modo preview */}
+        {!readOnly && (
+          <TouchableOpacity
+            onPress={onUnlock}
+            disabled={isUnlocking}
+            activeOpacity={0.8}
+            style={{
+              marginTop: 4,
+              backgroundColor: isUnlocking ? "#7f1d1d" : "#ef4444",
+              paddingHorizontal: 18,
+              paddingVertical: 9,
+              borderRadius: 999,
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
+            {isUnlocking ? (
+              <>
+                <ActivityIndicator size="small" color="white" />
+                <Text style={{ color: "white", fontWeight: "700", fontSize: 13 }}>
+                  Desbloqueando…
+                </Text>
+              </>
+            ) : (
+              <>
+                <MaterialCommunityIcons name="lock-open" size={14} color="white" />
+                <Text style={{ color: "white", fontWeight: "700", fontSize: 13 }}>
+                  Desbloquear
+                </Text>
+              </>
+            )}
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
