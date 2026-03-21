@@ -8,6 +8,13 @@ interface PaginatedClients {
     nextCursor?: string | null;
 }
 
+export interface WalletResponse {
+    success: boolean;
+    balance: number;
+    userId: string;
+    updatedAt: string;
+}
+
 function parseApiError(error: any, fallback: string) {
     const rawMessage = error?.response?.data?.message ?? error?.message;
     if (Array.isArray(rawMessage)) return rawMessage.join(', ');
@@ -40,5 +47,17 @@ export const apiToggleClientStatus = async (id: string, isActive: boolean) => {
         return response.data;
     } catch (error: any) {
         throw new Error(parseApiError(error, 'Error al actualizar estado'));
+    }
+};
+
+// SERVICIOS DE BILLETERA
+export const apiGetMyWallet = async (): Promise<WalletResponse> => {
+    try {
+        const response = await apiClient.get('users/wallet');
+        return response.data;
+    } catch (error: any) {
+        throw new Error(
+            parseApiError(error, 'No se pudo cargar el saldo de la billetera')
+        );
     }
 };
