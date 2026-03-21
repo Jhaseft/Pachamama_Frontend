@@ -15,13 +15,3 @@ export interface CreateDepositRequest {
     paymentMethodId: string;
 }
 
-/**
- * 👉 Esto es TypeScript puro
-* 👉 Sirve para definir cómo es la respuesta de tu backend
-* 
-* 🔥 En palabras simples
-
-Es como decir:
-
-“Cuando yo llame a la API, espero que me devuelva esto”
- */
