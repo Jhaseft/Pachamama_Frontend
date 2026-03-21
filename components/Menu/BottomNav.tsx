@@ -36,9 +36,15 @@ export default function BottomNav({ role }: { role: Role }) {
 
   const isActive = (tabName: string) => {
     if (tabName === "index") {
-      return !tabs.some((t) => t.name !== "index" && pathname.endsWith(t.name));
+      const onAnyTab = tabs.some(
+        (t) => t.name !== "index" && pathname.endsWith(`/${t.name}`),
+      );
+      // Solo activo en la raíz; rutas anidadas (ej: /anfitrionas/id/verperfil) no activan ningún tab
+      const depth = pathname.replace(/^\//, "").split("/").filter(Boolean).length;
+      return !onAnyTab && depth <= 1;
     }
-    return pathname.endsWith(tabName);
+    // Usar /${tabName} para evitar que "verperfil" matchee "perfil"
+    return pathname.endsWith(`/${tabName}`);
   };
 
   const handlePress = (tabName: string) => {
