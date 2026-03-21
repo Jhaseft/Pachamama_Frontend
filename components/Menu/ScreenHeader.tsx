@@ -36,6 +36,7 @@ export default function ScreenHeader({
           backgroundColor,
         },
 
+        headerTintColor: "white",
         headerShadowVisible: false,
       }}
     />

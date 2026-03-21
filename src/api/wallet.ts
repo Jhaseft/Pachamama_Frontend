@@ -16,7 +16,68 @@ export interface EarningsData {
   transactions: EarningTransaction[];
 }
 
+export interface Bank {
+  id: number;
+  name: string;
+  logoUrl: string;
+}
+
+export interface BankAccount {
+  id: string;
+  bankId: number;
+  bankName: string;
+  bankLogoUrl: string;
+  accountNumber: string;
+  accountHolderName?: string;
+}
+
+export interface WithdrawalRequest {
+  id: string;
+  credits: number;
+  soles: number;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  bankName: string;
+  accountNumber: string;
+  createdAt: string;
+}
+
 export const apiGetMyEarnings = async (): Promise<EarningsData> => {
   const response = await apiClient.get('/wallet/me/earnings');
+  return response.data;
+};
+
+export const apiGetBanks = async (): Promise<Bank[]> => {
+  const response = await apiClient.get('/wallet/banks');
+  return response.data;
+};
+
+export const apiGetBankAccounts = async (): Promise<BankAccount[]> => {
+  const response = await apiClient.get('/wallet/me/bank-accounts');
+  return response.data;
+};
+
+export const apiAddBankAccount = async (data: {
+  bankId: number;
+  accountNumber: string;
+  accountHolderName?: string;
+}): Promise<BankAccount> => {
+  const response = await apiClient.post('/wallet/me/bank-accounts', data);
+  return response.data;
+};
+
+export const apiDeleteBankAccount = async (id: string): Promise<void> => {
+  await apiClient.delete(`/wallet/me/bank-accounts/${id}`);
+};
+
+export const apiCreateWithdrawalRequest = async (data: {
+  credits: number;
+  bankAccountId: string;
+}): Promise<WithdrawalRequest> => {
+  const response = await apiClient.post('/wallet/me/withdrawal-request', data);
+  return response.data;
+};
+
+export const apiGetWithdrawalRequests = async (): Promise<WithdrawalRequest[]> => {
+  const response = await apiClient.get('/wallet/me/withdrawal-requests');
   return response.data;
 };
