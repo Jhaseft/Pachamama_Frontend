@@ -54,6 +54,7 @@ export type AnfitrioneApiDetail = {
   avatar: string | null;
   coverImage: string | null;
   images: string[];
+  galleryImages: import('./gallery').GalleryItemPublic[];
   rateCredits: number | null;
   isOnline: boolean;
   likesCount: number;

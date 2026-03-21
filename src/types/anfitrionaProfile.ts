@@ -18,9 +18,11 @@ export type AnfitrioneProfileDetail = {
   coverImage: string;
   isOnline: boolean;
   highlightedStories: HighlightStory[];
-  galleryImages: string[];
+  galleryImages: import('./gallery').GalleryItemPublic[];
   introMessage: string;
   trustItems: TrustItem[];
   likesCount: number;
   isLiked: boolean;
+  /** Créditos por conversación. Null si la anfitriona no lo configuró. */
+  rateCredits: number | null;
 };
