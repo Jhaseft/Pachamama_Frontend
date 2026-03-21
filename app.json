@@ -17,7 +17,9 @@
       "bundleIdentifier": "com.pachamama.app",
       "supportsTablet": true,
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSMicrophoneUsageDescription": "Se necesita el micrófono para las llamadas de voz y video.",
+        "NSCameraUsageDescription": "Se necesita la cámara para las videollamadas."
       },
       "icon": "./assets/logofull.jpeg",
       "splash": {
@@ -33,7 +35,15 @@
         "foregroundImage": "./assets/logofull.jpeg",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.CAMERA",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.ACCESS_NETWORK_STATE",
+        "android.permission.BLUETOOTH",
+        "android.permission.READ_PHONE_STATE"
+      ]
     },
     "web": {
       "favicon": "./assets/logofull.jpeg"

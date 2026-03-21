@@ -1,10 +1,17 @@
 import { useAuth } from '@/src/context/AuthContext';
-import { getMessages, markAsRead, sendMessageHttp, type Message } from '@/src/api/messages';
+import {
+  getMessages,
+  markAsRead,
+  sendMessageHttp,
+  unlockMessage,
+  type Message,
+} from '@/src/api/messages';
 import { useSocket } from '@/hooks/useSocket';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   AppState,
   AppStateStatus,
   FlatList,
@@ -39,6 +46,7 @@ export default function ChatScreen() {
   const [loading, setLoading] = useState(true);
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
+  const [unlocking, setUnlocking] = useState<string | null>(null);
   const [activeConversationId, setActiveConversationId] = useState(
     conversationId !== 'new' ? conversationId : null,
   );
@@ -109,6 +117,36 @@ export default function ChatScreen() {
     }
   }
 
+  async function handleUnlock(messageId: string, price: number) {
+    Alert.alert(
+      'Desbloquear mensaje',
+      `¿Quieres desbloquear este mensaje por ${price} crédito${price !== 1 ? 's' : ''}?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: `Desbloquear (${price} créditos)`,
+          onPress: async () => {
+            setUnlocking(messageId);
+            try {
+              const result = await unlockMessage(messageId);
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === messageId
+                    ? { ...m, text: result.text, isLocked: false, isUnlocked: true }
+                    : m,
+                ),
+              );
+            } catch (e: any) {
+              Alert.alert('Error', e?.message ?? 'No se pudo desbloquear el mensaje');
+            } finally {
+              setUnlocking(null);
+            }
+          },
+        },
+      ],
+    );
+  }
+
   return (
     <View className="flex-1 bg-[#111]">
       <Stack.Screen options={{ headerShown: false }} />
@@ -139,7 +177,6 @@ export default function ChatScreen() {
         </Text>
       </View>
 
-
       <KeyboardAvoidingView
         key={kavKey}
         className="flex-1"
@@ -164,32 +201,82 @@ export default function ChatScreen() {
             }
             renderItem={({ item }) => {
               const isOwn = item.senderId === user?.id;
+              const lockedAndNotUnlocked = item.isLocked && !isOwn && !item.isUnlocked;
+
               return (
                 <View className={`mb-2 ${isOwn ? 'items-end' : 'items-start'}`}>
-                  <View
-                    style={{
-                      maxWidth: '75%',
-                      backgroundColor: isOwn ? '#be185d' : '#1f2937',
-                      borderRadius: 16,
-                      borderBottomRightRadius: isOwn ? 4 : 16,
-                      borderBottomLeftRadius: isOwn ? 16 : 4,
-                      paddingHorizontal: 14,
-                      paddingVertical: 8,
-                    }}
-                  >
-                    <Text className="text-white text-[15px]">{item.text}</Text>
-                    <Text
-                      className={`text-[10px] mt-[3px] text-right ${isOwn ? 'text-pink-200' : 'text-gray-500'}`}
+                  {lockedAndNotUnlocked ? (
+                    
+                    <View
+                      style={{
+                        maxWidth: '75%',
+                        backgroundColor: '#1a1228',
+                        borderRadius: 16,
+                        borderBottomLeftRadius: 4,
+                        borderWidth: 1,
+                        borderColor: '#7c3aed',
+                        paddingHorizontal: 14,
+                        paddingVertical: 10,
+                      }}
                     >
-                      {formatTime(item.createdAt)}
-                    </Text>
-                  </View>
+                      <View className="flex-row items-center gap-2 mb-2">
+                        <Text className="text-lg">🔒</Text>
+                        <Text className="text-violet-300 text-sm font-semibold">
+                          Mensaje bloqueado
+                        </Text>
+                      </View>
+                      {item.price != null && (
+                        <Text className="text-gray-400 text-xs mb-3">
+                          Desbloquea por{' '}
+                          <Text className="text-yellow-400 font-bold">{item.price} créditos</Text>
+                        </Text>
+                      )}
+                      <TouchableOpacity
+                        onPress={() => handleUnlock(item.id, item.price!)}
+                        disabled={unlocking === item.id}
+                        className="bg-violet-600 rounded-xl py-2 items-center"
+                      >
+                        {unlocking === item.id ? (
+                          <ActivityIndicator size="small" color="white" />
+                        ) : (
+                          <Text className="text-white text-sm font-semibold">
+                            Desbloquear 🔓
+                          </Text>
+                        )}
+                      </TouchableOpacity>
+                      <Text className="text-gray-600 text-[10px] mt-2 text-right">
+                        {formatTime(item.createdAt)}
+                      </Text>
+                    </View>
+                  ) : (
+                    
+                    <View
+                      style={{
+                        maxWidth: '75%',
+                        backgroundColor: isOwn ? '#be185d' : '#1f2937',
+                        borderRadius: 16,
+                        borderBottomRightRadius: isOwn ? 4 : 16,
+                        borderBottomLeftRadius: isOwn ? 16 : 4,
+                        paddingHorizontal: 14,
+                        paddingVertical: 8,
+                      }}
+                    >
+                      {item.isUnlocked && (
+                        <Text className="text-yellow-400 text-[11px] mb-1">🔓 Desbloqueado</Text>
+                      )}
+                      <Text className="text-white text-[15px]">{item.text}</Text>
+                      <Text
+                        className={`text-[10px] mt-[3px] text-right ${isOwn ? 'text-pink-200' : 'text-gray-500'}`}
+                      >
+                        {formatTime(item.createdAt)}
+                      </Text>
+                    </View>
+                  )}
                 </View>
               );
             }}
           />
         )}
-
 
         <View
           className="flex-row items-end bg-[#1a1a1a] border-t border-gray-800 px-3 gap-2"
