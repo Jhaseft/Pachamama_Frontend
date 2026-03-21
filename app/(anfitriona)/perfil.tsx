@@ -12,4 +12,3 @@ export default function AnfitrianaPerfil() {
 }
 
 //nota SafeAreaView agrega panding automaticamente en la parte inferior y superior
-

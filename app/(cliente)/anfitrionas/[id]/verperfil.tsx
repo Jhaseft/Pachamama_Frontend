@@ -11,13 +11,13 @@ import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Pressable,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 export default function AnfitrioneProfileScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -47,10 +47,37 @@ export default function AnfitrioneProfileScreen() {
     }
   };
 
+  /** Actualiza el estado local tras desbloquear una imagen premium. */
+  const handleImageUnlocked = (imageId: string) => {
+    setProfile((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        galleryImages: prev.galleryImages.map((img) =>
+          img.id === imageId ? { ...img, isUnlockedByViewer: true } : img,
+        ),
+      };
+    });
+  };
+
+  const handleChat = () => {
+    if (!profile) return;
+    router.push({
+      pathname: "/(cliente)/chat/[conversationId]" as any,
+      params: {
+        conversationId: "new",
+        otherUserId: id,
+        otherUserName: profile.name,
+        otherUserAvatar: profile.avatar ?? "",
+      },
+    });
+  };
+
   return (
     <View style={{ flex: 1, backgroundColor: "#111" }}>
       <Stack.Screen options={{ headerShown: false }} />
 
+      {/* Botón volver */}
       <TouchableOpacity
         onPress={() => router.back()}
         style={{
@@ -67,16 +94,24 @@ export default function AnfitrioneProfileScreen() {
         <Text style={{ color: "white", fontSize: 14, fontWeight: "600" }}>← Volver</Text>
       </TouchableOpacity>
 
-
+      {/* Estado: cargando */}
       {loading && (
         <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
           <ActivityIndicator size="large" color="#ec4899" />
         </View>
       )}
 
-
+      {/* Estado: error */}
       {!loading && error && (
-        <View style={{ flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 24 }}>
+        <View
+          style={{
+            flex: 1,
+            alignItems: "center",
+            justifyContent: "center",
+            paddingHorizontal: 24,
+          }}
+        >
+          <MaterialCommunityIcons name="wifi-off" size={48} color="#4b5563" style={{ marginBottom: 16 }} />
           <Text style={{ color: "white", textAlign: "center", fontSize: 16, marginBottom: 16 }}>
             {error}
           </Text>
@@ -94,54 +129,91 @@ export default function AnfitrioneProfileScreen() {
         </View>
       )}
 
+      {/* Estado: no encontrada */}
       {!loading && !error && !profile && (
-        <View style={{ flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 24 }}>
+        <View
+          style={{
+            flex: 1,
+            alignItems: "center",
+            justifyContent: "center",
+            paddingHorizontal: 24,
+          }}
+        >
           <Text style={{ color: "#9ca3af", textAlign: "center", fontSize: 16 }}>
             Anfitriona no encontrada.
           </Text>
         </View>
       )}
 
-
+      {/* Contenido principal */}
       {!loading && !error && profile && (
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: insets.bottom + 20 }}
-        >
-          <ProfileHeader
-            name={profile.name}
-            avatar={profile.avatar}
-            coverImage={profile.coverImage}
-            isOnline={profile.isOnline}
-          />
-
-          <Pressable
-            onPress={() =>
-              router.push({
-                pathname: '/(cliente)/chat/[conversationId]' as any,
-                params: {
-                  conversationId: 'new',
-                  otherUserId: id,
-                  otherUserName: profile.name,
-                  otherUserAvatar: profile.avatar ?? '',
-                },
-              })
-            }
-            className="bg-red-500 w-full p-4 rounded-xl items-center mx-auto my-3 active:bg-red-600"
+        <>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: insets.bottom + 90 }}
           >
-            <Text className="text-white font-bold">
-              Chatear ahora
-            </Text>
-          </Pressable>
+            <ProfileHeader
+              name={profile.name}
+              avatar={profile.avatar}
+              coverImage={profile.coverImage}
+              isOnline={profile.isOnline}
+              likesCount={profile.likesCount}
+              rateCredits={profile.rateCredits}
+            />
 
-          <HighlightStoriesRow stories={profile.highlightedStories} />
+            {/* Historias destacadas: solo si hay datos */}
+            {profile.highlightedStories.length > 0 && (
+              <HighlightStoriesRow stories={profile.highlightedStories} />
+            )}
 
-          <GallerySection images={profile.galleryImages} />
+            {/* Galería: galleryImages es la fuente principal */}
+            <GallerySection
+              images={profile.galleryImages}
+              anfitrionaId={id!}
+              onImageUnlocked={handleImageUnlocked}
+            />
 
-          <IntroCard message={profile.introMessage} />
+            {/* Bio: IntroCard se oculta sola si está vacía */}
+            <IntroCard message={profile.introMessage} />
 
-          <TrustSection items={profile.trustItems} />
-        </ScrollView>
+            <TrustSection items={profile.trustItems} />
+          </ScrollView>
+
+          {/* Botón "Chatear ahora" fijo en la parte inferior */}
+          <View
+            style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              paddingHorizontal: 16,
+              paddingBottom: insets.bottom + 12,
+              paddingTop: 10,
+              backgroundColor: "rgba(17,17,17,0.95)",
+              borderTopWidth: 1,
+              borderTopColor: "#1f1f1f",
+            }}
+          >
+            <TouchableOpacity
+              onPress={handleChat}
+              activeOpacity={0.85}
+              style={{
+                backgroundColor: "#e11d48",
+                borderRadius: 14,
+                paddingVertical: 15,
+                alignItems: "center",
+                flexDirection: "row",
+                justifyContent: "center",
+                gap: 8,
+              }}
+            >
+              <MaterialCommunityIcons name="chat" size={20} color="white" />
+              <Text style={{ color: "white", fontWeight: "700", fontSize: 16 }}>
+                Chatear ahora
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </>
       )}
     </View>
   );

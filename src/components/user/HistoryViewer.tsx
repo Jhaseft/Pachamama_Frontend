@@ -51,8 +51,10 @@ export const HistoryViewer = ({ isVisible, item, onClose, onDelete }: any) => {
     //limpiar el player de video
     useEffect(() => {
         if (!isVisible) {
-            player.pause();
-            player.currentTime = 0;
+            try {
+                player.pause();
+                player.currentTime = 0;
+            } catch { /* player ya liberado por el runtime nativo */ }
         }
     }, [isVisible]);
 
@@ -67,7 +69,9 @@ export const HistoryViewer = ({ isVisible, item, onClose, onDelete }: any) => {
     //limpiar el player al cerrar
     useEffect(() => {
         return () => {
-            player?.pause();
+            try {
+                player?.pause();
+            } catch { /* player ya liberado por el runtime nativo */ }
         };
     }, []);
 

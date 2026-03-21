@@ -5,11 +5,7 @@ import type { Anfitriona } from "@/src/types/anfitriona";
 import { StoriesBarFeed } from "@/src/components/user/StoriesBarFeed";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-
 import { useFocusEffect } from "@react-navigation/native";
-
-
-
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
