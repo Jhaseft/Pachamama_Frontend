@@ -6,7 +6,9 @@ import {
   unlockMessage,
   type Message,
 } from '@/src/api/messages';
+import { apiGetPublicServicePrices, type ServicePrice } from '@/src/api/servicePrices';
 import { useSocket } from '@/hooks/useSocket';
+import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import {
@@ -51,6 +53,42 @@ export default function ChatScreen() {
     conversationId !== 'new' ? conversationId : null,
   );
   const [kavKey, setKavKey] = useState(0);
+  const [servicePrices, setServicePrices] = useState<ServicePrice[]>([]);
+
+  useEffect(() => {
+    if (!otherUserId) return;
+    apiGetPublicServicePrices(otherUserId)
+      .then(setServicePrices)
+      .catch(() => {});
+  }, [otherUserId]);
+
+  function getPrice(type: ServicePrice['serviceType']) {
+    return servicePrices.find((p) => p.serviceType === type)?.price ?? null;
+  }
+
+  function handleCall(callType: 'CALL' | 'VIDEO_CALL') {
+    const price = getPrice(callType);
+    if (price === null) return;
+    router.push({
+      pathname: '/(cliente)/call' as any,
+      params: {
+        anfitrionaId: otherUserId,
+        anfitrionaName: otherUserName,
+        anfitrionaAvatar: otherUserAvatar ?? '',
+        callType,
+        pricePerMinute: String(price),
+        callId: `${user?.id}_${Date.now()}`,
+      },
+    });
+  }
+
+  function goToProfile() {
+    if (!otherUserId) return;
+    router.push({
+      pathname: '/(cliente)/anfitrionas/[id]/verperfil' as any,
+      params: { id: otherUserId },
+    });
+  }
 
   const { onNewMessage } = useSocket(user?.id);
 
@@ -156,25 +194,51 @@ export default function ChatScreen() {
         style={{ paddingTop: insets.top + 8, paddingBottom: 12, paddingHorizontal: 16 }}
       >
         <TouchableOpacity onPress={() => router.back()} className="mr-3">
-          <Text className="text-pink-400 text-2xl">←</Text>
+          <Ionicons name="arrow-back" size={24} color="white" />
         </TouchableOpacity>
 
-        {otherUserAvatar ? (
-          <Image
-            source={{ uri: otherUserAvatar }}
-            className="w-[38px] h-[38px] rounded-full mr-[10px]"
-          />
-        ) : (
-          <View className="w-[38px] h-[38px] rounded-full bg-red-900 items-center justify-center mr-[10px]">
-            <Text className="text-white font-bold">
-              {(otherUserName ?? 'U')[0].toUpperCase()}
-            </Text>
-          </View>
-        )}
+        {/* Avatar + nombre → navegar al perfil */}
+        <TouchableOpacity
+          onPress={goToProfile}
+          className="flex-row items-center flex-1"
+          activeOpacity={0.7}
+        >
+          {otherUserAvatar ? (
+            <Image
+              source={{ uri: otherUserAvatar }}
+              className="w-[38px] h-[38px] rounded-full mr-[10px]"
+            />
+          ) : (
+            <View className="w-[38px] h-[38px] rounded-full bg-red-900 items-center justify-center mr-[10px]">
+              <Text className="text-white font-bold">
+                {(otherUserName ?? 'U')[0].toUpperCase()}
+              </Text>
+            </View>
+          )}
+          <Text className="text-white font-semibold text-base flex-1" numberOfLines={1}>
+            {otherUserName ?? 'Chat'}
+          </Text>
+        </TouchableOpacity>
 
-        <Text className="text-white font-semibold text-base">
-          {otherUserName ?? 'Chat'}
-        </Text>
+        {/* Botones llamada / video estilo WhatsApp */}
+        <View className="flex-row items-center gap-3 ml-2">
+          <TouchableOpacity
+            onPress={() => handleCall('CALL')}
+            disabled={getPrice('CALL') === null}
+            activeOpacity={0.7}
+            style={{ opacity: getPrice('CALL') === null ? 0.35 : 1 }}
+          >
+            <Ionicons name="call" size={22} color="#4ade80" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => handleCall('VIDEO_CALL')}
+            disabled={getPrice('VIDEO_CALL') === null}
+            activeOpacity={0.7}
+            style={{ opacity: getPrice('VIDEO_CALL') === null ? 0.35 : 1 }}
+          >
+            <Ionicons name="videocam" size={24} color="#818cf8" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <KeyboardAvoidingView
@@ -299,7 +363,7 @@ export default function ChatScreen() {
             {sending ? (
               <ActivityIndicator size="small" color="white" />
             ) : (
-              <Text className="text-white text-lg">↑</Text>
+              <Ionicons name="arrow-up" size={20} color="white" />
             )}
           </TouchableOpacity>
         </View>

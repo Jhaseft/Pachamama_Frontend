@@ -7,6 +7,7 @@ import { getPublicHostessProfile } from "@/src/services/hostesses";
 import { apiGetPublicServicePrices, type ServicePrice } from "@/src/api/servicePrices";
 import type { AnfitrioneProfileDetail } from "@/src/types/anfitrionaProfile";
 import { useAuth } from "@/src/context/AuthContext";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -17,7 +18,6 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 export default function AnfitrioneProfileScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -120,7 +120,7 @@ export default function AnfitrioneProfileScreen() {
           paddingVertical: 8,
         }}
       >
-        <Text style={{ color: "white", fontSize: 14, fontWeight: "600" }}>← Volver</Text>
+        <Ionicons name="arrow-back" size={22} color="white" />
       </TouchableOpacity>
 
       {loading && (

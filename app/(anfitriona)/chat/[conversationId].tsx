@@ -7,6 +7,7 @@ import {
   type Message,
 } from '@/src/api/messages';
 import { useSocket } from '@/hooks/useSocket';
+import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import {
@@ -141,7 +142,7 @@ export default function AnfitrianaChat() {
         style={{ paddingTop: insets.top + 8, paddingBottom: 12, paddingHorizontal: 16 }}
       >
         <TouchableOpacity onPress={() => router.back()} className="mr-3">
-          <Text className="text-pink-400 text-2xl">←</Text>
+          <Ionicons name="arrow-back" size={24} color="white" />
         </TouchableOpacity>
 
         {otherUserAvatar ? (
@@ -268,7 +269,7 @@ export default function AnfitrianaChat() {
             {sending ? (
               <ActivityIndicator size="small" color="white" />
             ) : (
-              <Text className="text-white text-lg">↑</Text>
+              <Ionicons name="arrow-up" size={20} color="white" />
             )}
           </TouchableOpacity>
         </View>
