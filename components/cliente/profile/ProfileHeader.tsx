@@ -9,19 +9,22 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
+import ProfileStatsBar from "./ProfileStatsBar";
 
 type Props = {
   name: string;
   avatar: string;
   coverImage: string;
   isOnline: boolean;
+  likesCount: number;
+  rateCredits: number | null;
 };
 
 const COVER_HEIGHT = 260;
 const AVATAR_SIZE = 90;
 const AVATAR_LEFT = 20;
 
-export default function ProfileHeader({ name, avatar, coverImage, isOnline }: Props) {
+export default function ProfileHeader({ name, avatar, coverImage, isOnline, likesCount, rateCredits }: Props) {
   const { width, height } = useWindowDimensions();
   const [viewingImage, setViewingImage] = useState<string | null>(null);
 
@@ -104,6 +107,8 @@ export default function ProfileHeader({ name, avatar, coverImage, isOnline }: Pr
             {isOnline ? "En línea" : "Desconectada"}
           </Text>
         </View>
+
+        <ProfileStatsBar likesCount={likesCount} rateCredits={rateCredits} />
       </View>
     </View>
   );

@@ -6,6 +6,12 @@ import type {
   AnfitrioneApiListResponse,
   ToggleLikeResponse,
 } from "../types/anfitriona";
+
+export type UnlockImageResponse = {
+  alreadyUnlocked: boolean;
+  creditsSpent: number;
+  imageUrl: string;
+};
 import type { AnfitrioneProfileDetail } from "../types/anfitrionaProfile";
 
 // ─── Mapper ───────────────────────────────────────────────────────────────────
@@ -96,6 +102,22 @@ export async function toggleAnfitrianaLike(
 }
 
 /**
+ * POST /anfitrionas/public/:anfitrionaId/gallery/:imageId/unlock
+ * Requiere autenticación con rol USER.
+ * Descuenta créditos del cliente y desbloquea la imagen premium.
+ * Si ya fue desbloqueada antes devuelve alreadyUnlocked: true sin cobrar.
+ */
+export async function unlockGalleryImage(
+  anfitrionaId: string,
+  imageId: string,
+): Promise<UnlockImageResponse> {
+  return apiFetch<UnlockImageResponse>(
+    `/anfitrionas/public/${anfitrionaId}/gallery/${imageId}/unlock`,
+    { method: "POST" },
+  );
+}
+
+/**
  * Converts raw backend detail response to the UI profile model.
  */
 function mapDetailToProfile(data: AnfitrioneApiDetail): AnfitrioneProfileDetail {
@@ -105,10 +127,11 @@ function mapDetailToProfile(data: AnfitrioneApiDetail): AnfitrioneProfileDetail 
     avatar: data.avatar ?? "",
     coverImage: data.coverImage ?? data.images[0] ?? "",
     isOnline: data.isOnline,
-    galleryImages: data.images,
+    galleryImages: data.galleryImages ?? [],
     introMessage: data.bio ?? "",
     likesCount: data.likesCount,
     isLiked: data.isLiked,
+    rateCredits: data.rateCredits ?? null,
     // TODO: replace with real backend data when trust/stories endpoints are added
     highlightedStories: [],
     trustItems: [
