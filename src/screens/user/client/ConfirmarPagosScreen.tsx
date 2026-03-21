@@ -161,7 +161,7 @@ export default function ConfirmarPagoScreen() {
                 <Pressable onPress={() => router.back()} disabled={loading}>
                     <ArrowLeft color="white" size={28} />
                 </Pressable>
-                <Text className="text-white text-xl font-bold ml-4 lowercase">
+                <Text className="text-white text-[20px] font-bold ml-4 lowercase">
                     {methodType === 'QR' ? 'escanea el codigo qr' : 'transfiera a esta cuenta'}
                 </Text>
             </View>
@@ -188,7 +188,7 @@ export default function ConfirmarPagoScreen() {
                     {image ? (
                         <>
                             <CheckCircle color="#22c55e" size={24} />
-                          
+
                             <View className="ml-3 items-start">
                                 <Text className="text-green-500 text-xl font-bold">
                                     Comprobante listo
@@ -202,7 +202,7 @@ export default function ConfirmarPagoScreen() {
                         <>
                             <UploadCloud color="white" size={24} />
                             <Text className="text-white text-xl font-bold ml-3">
-                                Seleccionar foto
+                                Subir Comprobante
                             </Text>
                         </>
                     )}
@@ -210,7 +210,7 @@ export default function ConfirmarPagoScreen() {
 
                 {image && (
                     <View className="mt-4">
-                        <Text className="text-white mb-2">Vista previa:</Text>
+                        <Text className="text-white text-[18px] mb-2">Vista previa:</Text>
                         <Image
                             source={{ uri: image }}
                             className="w-full h-40 rounded-xl"
