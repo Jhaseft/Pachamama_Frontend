@@ -5,8 +5,10 @@ import IntroCard from "@/components/cliente/profile/IntroCard";
 import ProfileHeader from "@/components/cliente/profile/ProfileHeader";
 import TrustSection from "@/components/cliente/profile/TrustSection";
 import { getPublicHostessProfile } from "@/src/services/hostesses";
+import { apiGetPublicServicePrices, type ServicePrice } from "@/src/api/servicePrices";
 import type { AnfitrioneProfileDetail } from "@/src/types/anfitrionaProfile";
 import { useAuth } from "@/src/context/AuthContext";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -17,7 +19,6 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 export default function AnfitrioneProfileScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -28,6 +29,7 @@ export default function AnfitrioneProfileScreen() {
   const [profile, setProfile] = useState<AnfitrioneProfileDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [servicePrices, setServicePrices] = useState<ServicePrice[]>([]);
 
   useEffect(() => {
     void loadProfile();
@@ -38,8 +40,12 @@ export default function AnfitrioneProfileScreen() {
     setLoading(true);
     setError(null);
     try {
-      const data = await getPublicHostessProfile(id);
+      const [data, prices] = await Promise.all([
+        getPublicHostessProfile(id),
+        apiGetPublicServicePrices(id).catch(() => [] as ServicePrice[]),
+      ]);
       setProfile(data);
+      setServicePrices(prices);
     } catch {
       setError("No se pudo cargar el perfil. Verifica tu conexión.");
     } finally {
@@ -47,6 +53,30 @@ export default function AnfitrioneProfileScreen() {
     }
   };
 
+  function getPrice(type: ServicePrice['serviceType']) {
+    return servicePrices.find((p) => p.serviceType === type)?.price ?? null;
+  }
+
+  function handleCall(callType: 'CALL' | 'VIDEO_CALL') {
+    if (!profile) return;
+    const price = getPrice(callType);
+    if (price === null) return;
+
+    router.push({
+      pathname: '/(cliente)/call' as any,
+      params: {
+        anfitrionaId: id,
+        anfitrionaName: profile.name,
+        anfitrionaAvatar: profile.avatar ?? '',
+        callType,
+        pricePerMinute: String(price),
+        callId: `${user?.id}_${Date.now()}`,
+      },
+    });
+  }
+
+  const callPrice = getPrice('CALL');
+  const videoPrice = getPrice('VIDEO_CALL');
   /** Actualiza el estado local tras desbloquear una imagen premium. */
   const handleImageUnlocked = (imageId: string) => {
     setProfile((prev) => {
@@ -91,17 +121,15 @@ export default function AnfitrioneProfileScreen() {
           paddingVertical: 8,
         }}
       >
-        <Text style={{ color: "white", fontSize: 14, fontWeight: "600" }}>← Volver</Text>
+        <Ionicons name="arrow-back" size={22} color="white" />
       </TouchableOpacity>
 
-      {/* Estado: cargando */}
       {loading && (
         <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
           <ActivityIndicator size="large" color="#ec4899" />
         </View>
       )}
 
-      {/* Estado: error */}
       {!loading && error && (
         <View
           style={{
@@ -129,7 +157,7 @@ export default function AnfitrioneProfileScreen() {
         </View>
       )}
 
-      {/* Estado: no encontrada */}
+ 
       {!loading && !error && !profile && (
         <View
           style={{
@@ -161,12 +189,53 @@ export default function AnfitrioneProfileScreen() {
               rateCredits={profile.rateCredits}
             />
 
+            {/* Botones de llamada / video */}
+            <View style={{ flexDirection: "row", gap: 8, paddingHorizontal: 16, marginTop: 12 }}>
+              <TouchableOpacity
+                onPress={() => handleCall('CALL')}
+                disabled={callPrice === null}
+                activeOpacity={0.8}
+                style={{
+                  flex: 1,
+                  borderRadius: 12,
+                  padding: 14,
+                  alignItems: "center",
+                  backgroundColor: callPrice !== null ? "#15803d" : "#1f2937",
+                }}
+              >
+                <Text style={{ fontSize: 22, marginBottom: 4 }}>📞</Text>
+                <Text style={{ color: "white", fontWeight: "600", fontSize: 13 }}>Llamada</Text>
+                <Text style={{ color: callPrice !== null ? "#86efac" : "#6b7280", fontSize: 11, marginTop: 2 }}>
+                  {callPrice !== null ? `${callPrice} cr/min` : "No disponible"}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => handleCall('VIDEO_CALL')}
+                disabled={videoPrice === null}
+                activeOpacity={0.8}
+                style={{
+                  flex: 1,
+                  borderRadius: 12,
+                  padding: 14,
+                  alignItems: "center",
+                  backgroundColor: videoPrice !== null ? "#6d28d9" : "#1f2937",
+                }}
+              >
+                <Text style={{ fontSize: 22, marginBottom: 4 }}>📹</Text>
+                <Text style={{ color: "white", fontWeight: "600", fontSize: 13 }}>Video</Text>
+                <Text style={{ color: videoPrice !== null ? "#c4b5fd" : "#6b7280", fontSize: 11, marginTop: 2 }}>
+                  {videoPrice !== null ? `${videoPrice} cr/min` : "No disponible"}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
             {/* Historias destacadas: solo si hay datos */}
             {profile.highlightedStories.length > 0 && (
               <HighlightStoriesRow stories={profile.highlightedStories} />
             )}
 
-            {/* Galería: galleryImages es la fuente principal */}
+            {/* Galería con soporte de desbloqueo */}
             <GallerySection
               images={profile.galleryImages}
               anfitrionaId={id!}

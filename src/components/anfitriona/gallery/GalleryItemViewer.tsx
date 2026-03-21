@@ -10,9 +10,12 @@ type Props = {
   item: GalleryItem | null;
   visible: boolean;
   onClose: () => void;
+  onEdit?: (item: GalleryItem) => void;
+  onDelete?: (item: GalleryItem) => void;
+  onSetFeatured?: (item: GalleryItem) => void;
 };
 
-export default function GalleryItemViewer({ item, visible, onClose }: Props) {
+export default function GalleryItemViewer({ item, visible, onClose, onEdit, onDelete, onSetFeatured }: Props) {
   const insets = useSafeAreaInsets();
 
   if (!item) return null;
@@ -38,7 +41,7 @@ export default function GalleryItemViewer({ item, visible, onClose }: Props) {
           />
         </View>
 
-        {/* Barra inferior: tipo de foto */}
+        {/* Barra inferior: tipo de foto + acciones */}
         <View style={styles.bottomBar}>
           {item.isPremium ? (
             <View style={styles.badgePremium}>
@@ -50,7 +53,36 @@ export default function GalleryItemViewer({ item, visible, onClose }: Props) {
           ) : (
             <View style={styles.badgeNormal}>
               <MaterialCommunityIcons name="image-outline" size={16} color="#a1a1aa" />
-              <Text style={styles.badgeNormalText}>Foto normal · visible públicamente</Text>
+              <Text style={styles.badgeNormalText}>
+                {item.isVisible ? 'Foto normal · visible públicamente' : 'Foto oculta · no visible en tu perfil'}
+              </Text>
+            </View>
+          )}
+
+          {/* Botones de acción (solo si se pasan los callbacks) */}
+          {(onSetFeatured || onEdit || onDelete) && (
+            <View style={styles.actions}>
+              {onSetFeatured && (
+                <TouchableOpacity style={[styles.actionBtn, styles.actionBtnFeatured]} onPress={() => onSetFeatured(item)}>
+                  <MaterialCommunityIcons name="star" size={18} color="#facc15" />
+                  <Text style={[styles.actionBtnText, { color: '#facc15' }]}>Del feed</Text>
+                </TouchableOpacity>
+              )}
+              {onEdit && (
+                <TouchableOpacity style={styles.actionBtn} onPress={() => onEdit(item)}>
+                  <MaterialCommunityIcons name="pencil" size={18} color="white" />
+                  <Text style={styles.actionBtnText}>Editar</Text>
+                </TouchableOpacity>
+              )}
+              {onDelete && (
+                <TouchableOpacity
+                  style={[styles.actionBtn, styles.actionBtnDanger]}
+                  onPress={() => onDelete(item)}
+                >
+                  <MaterialCommunityIcons name="trash-can-outline" size={18} color="#ef4444" />
+                  <Text style={[styles.actionBtnText, { color: '#ef4444' }]}>Eliminar</Text>
+                </TouchableOpacity>
+              )}
             </View>
           )}
         </View>
@@ -107,5 +139,35 @@ const styles = StyleSheet.create({
   badgeNormalText: {
     color: '#a1a1aa',
     fontSize: 14,
+  },
+  actions: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 14,
+  },
+  actionBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: '#27272a',
+    paddingVertical: 10,
+    borderRadius: 10,
+  },
+  actionBtnFeatured: {
+    backgroundColor: '#18181b',
+    borderWidth: 1,
+    borderColor: '#facc15',
+  },
+  actionBtnDanger: {
+    backgroundColor: '#18181b',
+    borderWidth: 1,
+    borderColor: '#ef4444',
+  },
+  actionBtnText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });

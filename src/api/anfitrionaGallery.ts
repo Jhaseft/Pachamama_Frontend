@@ -43,3 +43,30 @@ export const apiGetMyGallery = async (): Promise<GalleryItem[]> => {
   const response = await apiClient.get('/anfitrionas/me/gallery');
   return response.data as GalleryItem[];
 };
+
+/** DELETE /anfitrionas/me/gallery/:id — elimina una imagen de la galería */
+export const apiDeleteGalleryImage = async (imageId: string): Promise<void> => {
+  await apiClient.delete(`/anfitrionas/me/gallery/${imageId}`);
+};
+
+type UpdateGalleryPayload = {
+  isPremium?: boolean;
+  unlockCredits?: number;
+  isVisible?: boolean;
+  sortOrder?: number;
+};
+
+/** POST /anfitrionas/me/gallery/:id/set-featured — marca imagen como destacada del feed */
+export const apiSetFeaturedGalleryImage = async (imageId: string): Promise<GalleryItem> => {
+  const response = await apiClient.post(`/anfitrionas/me/gallery/${imageId}/set-featured`);
+  return response.data as GalleryItem;
+};
+
+/** PATCH /anfitrionas/me/gallery/:id — actualiza metadatos de una imagen */
+export const apiUpdateGalleryImage = async (
+  imageId: string,
+  payload: UpdateGalleryPayload,
+): Promise<GalleryItem> => {
+  const response = await apiClient.patch(`/anfitrionas/me/gallery/${imageId}`, payload);
+  return response.data as GalleryItem;
+};

@@ -12,14 +12,15 @@ import { HistoryCard } from '../../../components/user/HistoryCard';
 import CreateHistoryModal from '@/src/components/user/CreateHistoryModal';
 import { HistoryViewer } from '@/src/components/user/HistoryViewer';
 import { apiCreateHistory, apiDeleteHistory, apiGetMyStories } from '@/src/api/anfitrionaHistory';
-import { apiGetMyProfile, type MyProfileData } from '@/src/api/anfitrionaProfile';
-import { apiGetMyGallery } from '@/src/api/anfitrionaGallery';
+import { apiGetMyProfile, apiUpdateMyProfile, type MyProfileData } from '@/src/api/anfitrionaProfile';
+import { apiGetMyGallery, apiDeleteGalleryImage, apiSetFeaturedGalleryImage } from '@/src/api/anfitrionaGallery';
 import type { HistoryItem } from '@/src/types/anfitrionaHistory';
 import type { GalleryItem } from '@/src/types/gallery';
 import { useGalleryPublish } from '@/src/hooks/useGalleryPublish';
 import GalleryGrid from '@/src/components/anfitriona/gallery/GalleryGrid';
 import PublishGalleryModal from '@/src/components/anfitriona/gallery/PublishGalleryModal';
 import GalleryItemViewer from '@/src/components/anfitriona/gallery/GalleryItemViewer';
+import EditGalleryImageModal from '@/src/components/anfitriona/gallery/EditGalleryImageModal';
 
 const FALLBACK_COVER =
   'https://res.cloudinary.com/dcyx3nqj5/image/upload/v1772893219/WhatsApp_Image_2026-03-06_at_7.19.57_va3q9n.jpg';
@@ -42,6 +43,8 @@ export default function AnfitrionaDashboard() {
 
   const [gallery, setGallery] = useState<GalleryItem[]>([]);
   const [selectedGalleryItem, setSelectedGalleryItem] = useState<GalleryItem | null>(null);
+  const [editingGalleryItem, setEditingGalleryItem] = useState<GalleryItem | null>(null);
+  const [togglingOnline, setTogglingOnline] = useState(false);
 
   const loadGallery = useCallback(async () => {
     try {
@@ -88,6 +91,22 @@ export default function AnfitrionaDashboard() {
     loadGallery();
   };
 
+  const handleToggleOnline = async () => {
+    if (!profile || togglingOnline) return;
+    const next = !profile.isOnline;
+    setTogglingOnline(true);
+    // optimistic update
+    setProfile((prev) => prev ? { ...prev, isOnline: next } : prev);
+    try {
+      await apiUpdateMyProfile({ isOnline: next });
+    } catch {
+      // revert on error
+      setProfile((prev) => prev ? { ...prev, isOnline: !next } : prev);
+    } finally {
+      setTogglingOnline(false);
+    }
+  };
+
   const handleViewHistory = (item: HistoryItem) => {
     setSelectedHistory(item);
     setViewerVisible(true);
@@ -125,6 +144,70 @@ export default function AnfitrionaDashboard() {
     } finally {
       setUploading(false);
     }
+  };
+
+  const handlePickCover = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [16, 9],
+      quality: 0.85,
+    });
+    if (result.canceled) return;
+    const asset = result.assets[0];
+    try {
+      const coverFile = {
+        uri: asset.uri,
+        type: 'image/jpeg',
+        name: asset.fileName || `cover_${Date.now()}.jpg`,
+      };
+      const updated = await apiUpdateMyProfile({}, undefined, coverFile);
+      setProfile(updated);
+    } catch (error) {
+      Alert.alert('Error', 'No se pudo actualizar el banner.');
+    }
+  };
+
+  const handleSetFeatured = async (item: GalleryItem) => {
+    try {
+      const updated = await apiSetFeaturedGalleryImage(item.id);
+      setGallery((prev) =>
+        prev.map((img) => ({ ...img, sortOrder: img.id === updated.id ? 0 : 1 })),
+      );
+      setSelectedGalleryItem(null);
+      Alert.alert('¡Listo!', 'Esta foto aparecerá primero en el feed.');
+    } catch (error) {
+      Alert.alert('Error', String(error));
+    }
+  };
+
+  const handleDeleteGalleryImage = (item: GalleryItem) => {
+    Alert.alert(
+      'Eliminar foto',
+      '¿Estás segura de que quieres borrar esta foto permanentemente?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await apiDeleteGalleryImage(item.id);
+              setSelectedGalleryItem(null);
+              loadGallery();
+              Alert.alert('Eliminada', 'La foto ha sido borrada.');
+            } catch (error) {
+              Alert.alert('Error', String(error));
+            }
+          },
+        },
+      ],
+    );
+  };
+
+  const handleGalleryImageSaved = (updated: GalleryItem) => {
+    setGallery((prev) => prev.map((img) => (img.id === updated.id ? updated : img)));
+    setSelectedGalleryItem(null);
   };
 
   const handleDelete = async (id: string) => {
@@ -173,19 +256,49 @@ export default function AnfitrionaDashboard() {
               ? [profile.firstName, profile.lastName].filter(Boolean).join(' ') || profile.username
               : '...',
             clients: 0,
-            diamonds: 0,
+            diamonds: profile?.likesCount ?? 0,
             avatar: profile?.avatarUrl ?? 'https://randomuser.me/api/portraits/women/44.jpg',
-            cover: FALLBACK_COVER,
+            cover: profile?.coverUrl ?? FALLBACK_COVER,
           }}
+          onCoverPress={handlePickCover}
         />
 
-        <View className="px-6 pt-6 flex-row justify-center gap-3">
+        <View className="px-6 pt-6 flex-row justify-center gap-3 flex-wrap">
           <Link href="/editar-perfil" asChild>
-            <TouchableOpacity className="bg-red-600 flex-row items-center justify-center gap-2 px-4 py-3 rounded-xl mb-6">
+            <TouchableOpacity className="bg-red-600 flex-row items-center justify-center gap-2 px-4 py-3 rounded-xl mb-3">
               <MaterialCommunityIcons name="account-edit" size={20} color="white" />
               <Text className="text-white font-semibold text-base">Editar perfil</Text>
             </TouchableOpacity>
           </Link>
+
+          {/* Vista previa del perfil */}
+          <Link href="/(anfitriona)/vista-previa" asChild>
+            <TouchableOpacity className="bg-zinc-800 flex-row items-center justify-center gap-2 px-4 py-3 rounded-xl mb-3">
+              <MaterialCommunityIcons name="eye-outline" size={20} color="#a1a1aa" />
+              <Text className="text-zinc-400 font-semibold text-base">Ver mi perfil</Text>
+            </TouchableOpacity>
+          </Link>
+
+          {/* Toggle online/offline */}
+          <TouchableOpacity
+            onPress={handleToggleOnline}
+            disabled={togglingOnline}
+            className="flex-row items-center justify-center gap-2 px-4 py-3 rounded-xl mb-3"
+            style={{ backgroundColor: profile?.isOnline ? '#166534' : '#3f3f46' }}
+          >
+            <MaterialCommunityIcons
+              name={profile?.isOnline ? 'circle' : 'circle-outline'}
+              size={14}
+              color={profile?.isOnline ? '#4ade80' : '#a1a1aa'}
+            />
+            <Text
+              className="font-semibold text-base"
+              style={{ color: profile?.isOnline ? '#4ade80' : '#a1a1aa' }}
+            >
+              {profile?.isOnline ? 'En línea' : 'Desconectada'}
+            </Text>
+          </TouchableOpacity>
+
           <TouchableOpacity
             onPress={() => {
               Alert.alert('Cerrar sesión', '¿Estás segura de que quieres salir?', [
@@ -200,7 +313,7 @@ export default function AnfitrionaDashboard() {
                 },
               ]);
             }}
-            className="bg-zinc-800 flex-row items-center justify-center gap-2 px-4 py-3 rounded-xl mb-6"
+            className="bg-zinc-800 flex-row items-center justify-center gap-2 px-4 py-3 rounded-xl mb-3"
           >
             <MaterialCommunityIcons name="logout" size={20} color="#a1a1aa" />
             <Text className="text-zinc-400 font-semibold text-base">Salir</Text>
@@ -292,6 +405,16 @@ export default function AnfitrionaDashboard() {
         item={selectedGalleryItem}
         visible={selectedGalleryItem !== null}
         onClose={() => setSelectedGalleryItem(null)}
+        onEdit={(item) => { setSelectedGalleryItem(null); setEditingGalleryItem(item); }}
+        onDelete={handleDeleteGalleryImage}
+        onSetFeatured={handleSetFeatured}
+      />
+
+      <EditGalleryImageModal
+        item={editingGalleryItem}
+        visible={editingGalleryItem !== null}
+        onClose={() => setEditingGalleryItem(null)}
+        onSaved={handleGalleryImageSaved}
       />
 
       <PublishGalleryModal

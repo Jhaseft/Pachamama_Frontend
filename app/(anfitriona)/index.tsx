@@ -1,126 +1,154 @@
-import { Stack } from "expo-router";
-import { DollarSign, Heart, Images, MessageCircle, Settings, Star, Users } from "lucide-react-native";
-import { Pressable, ScrollView, Text, View, Image } from "react-native";
+import { Stack, router } from "expo-router";
+import { DollarSign, Images, MessageCircle, Settings } from "lucide-react-native";
+import { useEffect, useState } from "react";
+import { ActivityIndicator, Image, Pressable, ScrollView, Text, View } from "react-native";
 import { useAuth } from "../../src/context/AuthContext";
 import { getProfile } from "../../src/services/auth";
-import { useEffect, useState } from "react";
-import { router } from "expo-router";
+import { apiGetMyEarnings, type EarningTransaction, type EarningsData } from "../../src/api/wallet";
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function formatRelativeTime(dateStr: string): string {
+  const diffMs = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diffMs / 60_000);
+  if (mins < 1) return "Ahora";
+  if (mins < 60) return `Hace ${mins} min`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `Hace ${hours}h`;
+  return "Ayer";
+}
+
+function serviceToIcon(service: string) {
+  const s = service.toLowerCase();
+  if (s.includes("imagen") || s.includes("foto") || s.includes("gallery") || s.includes("image")) {
+    return Images;
+  }
+  if (s.includes("mensaje") || s.includes("message")) return MessageCircle;
+  return DollarSign;
+}
+
+function formatActivityLabel(tx: EarningTransaction): string {
+  const s = tx.service.toLowerCase();
+  if (s.includes("imagen") || s.includes("foto") || s.includes("image")) {
+    return `Foto desbloqueada por ${tx.clientName} · +${tx.amount} cr`;
+  }
+  if (s.includes("mensaje") || s.includes("message")) {
+    return `Mensaje de ${tx.clientName} · +${tx.amount} cr`;
+  }
+  return `${tx.service} de ${tx.clientName} · +${tx.amount} cr`;
+}
+
+// ─── Pantalla ─────────────────────────────────────────────────────────────────
 
 export default function AnfitrianaInicio() {
-
   const { accessToken, user, isHydrated, setSession, logout } = useAuth();
-  const [error, setError] = useState("");
+  const [earnings, setEarnings] = useState<EarningsData | null>(null);
+  const [loadingEarnings, setLoadingEarnings] = useState(true);
 
+  // Validar sesión al montar
   useEffect(() => {
     const validate = async () => {
       if (!accessToken) return;
       try {
         const profile = await getProfile();
         await setSession(accessToken, profile);
-      } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Sesi\u00f3n expirada.";
-        setError(message);
+      } catch {
         await logout();
         router.replace("/(auth)/choose-access");
       }
     };
-
-    if (isHydrated) {
-      void validate();
-    }
+    if (isHydrated) void validate();
   }, [accessToken, isHydrated, logout, setSession]);
 
-  const USUARIO = {
-    nombre: user?.firstName,
-    avatar: require("../../assets/BlackandWhiteXLetterDigital.jpg"),
-  };
+  // Cargar ganancias reales
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const data = await apiGetMyEarnings();
+        setEarnings(data);
+      } catch {
+        // silencioso — se muestra "—" en los valores
+      } finally {
+        setLoadingEarnings(false);
+      }
+    };
+    void load();
+  }, []);
 
-  const GANANCIAS = {
-    hoy: 340,
-    semana: 1850,
-  };
-
-  const MENSAJES = [
-    { id: 1, de: "Carlos R.", texto: "Hola, quiero una sesión hoy", hora: "10:02", leido: false },
-    { id: 2, de: "Luis M.", texto: "¿Tienes disponibilidad mañana?", hora: "09:45", leido: false },
-    { id: 3, de: "Pedro G.", texto: "Gracias por la atención", hora: "08:30", leido: false },
-    { id: 4, de: "Jose T.", texto: "Enviando el pago ahora", hora: "Ayer", leido: true },
-    { id: 5, de: "Andres V.", texto: "Perfecto, hasta luego", hora: "Ayer", leido: true },
+  const ACCESOS = [
+    {
+      Icon: MessageCircle,
+      label: "Mensajes",
+      sub: null,
+      route: "/(anfitriona)/chats",
+    },
+    {
+      Icon: DollarSign,
+      label: "Ganancias",
+      sub: earnings ? `Cr/ ${earnings.today}` : null,
+      route: "/(anfitriona)/ganancias",
+    },
+    {
+      Icon: Settings,
+      label: "Mis precios",
+      sub: null,
+      route: "/(anfitriona)/precios",
+    },
   ];
-
-  const CLIENTES = [
-    { id: 1, nombre: "Carlos R.", activo: true },
-    { id: 2, nombre: "Luis M.", activo: true },
-    { id: 3, nombre: "Pedro G.", activo: false },
-    { id: 4, nombre: "Jose T.", activo: true },
-    { id: 5, nombre: "Andres V.", activo: false },
-    { id: 6, nombre: "Miguel F.", activo: false },
-  ];
-
-  const ACTIVIDAD = [
-    { id: 1, Icon: Images, label: "8 fotos desbloqueadas por Carlos R.", hora: "Hace 5 min" },
-    { id: 2, Icon: DollarSign, label: "Pago recibido de Luis M. — S/ 80", hora: "Hace 20 min" },
-    { id: 3, Icon: Heart, label: "3 nuevos seguidores hoy", hora: "Hace 1 hora" },
-    { id: 4, Icon: Star, label: "Nueva reseña 5 estrellas de Pedro G.", hora: "Hace 2 horas" },
-    { id: 5, Icon: Images, label: "5 fotos desbloqueadas por Jose T.", hora: "Hace 3 horas" },
-  ];
-
-  // --- Accesos rápidos derivados del mock ---
-  const mensajesNuevos = MENSAJES.filter((m) => !m.leido).length;
-  const totalClientes = CLIENTES.length;
-
-const ACCESOS = [
-  { Icon: MessageCircle, label: "Mensajes", sub: `${mensajesNuevos} nuevos`, route: "/(anfitriona)/chats" },
-  { Icon: DollarSign, label: "Ganancias", sub: `S/ ${GANANCIAS.hoy}`, route: "/(anfitriona)/ganancias" },
-  { Icon: Settings, label: "Mis precios", sub: null, route: "/(anfitriona)/precios" },
-  { Icon: Users, label: "Clientes", sub: `${totalClientes} total`, route: "/(anfitriona)/clientes" },
-];
-
 
   return (
-    <>
-      <ScrollView className="flex-1  bg-black px-4 pt-4">
+    <ScrollView className="flex-1 bg-black px-4 pt-4">
+      <Stack.Screen options={{ headerShown: false }} />
 
-        <Stack.Screen
-          options={{
-            headerShown: false
-          }}
-        />
-
-        <View className="flex flex-row gap-14 p-4 mb-1">
-
-          <View className="items-center justify-center">
-            <Text className="text-white text-2xl font-bold">Hola {USUARIO.nombre} 👋</Text>
-            <Text className="text-gray-400 text-sm mb-4">Aqui esta tu resumen de hoy</Text>
-          </View>
-
-          <View className="">
-            <Image
-              source={USUARIO.avatar}
-              className="w-[100px] h-[100px]"
-              resizeMode="contain"
-            />
-          </View>
-
+      {/* Header saludo */}
+      <View className="flex flex-row gap-14 p-4 mb-1">
+        <View className="items-center justify-center">
+          <Text className="text-white text-2xl font-bold">
+            Hola {user?.firstName ?? "👋"}
+          </Text>
+          <Text className="text-gray-400 text-sm mb-4">Aquí está tu resumen de hoy</Text>
         </View>
+        <View>
+          <Image
+            source={require("../../assets/BlackandWhiteXLetterDigital.jpg")}
+            className="w-[100px] h-[100px]"
+            resizeMode="contain"
+          />
+        </View>
+      </View>
 
+      {/* Tarjetas de ganancias */}
+      {loadingEarnings ? (
+        <View className="flex-row gap-3 mb-6">
+          <View className="flex-1 bg-red-600 rounded-xl p-4 items-center justify-center h-20">
+            <ActivityIndicator color="white" />
+          </View>
+          <View className="flex-1 bg-red-600 rounded-xl p-4 items-center justify-center h-20">
+            <ActivityIndicator color="white" />
+          </View>
+        </View>
+      ) : (
         <View className="flex-row gap-3 mb-6">
           <View className="flex-1 bg-red-600 rounded-xl p-4">
             <Text className="text-white text-xs mb-1">Hoy</Text>
-            <Text className="text-white text-2xl font-bold">S/ {GANANCIAS.hoy}</Text>
+            <Text className="text-white text-2xl font-bold">
+              Cr/ {earnings?.today ?? "—"}
+            </Text>
           </View>
           <View className="flex-1 bg-red-600 rounded-xl p-4">
             <Text className="text-white text-xs mb-1">Esta semana</Text>
-            <Text className="text-white text-2xl font-bold">S/ {GANANCIAS.semana}</Text>
+            <Text className="text-white text-2xl font-bold">
+              Cr/ {earnings?.thisWeek ?? "—"}
+            </Text>
           </View>
         </View>
+      )}
 
-        <Text className="text-white text-lg font-bold mb-3">Accesos Rapidos</Text>
-        <View className="flex-row flex-wrap gap-3 mb-6">
-          {ACCESOS.map(({ Icon, label, sub ,route}) => (
-            <Pressable
+      {/* Accesos rápidos */}
+      <Text className="text-white text-lg font-bold mb-3">Accesos rápidos</Text>
+      <View className="flex-row flex-wrap gap-3 mb-6">
+        {ACCESOS.map(({ Icon, label, sub, route }) => (
+          <Pressable
             key={label}
             onPress={() => router.push(route as any)}
             className="bg-red-600 rounded-xl p-4 items-center justify-center active:opacity-70"
@@ -130,25 +158,44 @@ const ACCESOS = [
             <Text className="text-white font-semibold mt-2">{label}</Text>
             {sub && <Text className="text-white text-xs opacity-80">{sub}</Text>}
           </Pressable>
-          ))}
-        </View>
-
-        <Text className="text-white text-lg font-bold mb-3">Actividad reciente</Text>
-        {ACTIVIDAD.map(({ id, Icon, label, hora }) => (
-          <Pressable
-            key={id}
-            className="bg-red-600 rounded-xl px-4 py-3 flex-row items-center gap-3 mb-3 active:opacity-70"
-          >
-            <Icon size={24} color="white" />
-            <View className="flex-1">
-              <Text className="text-white font-semibold">{label}</Text>
-              <Text className="text-white text-xs opacity-70">{hora}</Text>
-            </View>
-          </Pressable>
         ))}
+      </View>
 
-        <View className="h-8" />
-      </ScrollView>
-    </>
+      {/* Actividad reciente */}
+      <Text className="text-white text-lg font-bold mb-3">Actividad reciente</Text>
+
+      {loadingEarnings && (
+        <ActivityIndicator color="#ef4444" style={{ marginBottom: 16 }} />
+      )}
+
+      {!loadingEarnings && earnings && earnings.transactions.length === 0 && (
+        <View className="bg-zinc-900 rounded-xl px-4 py-5 mb-3 items-center">
+          <Text className="text-zinc-500 text-sm">Sin actividad reciente</Text>
+        </View>
+      )}
+
+      {!loadingEarnings &&
+        earnings?.transactions.map((tx) => {
+          const Icon = serviceToIcon(tx.service);
+          return (
+            <View
+              key={tx.id}
+              className="bg-red-600 rounded-xl px-4 py-3 flex-row items-center gap-3 mb-3"
+            >
+              <Icon size={24} color="white" />
+              <View className="flex-1">
+                <Text className="text-white font-semibold">
+                  {formatActivityLabel(tx)}
+                </Text>
+                <Text className="text-white text-xs opacity-70">
+                  {formatRelativeTime(tx.createdAt)}
+                </Text>
+              </View>
+            </View>
+          );
+        })}
+
+      <View className="h-8" />
+    </ScrollView>
   );
 }
