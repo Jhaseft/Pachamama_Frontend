@@ -84,7 +84,7 @@ export default function AdminDashboard() {
       <StatusBar style="light" />
 
       <ScrollView
-        className="flex-1 px-4 pt-10"
+        className="flex-1 px-4  pt-10"
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#A11213" />
