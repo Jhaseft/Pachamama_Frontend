@@ -1,4 +1,4 @@
-import { View, Image, Text, TouchableOpacity, Dimensions, StyleSheet } from "react-native";
+import { View, Image, Text, TouchableOpacity, Dimensions, StyleSheet, PanResponder } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState, useEffect, useRef } from "react";
 import { Video, ResizeMode } from "expo-av";
@@ -22,6 +22,47 @@ export default function StoryViewer() {
     const current = storyData.stories[index];
 
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
+    const [paused, setPaused] = useState(false);
+    const pausedRef = useRef(false);
+    const pressTimeRef = useRef<number>(0);
+    const holdTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+    const pause = () => {
+        pausedRef.current = true;
+        setPaused(true);
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        videoRef.current?.pauseAsync();
+    };
+
+    const resume = () => {
+        pausedRef.current = false;
+        setPaused(false);
+        if (current.type === "image") {
+            intervalRef.current = setInterval(() => {
+                if (!pausedRef.current) setProgress((prev) => prev + 0.01);
+            }, 50);
+        } else {
+            videoRef.current?.playAsync();
+        }
+    };
+
+    const holdResponder = PanResponder.create({
+        onStartShouldSetPanResponder: () => true,
+        onPanResponderGrant: () => {
+            pressTimeRef.current = Date.now();
+            holdTimerRef.current = setTimeout(() => {
+                pause();
+            }, 150);
+        },
+        onPanResponderRelease: () => {
+            if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
+            if (pausedRef.current) resume();
+        },
+        onPanResponderTerminate: () => {
+            if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
+            if (pausedRef.current) resume();
+        },
+    });
 
     useFocusEffect(
         useCallback(() => {
@@ -87,7 +128,7 @@ export default function StoryViewer() {
                     source={{ uri: current.uri }}
                     style={styles.media}
                     resizeMode={ResizeMode.COVER}
-                    shouldPlay={true}
+                    shouldPlay={!paused}
                     progressUpdateIntervalMillis={50}
                     onPlaybackStatusUpdate={(status: any) => {
                         if (status.didJustFinish) handleNext();
@@ -103,8 +144,8 @@ export default function StoryViewer() {
                 style={styles.topGradient}
             />
 
-            <TouchableOpacity style={styles.touchLeft} onPress={handlePrev} />
-            <TouchableOpacity style={styles.touchRight} onPress={handleNext} />
+            <View style={styles.touchLeft} {...holdResponder.panHandlers} onTouchEnd={() => { if (!pausedRef.current && Date.now() - pressTimeRef.current < 150) handlePrev(); }} />
+            <View style={styles.touchRight} {...holdResponder.panHandlers} onTouchEnd={() => { if (!pausedRef.current && Date.now() - pressTimeRef.current < 150) handleNext(); }} />
 
             <View style={styles.progressContainer}>
                 {storyData.stories.map((_: any, i: number) => (
@@ -122,8 +163,17 @@ export default function StoryViewer() {
             </View>
 
             <View style={styles.header}>
-                <Image source={{ uri: storyData.avatar }} style={styles.avatar} />
-                <Text style={styles.username}>{storyData.name}</Text>
+                <TouchableOpacity
+                    style={{ flexDirection: "row", alignItems: "center" }}
+                    onPress={() => {
+                        if (intervalRef.current) clearInterval(intervalRef.current);
+                        videoRef.current?.pauseAsync();
+                        router.push(`/(cliente)/anfitrionas/${storyData.id}/verperfil` as any);
+                    }}
+                >
+                    <Image source={{ uri: storyData.avatar }} style={styles.avatar} />
+                    <Text style={styles.username}>{storyData.name}</Text>
+                </TouchableOpacity>
 
                 <TouchableOpacity
                     style={{ marginLeft: "auto" }}

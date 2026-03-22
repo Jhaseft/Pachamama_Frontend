@@ -28,3 +28,18 @@ export type UpdateProfilePayload = {
     userName?: string; // Recuerda si en el back es userName o username
     bio?: string;
 };
+
+export interface ExpenseHistoryItem {
+    id: string;
+    monto: number | string; // Prisma Decimal llega como string a veces
+    tipo: 'MESSAGE_UNLOCK' | 'IMAGE_UNLOCK' | 'DEPOSIT' | 'CALL_PAYMENT' | 'EARNING';
+    fecha: string;
+    descripcion: string | null;
+    detalle: string;
+}
+
+export interface ExpenseHistoryResponse {
+    success: boolean;
+    data: ExpenseHistoryItem[];
+    message?: string;
+}

@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, ScrollView, Pressable, Alert, ActivityIndicator, Image } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ArrowLeft, CheckCircle, UploadCloud } from "lucide-react-native";
+import { ArrowLeft, CheckCircle, UploadCloud, Send } from "lucide-react-native";
 import * as ImagePicker from 'expo-image-picker';
 
 import { apiCreateDepositRequest } from "@/src/api/deposits";
 import { apiGetPaymentMethods } from "@/src/api/paymentMethods";
 
-// Importamos nuestros componentes
 import { PackageSummary } from "@/src/components/user/payment/PackageSummary";
 import { TransferDetail } from "@/src/components/user/payment/TransferDetail";
 import { QRDetail } from "@/src/components/user/payment/QRDetail";
@@ -21,121 +20,72 @@ export default function ConfirmarPagoScreen() {
     const [fetchingMethod, setFetchingMethod] = useState(true);
     const [selectedFile, setSelectedFile] = useState<any>(null);
 
-    // Función para convertir URI a Blob 
     const uriToBlob = async (uri: string) => {
         const response = await fetch(uri);
-        const blob = await response.blob();
-        return blob;
+        return await response.blob();
     };
 
-    //para obtener sus detalles complejos (QRurl, numero de cuenta, etc)
     useEffect(() => {
         const fetchMethod = async () => {
             try {
                 const methods = await apiGetPaymentMethods();
-                // Buscamos el método específico que seleccionó el usuario
-                const selected = methods.find(
-                    (m: any) => String(m.id) === String(methodId)
-                );
-                if (selected) {
-                    setMethodData(selected);
-                }
+                const selected = methods.find((m: any) => String(m.id) === String(methodId));
+                if (selected) setMethodData(selected);
             } catch (error) {
                 console.error("Error cargando detalles del método:", error);
             } finally {
                 setFetchingMethod(false);
             }
         };
-
         if (methodId) fetchMethod();
     }, [methodId]);
 
-    // Función para abrir la galería
     const pickImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
         if (status !== 'granted') {
             Alert.alert("Permiso requerido", "Necesitamos acceso a tu galería");
             return;
         }
-
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ['images'],
             allowsEditing: false,
             quality: 0.7,
         });
-
         if (!result.canceled) {
             const asset = result.assets[0];
-
-            setImage(asset.uri);          // Para mostrar la imagen en la pantalla
-            setSelectedFile(asset);       // Para enviar el objeto completo a la API
-
+            setImage(asset.uri);
+            setSelectedFile(asset);
             Alert.alert("Éxito", "Comprobante seleccionado correctamente.");
         }
     };
 
-
-    //funcion para enviar los datos al backend
     const handleSendRequest = async () => {
         if (!selectedFile) {
             Alert.alert("Atención", "Por favor, sube una foto de tu comprobante primero.");
             return;
         }
-
-        console.log({
-            packageId,
-            methodId,
-            image,
-            methodData
-        });
-
-        const depositData = {
-            packageId: packageId as string,
-            paymentMethodId: methodId as string,
-        };
-
-        console.log("--- INICIANDO ENVÍO DE DEPÓSITO ---");
-        console.log("Datos:", depositData);
-        console.log("Archivo URI:", selectedFile.uri);
-
         setLoading(true);
         try {
-
-            // Convertimos URI a Blob para React Native
             const blob = await uriToBlob(selectedFile.uri);
-
             const fileToUpload = {
                 uri: selectedFile.uri,
                 name: selectedFile.fileName || `comprobante_${Date.now()}.jpg`,
                 type: selectedFile.mimeType || 'image/jpeg',
                 blob,
             };
-
-            await apiCreateDepositRequest(
-                depositData,
-                fileToUpload
-            );
-
+            await apiCreateDepositRequest({ packageId: packageId as string, paymentMethodId: methodId as string }, fileToUpload);
             Alert.alert(
                 "¡Solicitud Enviada!",
                 "Tu pago está en revisión. Te avisaremos cuando tus créditos se activen.",
                 [{ text: "Entendido", onPress: () => router.replace("/(cliente)/perfil") }]
             );
         } catch (error: any) {
-            console.error(error);
-            const message =
-                error?.response?.data?.message ||
-                error?.message ||
-                "No se pudo enviar el comprobante";
-
-            Alert.alert("Error", message);
+            Alert.alert("Error", error?.response?.data?.message || error?.message || "No se pudo enviar el comprobante");
         } finally {
             setLoading(false);
         }
     };
 
-    // CORRECCIÓN: Manejo de estados de carga y errores de navegación
     if (!methodId || !packageId) {
         return (
             <View className="flex-1 items-center justify-center bg-black">
@@ -156,14 +106,23 @@ export default function ConfirmarPagoScreen() {
     }
 
     return (
-        <ScrollView className="flex-1 bg-black">
-            <View className="flex-row items-center px-6 pt-4">
-                <Pressable onPress={() => router.back()} disabled={loading}>
-                    <ArrowLeft color="white" size={28} />
+        <ScrollView className="flex-1 bg-black" contentContainerStyle={{ paddingBottom: 40 }}>
+
+            <View className="flex-row items-center px-5 pt-1 mb-2">
+                <Pressable
+                    onPress={() => router.back()}
+                    disabled={loading}
+                    className="w-10 h-10 rounded-full bg-zinc-900 items-center justify-center mr-4 active:opacity-50"
+                    style={{ borderWidth: 1, borderColor: 'rgba(161,27,27,0.3)' }}
+                >
+                    <ArrowLeft color="white" size={20} />
                 </Pressable>
-                <Text className="text-white text-[20px] font-bold ml-4 lowercase">
-                    {methodType === 'QR' ? 'escanea el codigo qr' : 'transfiera a esta cuenta'}
-                </Text>
+                <View>
+                    <Text className="text-white text-[20px] font-black">
+                        {methodType === 'QR' ? 'Escanea el código QR' : 'Transfiere a esta cuenta'}
+                    </Text>
+                    <Text className="text-zinc-500 text-xs mt-0.5">Realiza el pago y sube tu comprobante</Text>
+                </View>
             </View>
 
             <PackageSummary credits={credits as string} price={price as string} />
@@ -177,44 +136,52 @@ export default function ConfirmarPagoScreen() {
                 />
             )}
 
-            <View className="px-10 mt-8 mb-10">
+            <View className="px-5 mt-6">
+                <View className="items-center mb-3">
+                    <Text className="text-white text-[18px] font-black tracking-wide">Sube tu comprobante</Text>
+                    <View className="h-[2px] w-10 bg-[#A11B1B] rounded-full mt-1" />
+                </View>
 
                 <Pressable
                     onPress={pickImage}
                     disabled={loading}
-                    className={`flex-row items-center justify-center py-4 rounded-2xl border-2 mb-4 ${image ? 'border-green-500 bg-green-500/10' : 'border-white bg-transparent'
-                        }`}
+                    style={image
+                        ? { borderWidth: 2, borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,0.08)' }
+                        : { borderWidth: 2, borderColor: 'rgba(255,255,255,0.2)', backgroundColor: 'rgba(255,255,255,0.04)' }
+                    }
+                    className="flex-row items-center justify-center py-5 rounded-2xl mb-4 active:opacity-70"
                 >
                     {image ? (
                         <>
-                            <CheckCircle color="#22c55e" size={24} />
-
+                            <CheckCircle color="#22c55e" size={26} />
                             <View className="ml-3 items-start">
-                                <Text className="text-green-500 text-xl font-bold">
-                                    Comprobante listo
-                                </Text>
-                                <Text className="text-green-500/70 text-sm font-medium">
-                                    Presione aquí para volver a seleccionar
-                                </Text>
+                                <Text className="text-green-500 text-lg font-black">Comprobante listo</Text>
+                                <Text className="text-green-500/60 text-xs font-medium mt-0.5">Toca para cambiar la imagen</Text>
                             </View>
                         </>
                     ) : (
                         <>
-                            <UploadCloud color="white" size={24} />
-                            <Text className="text-white text-xl font-bold ml-3">
-                                Subir Comprobante
-                            </Text>
+                            <UploadCloud color="white" size={26} />
+                            <View className="ml-3 items-start">
+                                <Text className="text-white text-lg font-black">Subir Comprobante</Text>
+                                <Text className="text-zinc-500 text-xs mt-0.5">JPG, PNG — máx. calidad 70%</Text>
+                            </View>
                         </>
                     )}
                 </Pressable>
 
                 {image && (
-                    <View className="mt-4">
-                        <Text className="text-white text-[18px] mb-2">Vista previa:</Text>
-                        <Image
-                            source={{ uri: image }}
-                            className="w-full h-40 rounded-xl"
-                        />
+                    <View className="mb-6">
+                        <View className="flex-row items-center mb-3" style={{ gap: 8 }}>
+                            <CheckCircle color="#22c55e" size={14} />
+                            <Text className="text-zinc-400 text-xs uppercase tracking-widest font-bold">Vista previa</Text>
+                        </View>
+                        <View
+                            className="rounded-3xl overflow-hidden"
+                            style={{ shadowColor: '#A11B1B', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.3, shadowRadius: 12, elevation: 8, borderWidth: 1, borderColor: 'rgba(161,27,27,0.25)' }}
+                        >
+                            <Image source={{ uri: image }} className="w-full h-56" resizeMode="cover" />
+                        </View>
                     </View>
                 )}
 
@@ -222,14 +189,16 @@ export default function ConfirmarPagoScreen() {
                     <Pressable
                         onPress={handleSendRequest}
                         disabled={loading}
-                        className="bg-[#A11B1B] py-4 rounded-2xl items-center justify-center"
+                        className="py-5 rounded-2xl items-center justify-center flex-row active:opacity-80"
+                        style={{ backgroundColor: '#A11B1B', shadowColor: '#A11B1B', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.5, shadowRadius: 12, elevation: 10 }}
                     >
                         {loading ? (
                             <ActivityIndicator color="white" />
                         ) : (
-                            <Text className="text-white text-xl font-bold uppercase">
-                                Confirmar y Enviar
-                            </Text>
+                            <>
+                                <Send color="white" size={20} strokeWidth={2} />
+                                <Text className="text-white text-lg font-black uppercase ml-3 tracking-widest">Confirmar y Enviar</Text>
+                            </>
                         )}
                     </Pressable>
                 )}

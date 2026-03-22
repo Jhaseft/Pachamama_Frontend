@@ -16,7 +16,7 @@ export default function ClientsScreen() {
     const [nextCursor, setNextCursor] = useState<string | null>(null);
     const [isFetchingMore, setIsFetchingMore] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
-    const [isInitialLoading, setIsInitialLoading] = useState(true); 
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
 
     // Función para cargar datos
     const loadClients = async (text?: string, cursor?: string) => {

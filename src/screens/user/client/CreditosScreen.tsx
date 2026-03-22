@@ -38,13 +38,22 @@ export default function CreditosScreen() {
         <ScrollView className="flex-1 bg-black px-4 pt-2">
 
             <View className="w-3/5 self-center border-2 border-white rounded-[25px] py-4 flex-row justify-center items-center mb-4">
-                <Gem color="white" size={32} />
+                <View style={{ shadowColor: '#60d4f7', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 12, elevation: 10 }}>
+                    <Gem color="#60d4f7" size={38} strokeWidth={1.5} fill="#a8edfb" />
+                </View>
                 <Text className="text-white text-4xl font-bold ml-3">
                     {wallet?.balance || 0}
                 </Text>
             </View>
 
-            <Text className="text-white text-[25px] font-bold text-center mb-6">¡Compra creditos!</Text>
+            <View className="items-center mb-6">
+                <Text className="text-white text-[25px] font-black tracking-widest  text-center">¡Compra Créditos!</Text>
+                <View className="flex-row items-center mt-2" style={{ gap: 6 }}>
+                    <View className="h-[2px] w-8 bg-[#A11B1B] rounded-full" />
+                    <View className="h-[4px] w-4 bg-[#A11B1B] rounded-full" />
+                    <View className="h-[2px] w-8 bg-[#A11B1B] rounded-full" />
+                </View>
+            </View>
 
             {loading ? (
                 <ActivityIndicator color="#D11B1B" size="large" />
@@ -63,7 +72,9 @@ export default function CreditosScreen() {
                         <View className="flex-1">
 
                             <View className="flex-row items-center mb-1">
-                                <Gem color="#A11B1B" size={30} fill="none" strokeWidth={2.5} />
+                                <View style={{ shadowColor: '#A11B1B', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.5, shadowRadius: 6, elevation: 6 }}>
+                                    <Gem color="#A11B1B" size={32} fill="#f8c0c0" strokeWidth={1.8} />
+                                </View>
                                 <Text className="text-[#A11B1B] text-[33px] font-black ml-2">
                                     {item.credits}
                                 </Text>
