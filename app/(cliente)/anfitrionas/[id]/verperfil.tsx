@@ -242,13 +242,12 @@ export default function AnfitrioneProfileScreen() {
               onImageUnlocked={handleImageUnlocked}
             />
 
-            {/* Bio: IntroCard se oculta sola si está vacía */}
             <IntroCard message={profile.introMessage} />
 
             <TrustSection items={profile.trustItems} />
           </ScrollView>
 
-          {/* Botón "Chatear ahora" fijo en la parte inferior */}
+       
           <View
             style={{
               position: "absolute",
@@ -256,8 +255,7 @@ export default function AnfitrioneProfileScreen() {
               left: 0,
               right: 0,
               paddingHorizontal: 16,
-              paddingBottom: insets.bottom + 12,
-              paddingTop: 10,
+
               backgroundColor: "rgba(17,17,17,0.95)",
               borderTopWidth: 1,
               borderTopColor: "#1f1f1f",

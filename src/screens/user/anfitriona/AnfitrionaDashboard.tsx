@@ -308,7 +308,7 @@ export default function AnfitrionaDashboard() {
                   style: 'destructive',
                   onPress: async () => {
                     await logout();
-                    router.replace('/');
+                    router.replace('/(auth)/choose-access');
                   },
                 },
               ]);
