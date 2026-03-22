@@ -1,5 +1,6 @@
 import { Anfitriona } from "@/src/types/anfitriona";
 import { toggleAnfitrianaLike } from "@/src/services/hostesses";
+import { apiToggleSavedAnfitriona } from "@/src/api/savedAnfitriona";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { Bookmark, Diamond, Flame, Heart } from "lucide-react-native";
@@ -15,6 +16,7 @@ export default function PostCard({ anfitriona, height }: Props) {
   const router = useRouter();
   const [liked, setLiked] = useState(anfitriona.isLiked ?? false);
   const [saved, setSaved] = useState(anfitriona.isFavorite ?? false);
+  const isSaving = useRef(false);
   const [likes, setLikes] = useState(anfitriona.likesCount ?? 0);
   const { width: W, height: H } = useWindowDimensions();
   const cardHeight = height && height > 0 ? height : H;
@@ -40,6 +42,23 @@ export default function PostCard({ anfitriona, height }: Props) {
       setLikes((c) => (wasLiked ? c + 1 : c - 1));
     } finally {
       isLiking.current = false;
+    }
+  };
+
+  const handleSave = async () => {
+    if (isSaving.current) return;
+    isSaving.current = true;
+
+    const wasSaved = saved;
+    setSaved(!wasSaved);
+
+    try {
+      const result = await apiToggleSavedAnfitriona(anfitriona.id);
+      setSaved(result.saved);
+    } catch {
+      setSaved(wasSaved);
+    } finally {
+      isSaving.current = false;
     }
   };
 
@@ -72,7 +91,7 @@ export default function PostCard({ anfitriona, height }: Props) {
 
       <View style={{ position: "absolute", right: 10, bottom: 80, alignItems: "center" }}>
 
-        
+
         <TouchableOpacity onPress={handleProfilePress} style={{ alignItems: "center", marginBottom: 22 }}>
           <View style={{ position: "relative" }}>
             <View style={{
@@ -99,7 +118,7 @@ export default function PostCard({ anfitriona, height }: Props) {
           )}
         </TouchableOpacity>
 
-       
+
         <TouchableOpacity onPress={() => { void handleLike(); }} style={{ alignItems: "center", marginBottom: 22 }}>
           <Heart
             size={34}
@@ -109,7 +128,7 @@ export default function PostCard({ anfitriona, height }: Props) {
           <Text style={{ color: "white", fontSize: 12, marginTop: 3 }}>{likes}</Text>
         </TouchableOpacity>
 
-     
+
         {anfitriona.isPopular && (
           <View style={{ alignItems: "center", marginBottom: 22 }}>
             <Flame size={32} color="#f97316" fill="#f97316" />
@@ -117,8 +136,8 @@ export default function PostCard({ anfitriona, height }: Props) {
           </View>
         )}
 
-       
-        <TouchableOpacity onPress={() => setSaved((p) => !p)} style={{ alignItems: "center" }}>
+
+        <TouchableOpacity onPress={() => { void handleSave(); }} style={{ alignItems: "center" }}>
           <Bookmark
             size={32}
             color={saved ? "#facc15" : "white"}
@@ -128,7 +147,7 @@ export default function PostCard({ anfitriona, height }: Props) {
         </TouchableOpacity>
       </View>
 
-    
+
       <View style={{ position: "absolute", bottom: 20, left: 12, right: 80 }}>
         <Text style={{ color: "white", fontWeight: "bold", fontSize: 18 }}>
           @{anfitriona.username ?? anfitriona.name}

@@ -45,7 +45,7 @@ export default function Historial() {
     return (
       <View
         style={{ backgroundColor: '#1A0A0A', shadowColor: '#A11B1B', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.35, shadowRadius: 10, elevation: 8, borderWidth: 1, borderColor: 'rgba(161,27,27,0.4)' }}
-        className="flex-row items-center justify-between p-4 mb-4 rounded-2xl"
+        className="flex-row items-center justify-between p-5 mb-3 rounded-[22px]"
       >
         <View className="flex-row items-center flex-1">
           <View className={`w-12 h-12 rounded-full items-center justify-center ${config.bg}`}>
@@ -96,18 +96,19 @@ export default function Historial() {
           data={history}
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
+          showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingHorizontal: 12, paddingTop: 12, paddingBottom: 100 }}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#fff" />
           }
           ListHeaderComponent={
             history.length > 0 ? (
-              <Text className="text-white text-[18px] font-bold mb-4">Historial de entradas y salidas</Text>
+              <Text className="text-white text-[20px] font-black tracking-wide mb-4">Historial de entradas y salidas</Text>
             ) : null
           }
           ListFooterComponent={
             history.length > 0 ? (
-              <View className="items-center py-8 opacity-40">
+              <View className="items-center  opacity-40">
                 <MaterialCommunityIcons name="check-decagram-outline" size={16} color="#52525b" />
                 <Text className="text-zinc-500 text-[11px] uppercase tracking-[2px] mt-2">
                   Historial completado
