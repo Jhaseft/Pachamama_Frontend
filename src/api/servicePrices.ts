@@ -17,6 +17,12 @@ export const apiGetMyServicePrices = async (): Promise<ServicePrice[]> => {
   return response.data;
 };
 
+// GET /service-prices/public/:userId — precios públicos de una anfitriona (sin auth)
+export const apiGetPublicServicePrices = async (anfitrionaUserId: string): Promise<ServicePrice[]> => {
+  const response = await apiClient.get(`/service-prices/public/${anfitrionaUserId}`);
+  return response.data;
+};
+
 // PUT /service-prices — crea o actualiza un precio
 export const apiUpsertServicePrice = async (
   serviceType: ServiceType,

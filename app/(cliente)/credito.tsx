@@ -1,14 +1,15 @@
 import ScreenHeader from "@/components/Menu/ScreenHeader";
 import { View, Text } from "react-native";
+import CreditosScreen from  '@/src/screens/user/client/CreditosScreen';
 
-export default function ClienteCredito() {
+export default function ClienteCreditos() {
   return (
-    <View className="flex-1 items-center justify-center bg-white px-6">
-      <ScreenHeader title="Mis Créditos" role="cliente"/>
-      <Text className="text-2xl font-bold text-gray-800">Crédito</Text>
-      <Text className="text-base text-gray-500 mt-2">
-        Tu saldo y créditos
-      </Text>
-    </View>
+      <View className="flex-1">
+        <ScreenHeader title="Mis Creditos" role="cliente"/>
+        <CreditosScreen />
+      </View>
   );
 }
+
+//nota SafeAreaView agrega panding automaticamente en la parte inferior y superior
+

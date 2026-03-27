@@ -1,6 +1,13 @@
 import { useAuth } from '@/src/context/AuthContext';
-import { getMessages, markAsRead, sendMessageHttp, type Message } from '@/src/api/messages';
+import {
+  getMessages,
+  getMyServicePrices,
+  markAsRead,
+  sendMessageHttp,
+  type Message,
+} from '@/src/api/messages';
 import { useSocket } from '@/hooks/useSocket';
+import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import {
@@ -39,12 +46,18 @@ export default function AnfitrianaChat() {
   const [loading, setLoading] = useState(true);
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
+  const [isLocked, setIsLocked] = useState(false);
+  const [messagePrice, setMessagePrice] = useState<number | null>(null);
   const [activeConversationId, setActiveConversationId] = useState(
     conversationId !== 'new' ? conversationId : null,
   );
   const [kavKey, setKavKey] = useState(0);
 
   const { onNewMessage } = useSocket(user?.id);
+
+  useEffect(() => {
+    void loadServicePrices();
+  }, []);
 
   useEffect(() => {
     const sub = AppState.addEventListener('change', (next: AppStateStatus) => {
@@ -75,6 +88,16 @@ export default function AnfitrianaChat() {
     if (activeConversationId && user?.id) void markAsRead(activeConversationId, user.id);
   }, [activeConversationId]);
 
+  async function loadServicePrices() {
+    try {
+      const prices = await getMyServicePrices();
+      const msgPrice = prices.find((p) => p.serviceType === 'MESSAGE');
+      if (msgPrice) setMessagePrice(msgPrice.price);
+    } catch {
+      // silencioso — anfitriona puede no tener precios configurados
+    }
+  }
+
   async function loadMessages() {
     if (!activeConversationId) return;
     try {
@@ -98,9 +121,10 @@ export default function AnfitrianaChat() {
     setText('');
     setSending(true);
     try {
-      const msg = await sendMessageHttp(user.id, otherUserId, trimmed);
+      const msg = await sendMessageHttp(user.id, otherUserId, trimmed, isLocked);
       setMessages((prev) => [...prev, msg]);
       setActiveConversationId(msg.conversationId);
+      setIsLocked(false);
       scrollToEnd();
     } catch {
       setText(trimmed);
@@ -113,13 +137,12 @@ export default function AnfitrianaChat() {
     <View className="flex-1 bg-[#111]">
       <Stack.Screen options={{ headerShown: false }} />
 
-
       <View
         className="flex-row items-center bg-[#1a1a1a] border-b border-gray-800"
         style={{ paddingTop: insets.top + 8, paddingBottom: 12, paddingHorizontal: 16 }}
       >
         <TouchableOpacity onPress={() => router.back()} className="mr-3">
-          <Text className="text-pink-400 text-2xl">←</Text>
+          <Ionicons name="arrow-back" size={24} color="white" />
         </TouchableOpacity>
 
         {otherUserAvatar ? (
@@ -169,7 +192,9 @@ export default function AnfitrianaChat() {
                   <View
                     style={{
                       maxWidth: '75%',
-                      backgroundColor: isOwn ? '#be185d' : '#1f2937',
+                      backgroundColor: isOwn
+                        ? item.isLocked ? '#7c3aed' : '#be185d'
+                        : '#1f2937',
                       borderRadius: 16,
                       borderBottomRightRadius: isOwn ? 4 : 16,
                       borderBottomLeftRadius: isOwn ? 16 : 4,
@@ -177,7 +202,17 @@ export default function AnfitrianaChat() {
                       paddingVertical: 8,
                     }}
                   >
-                    <Text className="text-white text-[15px]">{item.text}</Text>
+                    {item.isLocked && (
+                      <View className="flex-row items-center gap-1 mb-1">
+                        <Text className="text-yellow-400 text-sm">🔒</Text>
+                        {item.price != null && (
+                          <Text className="text-yellow-300 text-[11px] font-semibold">
+                            {item.price} créditos
+                          </Text>
+                        )}
+                      </View>
+                    )}
+                    <Text className="text-white text-[15px]">{item.text ?? '(bloqueado)'}</Text>
                     <Text
                       className={`text-[10px] mt-[3px] text-right ${isOwn ? 'text-pink-200' : 'text-gray-500'}`}
                     >
@@ -188,6 +223,15 @@ export default function AnfitrianaChat() {
               );
             }}
           />
+        )}
+
+        
+        {isLocked && messagePrice === null && (
+          <View className="bg-yellow-900/60 px-4 py-2 mx-3 mb-1 rounded-lg">
+            <Text className="text-yellow-300 text-xs text-center">
+              Configura el precio de mensajes en tu perfil para usar esta función
+            </Text>
+          </View>
         )}
 
         <View
@@ -203,15 +247,29 @@ export default function AnfitrianaChat() {
             className="flex-1 bg-[#111] text-white rounded-[22px] px-4 py-[10px] text-[15px] border border-gray-700"
             style={{ maxHeight: 100 }}
           />
+
+          
+          <TouchableOpacity
+            onPress={() => setIsLocked((v) => !v)}
+            className={`w-10 h-10 rounded-full items-center justify-center ${
+              isLocked ? 'bg-violet-600' : 'bg-gray-700'
+            }`}
+          >
+            <Text className="text-base">{isLocked ? '🔒' : '🔓'}</Text>
+          </TouchableOpacity>
+
+         
           <TouchableOpacity
             onPress={handleSend}
-            disabled={!text.trim() || sending}
-            className={`w-11 h-11 rounded-full items-center justify-center ${text.trim() ? 'bg-pink-500' : 'bg-gray-700'}`}
+            disabled={!text.trim() || sending || (isLocked && messagePrice === null)}
+            className={`w-11 h-11 rounded-full items-center justify-center ${
+              text.trim() && !(isLocked && messagePrice === null) ? 'bg-pink-500' : 'bg-gray-700'
+            }`}
           >
             {sending ? (
               <ActivityIndicator size="small" color="white" />
             ) : (
-              <Text className="text-white text-lg">↑</Text>
+              <Ionicons name="arrow-up" size={20} color="white" />
             )}
           </TouchableOpacity>
         </View>

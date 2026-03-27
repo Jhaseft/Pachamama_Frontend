@@ -1,5 +1,7 @@
-import { View, Text, TextInput } from "react-native";
+import { useState } from "react";
+import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import type { TextInputProps } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 type TextFieldProps = {
   label?: string;
@@ -26,6 +28,8 @@ export default function TextField({
   textContentType,
   maxLength,
 }: TextFieldProps) {
+  const [hidden, setHidden] = useState(true);
+
   return (
     <View className="mb-4">
       {label ? (
@@ -41,12 +45,21 @@ export default function TextField({
           placeholder={placeholder}
           placeholderTextColor="#666666"
           keyboardType={keyboardType}
-          secureTextEntry={secureTextEntry}
+          secureTextEntry={secureTextEntry ? hidden : false}
           autoCapitalize={autoCapitalize}
           textContentType={textContentType}
           maxLength={maxLength}
           className="flex-1 text-white"
         />
+        {secureTextEntry ? (
+          <TouchableOpacity onPress={() => setHidden((h) => !h)} className="ml-2">
+            <Ionicons
+              name={hidden ? "eye-off-outline" : "eye-outline"}
+              size={20}
+              color="#999"
+            />
+          </TouchableOpacity>
+        ) : null}
       </View>
     </View>
   );

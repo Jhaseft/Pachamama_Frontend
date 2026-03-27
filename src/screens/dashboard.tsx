@@ -84,7 +84,7 @@ export default function AdminDashboard() {
       <StatusBar style="light" />
 
       <ScrollView
-        className="flex-1 px-4 pt-10"
+        className="flex-1 px-4  pt-10"
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#A11213" />
@@ -96,12 +96,6 @@ export default function AdminDashboard() {
             Bienvenido Administrador
           </Text>
         </View>
-
-        <Link href="/(auth)/choose-access" asChild>
-          <TouchableOpacity className="mt-6 bg-black py-3 px-8 rounded-xl">
-            <Text className="text-white font-bold">Ir a Panel Anfitriona</Text>
-          </TouchableOpacity>
-        </Link>
 
         <View className="bg-[#A11213] border border-gray-50/50 p-2 rounded-[30px] mb-4 items-center shadow-xl">
           <Text className="text-white text-lg font-bold mb-1 italic">Ganancias acumuladas</Text>

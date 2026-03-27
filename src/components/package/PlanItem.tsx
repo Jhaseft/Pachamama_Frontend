@@ -10,7 +10,7 @@ interface PlanItemProps {
 }
 
 export const PlanItem = ({ name, credits, price, onEdit, onDelete }: PlanItemProps) => (
-  <View className="flex-row items-center bg-[#460202] p-4 rounded-[16px] mb-2 border border-gray-800">
+  <View className="flex-row items-center bg-[#460202] p-4 rounded-[16px] mb-12  border border-gray-800">
     <View className="bg-yellow-500/10 p-3 rounded-full mr-4">
       <FontAwesome5 name="coins" size={20} color="#eab308" />
     </View>
@@ -21,7 +21,7 @@ export const PlanItem = ({ name, credits, price, onEdit, onDelete }: PlanItemPro
         <Text className="text-green-500">{`${price} $`}</Text>
       </Text>
     </View>
-    <View className="flex-row space-x-2">
+    <View className="flex-row space-x-2 ">
       <TouchableOpacity onPress={onEdit} className="p-2">
         <FontAwesome5 name="edit" size={24} color="#6366f1" />
       </TouchableOpacity>

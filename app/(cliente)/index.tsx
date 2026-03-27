@@ -1,15 +1,12 @@
 import ScreenHeader from "@/components/Menu/ScreenHeader";
 import PostCard from "@/components/cliente/PostCard";
 import { getPublicHostesses } from "@/src/services/hostesses";
+import { apiGetSavedAnfitrionas } from "@/src/api/savedAnfitriona";
 import type { Anfitriona } from "@/src/types/anfitriona";
 import { StoriesBarFeed } from "@/src/components/user/StoriesBarFeed";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-
 import { useFocusEffect } from "@react-navigation/native";
-
-
-
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -79,8 +76,12 @@ export default function ClienteInicio() {
     setError(null);
     hasMore.current = true;
     try {
-      const result = await getPublicHostesses(1);
-      setAnfitrionas(result.anfitrionas);
+      const [result, saved] = await Promise.all([
+        getPublicHostesses(1),
+        apiGetSavedAnfitrionas().catch(() => ({ data: [], nextCursor: null })),
+      ]);
+      const savedIds = new Set(saved.data.map((s) => s.id));
+      setAnfitrionas(result.anfitrionas.map((a) => ({ ...a, isFavorite: savedIds.has(a.id) })));
       setPage(1);
       hasMore.current = result.hasMore;
     } catch {
@@ -94,10 +95,16 @@ export default function ClienteInicio() {
     if (loadingMore || !hasMore.current) return;
     setLoadingMore(true);
     try {
-      const nextPage = page + 1;
-      const result = await getPublicHostesses(nextPage);
-      setAnfitrionas((prev) => [...prev, ...result.anfitrionas]);
-      setPage(nextPage);
+      const [result, saved] = await Promise.all([
+        getPublicHostesses(page + 1),
+        apiGetSavedAnfitrionas().catch(() => ({ data: [], nextCursor: null })),
+      ]);
+      const savedIds = new Set(saved.data.map((s) => s.id));
+      setAnfitrionas((prev) => [
+        ...prev,
+        ...result.anfitrionas.map((a) => ({ ...a, isFavorite: savedIds.has(a.id) })),
+      ]);
+      setPage(page + 1);
       hasMore.current = result.hasMore;
     } catch {
       // silencioso
@@ -106,9 +113,11 @@ export default function ClienteInicio() {
     }
   }, [loadingMore, page]);
 
-  useEffect(() => {
-    void loadAnfitrionas();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      void loadAnfitrionas();
+    }, [])
+  );
 
   const handleStorySelect = (item: HistoryFeedItem) => {
     if (!item.stories || item.stories.length === 0) {
@@ -162,7 +171,7 @@ export default function ClienteInicio() {
         </View>
       )}
 
-   
+
       {!loading && !error && anfitrionas.length === 0 && (
         <View className="flex-1 items-center justify-center">
           <Text style={{ color: "#6b7280", fontSize: 16 }}>
@@ -171,7 +180,7 @@ export default function ClienteInicio() {
         </View>
       )}
 
-  
+
       {!loading && !error && anfitrionas.length > 0 && (
         <View ref={feedContainerRef} style={{ flex: 1 }} onLayout={handleFeedLayout}>
           <FlatList

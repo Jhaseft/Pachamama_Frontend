@@ -4,8 +4,8 @@ export interface UserClientData {
     lastName: string;
     phoneNumber: string;
     email?: string;
-    isActive: boolean; 
-    
+    isActive: boolean;
+
     wallet?: {
         balance: number | string;
     };

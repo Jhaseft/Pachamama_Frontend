@@ -5,6 +5,8 @@ type Props = {
 };
 
 export default function IntroCard({ message }: Props) {
+  if (!message) return null;
+
   return (
     <View
       style={{

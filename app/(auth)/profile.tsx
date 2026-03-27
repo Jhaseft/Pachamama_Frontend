@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import {
   Text,
+  View,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   Pressable,
 } from "react-native";
 import { router } from "expo-router";
-import Screen from "../../components/Screen";
 import TextField from "../../components/TextField";
 import PrimaryButton from "../../components/PrimaryButton";
 import CheckboxRow from "../../components/CheckboxRow";
@@ -99,7 +99,7 @@ export default function Profile() {
 
   if (!checkingToken && !tempToken) {
     return (
-      <Screen>
+      <View style={{ flex: 1, backgroundColor: "#000", paddingHorizontal: 24, paddingTop: 40 }}>
         <Text className="text-white text-2xl font-semibold mt-8">
           Token temporal no encontrado
         </Text>
@@ -111,88 +111,86 @@ export default function Profile() {
           onPress={() => router.replace("/(auth)/client-access")}
           className="mt-6"
         />
-      </Screen>
+      </View>
     );
   }
 
   return (
-    <Screen>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        className="flex-1"
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1, backgroundColor: "#000" }}
+    >
+      <ScrollView
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, paddingTop: 40 }}
       >
-        <ScrollView
-          keyboardShouldPersistTaps="handled"
-          contentContainerClassName="flex-grow"
+        <Text className="text-white text-3xl font-semibold mt-8">Tu perfil</Text>
+        <Text className="text-white/70 text-lg mt-5 mb-6">
+          Completa tu informacion para continuar.
+        </Text>
+
+        <TextField
+          label="Nombre"
+          placeholder="Tu nombre"
+          value={name}
+          onChangeText={setName}
+          autoCapitalize="words"
+          textContentType="name"
+        />
+
+        <TextField
+          label="Email"
+          placeholder="correo@ejemplo.com"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          textContentType="emailAddress"
+        />
+
+        <TextField
+          label="Contraseña"
+          placeholder="********"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+          textContentType="password"
+        />
+
+        <TextField
+          label="Confirmar contraseña"
+          placeholder="********"
+          value={confirm}
+          onChangeText={setConfirm}
+          secureTextEntry
+          textContentType="password"
+        />
+
+        <CheckboxRow
+          checked={accepted}
+          onToggle={() => setAccepted((prev) => !prev)}
+          label="He leido y acepto los Terminos y Condiciones de uso."
+        />
+
+        {error ? (
+          <Text className="text-red-400 text-sm mt-2">{error}</Text>
+        ) : null}
+
+        <PrimaryButton
+          title={loading ? "Guardando..." : "Continuar"}
+          onPress={handleContinue}
+          disabled={!accepted || loading}
+          className="mt-6"
+        />
+
+        <Pressable
+          onPress={() => router.replace("/(auth)/client-access")}
+          className="mt-4 mb-8"
         >
-          <Text className="text-white text-3xl font-semibold mt-8">Tu perfil</Text>
-          <Text className="text-white/70 text-lg mt-5 mb-6">
-            Completa tu informacion para continuar.
+          <Text className="text-white/60 text-center underline">
+            Volver al login
           </Text>
-
-          <TextField
-            label="Nombre"
-            placeholder="Tu nombre"
-            value={name}
-            onChangeText={setName}
-            autoCapitalize="words"
-            textContentType="name"
-          />
-
-          <TextField
-            label="Email"
-            placeholder="correo@ejemplo.com"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            textContentType="emailAddress"
-          />
-
-          <TextField
-            label="Contrasena"
-            placeholder="********"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            textContentType="password"
-          />
-
-          <TextField
-            label="Confirmar contrasena"
-            placeholder="********"
-            value={confirm}
-            onChangeText={setConfirm}
-            secureTextEntry
-            textContentType="password"
-          />
-
-          <CheckboxRow
-            checked={accepted}
-            onToggle={() => setAccepted((prev) => !prev)}
-            label="He leido y acepto los Terminos y Condiciones de uso."
-          />
-
-          {error ? (
-            <Text className="text-red-400 text-sm mt-2">{error}</Text>
-          ) : null}
-
-          <PrimaryButton
-            title={loading ? "Guardando..." : "Continuar"}
-            onPress={handleContinue}
-            disabled={!accepted || loading}
-            className="mt-6"
-          />
-
-          <Pressable
-            onPress={() => router.replace("/(auth)/client-access")}
-            className="mt-4"
-          >
-            <Text className="text-white/60 text-center underline">
-              Volver al login
-            </Text>
-          </Pressable>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </Screen>
+        </Pressable>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }

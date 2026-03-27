@@ -36,9 +36,9 @@ export default function BottomNav({ role }: { role: Role }) {
 
   const isActive = (tabName: string) => {
     if (tabName === "index") {
-      return !tabs.some((t) => t.name !== "index" && pathname.endsWith(t.name));
+      return pathname === `/(${role})` || pathname === `/(${role})/index`;
     }
-    return pathname.endsWith(tabName);
+    return pathname.endsWith(`/${tabName}`);
   };
 
   const handlePress = (tabName: string) => {
