@@ -8,11 +8,11 @@ import { usePreventScreenCapture } from "expo-screen-capture";
 
 export default function Layout() {
   const insets = useSafeAreaInsets();
-  usePreventScreenCapture();
+  //usePreventScreenCapture();
   return (
 
       <AuthProvider>
-        <View className="flex-1 bg-black" style={{ paddingBottom: insets.bottom, backgroundColor:'black' }}>
+        <View className="flex-1 bg-black" style={{  backgroundColor:'black' }}>
           <StatusBar style="light" />
           <Stack screenOptions={{ headerShown: false }} />
         </View>

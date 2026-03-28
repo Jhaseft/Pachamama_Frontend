@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView, Image, Pressable, ActivityIndicator } from "react-native";
-import { Gem, Crown } from "lucide-react-native";
+import { View, Text, ScrollView, Pressable, ActivityIndicator, Modal, Linking } from "react-native";
+import { Gem, X } from "lucide-react-native";
 import { apiGetAllPackages } from "@/src/api/package"; // Ajusta la ruta a tu archivo de API
 import { PackageData } from "@/src/types/package";
 import { apiGetMyWallet, WalletResponse } from "@/src/api/userClient";
-import { Link } from "expo-router";
+
+const WEB_URL = "https://caja-negra-pacha-web.wkhbmg.easypanel.host";
 
 export default function CreditosScreen() {
     const [packages, setPackages] = useState<PackageData[]>([]);
     const [loading, setLoading] = useState(true);
     const [wallet, setWallet] = useState<WalletResponse | null>(null);
+    const [modalVisible, setModalVisible] = useState(false);
 
     useEffect(() => {
         loadData();
@@ -18,8 +20,6 @@ export default function CreditosScreen() {
     const loadData = async () => {
         setLoading(true);
         try {
-
-            //ejecutamos las 2 peticiones en paralelo
             const [packagesData, walletData] = await Promise.all([
                 apiGetAllPackages(),
                 apiGetMyWallet()
@@ -32,6 +32,11 @@ export default function CreditosScreen() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleOpenWeb = () => {
+        setModalVisible(false);
+        Linking.openURL(WEB_URL);
     };
 
     return (
@@ -90,26 +95,79 @@ export default function CreditosScreen() {
                             </View>
                         </View>
 
-                        <Link
+                        <Pressable
                             className="bg-[#A11B1B] px-8 py-3 rounded-[14px] active:opacity-70"
-                            asChild
-                            href={{
-                                pathname: "/(cliente)/payment/paymentMethods",
-                                params: {
-                                    packageId: item.id,
-                                    credits: item.credits,
-                                    price: item.price,
-                                },
-                            }}
+                            onPress={() => setModalVisible(true)}
                         >
                             <Text className="text-white font-extrabold text-xl">Comprar</Text>
-                        </Link>
+                        </Pressable>
 
                     </View>
                 ))
             )}
 
             <View className="h-20" />
+
+            <Modal
+                visible={modalVisible}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setModalVisible(false)}
+            >
+                <View
+                    className="flex-1 justify-center items-center"
+                    style={{ backgroundColor: "rgba(0,0,0,0.75)" }}
+                >
+                    <View className="bg-white rounded-3xl mx-6 p-6 items-center">
+
+                        <Pressable
+                            className="self-end mb-2"
+                            onPress={() => setModalVisible(false)}
+                        >
+                            <X color="#A11B1B" size={22} />
+                        </Pressable>
+
+                        <View
+                            style={{
+                                shadowColor: '#A11B1B',
+                                shadowOffset: { width: 0, height: 2 },
+                                shadowOpacity: 0.4,
+                                shadowRadius: 8,
+                                elevation: 6
+                            }}
+                        >
+                            <Gem color="#A11B1B" size={48} fill="#f8c0c0" strokeWidth={1.5} />
+                        </View>
+
+                        <Text className="text-[#A11B1B] text-xl font-black mt-4 text-center">
+                            Comprar créditos
+                        </Text>
+
+                        <Text className="text-gray-600 text-sm text-center mt-2 leading-5">
+                            Puedes adquirir tus créditos desde nuestra plataforma web.
+                            {"\n"}Serás redirigido para completar tu compra de forma rápida y segura.
+                        </Text>
+
+                        <Pressable
+                            className="bg-[#A11B1B] w-full py-3 px-3 rounded-2xl mt-6 active:opacity-70"
+                            onPress={handleOpenWeb}
+                        >
+                            <Text className="text-white font-extrabold text-base text-center">
+                                Ir a comprar
+                            </Text>
+                        </Pressable>
+
+                        <Pressable
+                            className="mt-3"
+                            onPress={() => setModalVisible(false)}
+                        >
+                            <Text className="text-gray-400 text-sm">Cancelar</Text>
+                        </Pressable>
+
+                    </View>
+                </View>
+            </Modal>
+
         </ScrollView>
     );
 }

@@ -8,7 +8,6 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import ProfileHeader from '@/components/cliente/profile/ProfileHeader';
 import GallerySection from '@/components/cliente/profile/GallerySection';
 import IntroCard from '@/components/cliente/profile/IntroCard';
-import TrustSection from '@/components/cliente/profile/TrustSection';
 import { apiGetMyProfile } from '@/src/api/anfitrionaProfile';
 import { apiGetMyGallery } from '@/src/api/anfitrionaGallery';
 import type { GalleryItemPublic } from '@/src/types/gallery';
@@ -109,8 +108,8 @@ export default function VistaPrevia() {
 
           <ProfileHeader
             name={name}
-            avatar={avatar ?? 'https://randomuser.me/api/portraits/women/44.jpg'}
-            coverImage={coverUrl ?? galleryImages[0]?.imageUrl ?? avatar ?? 'https://randomuser.me/api/portraits/women/44.jpg'}
+            avatar={avatar ?? ''}
+            coverImage={coverUrl ?? galleryImages[0]?.imageUrl ?? avatar ?? ''}
             isOnline={isOnline}
             likesCount={likesCount}
             rateCredits={rateCredits}
@@ -123,7 +122,6 @@ export default function VistaPrevia() {
 
           <IntroCard message={bio} />
 
-          <TrustSection items={[]} />
         </ScrollView>
       )}
     </View>

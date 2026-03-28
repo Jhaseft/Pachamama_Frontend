@@ -1,4 +1,5 @@
 import ScreenHeader from "@/components/Menu/ScreenHeader";
+import { LinearGradient } from "expo-linear-gradient";
 import {
   apiGetMyEarnings,
   apiGetBanks,
@@ -11,7 +12,7 @@ import {
   Bank,
   BankAccount,
 } from "@/src/api/wallet";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -25,6 +26,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   FlatList,
+  Animated,
+  Easing,
 } from "react-native";
 import { useRouter } from "expo-router";
 import {
@@ -41,32 +44,104 @@ import {
   ClipboardList,
 } from "lucide-react-native";
 
-const CREDITS_TO_SOLES = 0.90;
+const CREDITS_TO_SOLES = 0.1;
+const toSoles = (credits: number) => (credits * CREDITS_TO_SOLES).toFixed(2);
 
 function getServiceIcon(service: string) {
   const s = service.toLowerCase();
   if (s.includes("mensaje")) return <MessageCircle size={22} color="#fff" />;
-  if (s.includes("foto") || s.includes("imagen") || s.includes("galería") || s.includes("privada"))
+  if (
+    s.includes("foto") ||
+    s.includes("imagen") ||
+    s.includes("galería") ||
+    s.includes("privada")
+  )
     return <ImageIcon size={22} color="#fff" />;
   if (s.includes("llamada")) return <Phone size={22} color="#fff" />;
   if (s.includes("video")) return <Video size={22} color="#fff" />;
   return <TrendingUp size={22} color="#fff" />;
 }
 
+function AnimatedBorderCard({
+  children,
+  borderRadius = 18,
+  style,
+}: {
+  children: React.ReactNode;
+  borderRadius?: number;
+  style?: object;
+}) {
+  const spin = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(spin, {
+        toValue: 1,
+        duration: 3000,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      })
+    ).start();
+  }, [spin]);
+
+  const rotate = spin.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["0deg", "360deg"],
+  });
+
+  return (
+    <View style={[{ borderRadius, padding: 2, overflow: "hidden" }, style]}>
+      <Animated.View
+        style={{
+          position: "absolute",
+          width: 600,
+          height: 600,
+          top: "50%",
+          left: "50%",
+          marginTop: -300,
+          marginLeft: -300,
+          transform: [{ rotate }],
+        }}
+      >
+        <LinearGradient
+          colors={["#F6C16A", "#FFE5A0", "#F6C16A", "#C9933A", "#8B5E1A", "#C9933A", "#FFE5A0", "#F6C16A", "#F6C16A"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={{ flex: 1 }}
+        />
+      </Animated.View>
+      {children}
+    </View>
+  );
+}
+
 function TransactionItem({ tx }: { tx: EarningTransaction }) {
   return (
-    <View className="flex-row items-center bg-[#1a1a1a] rounded-2xl px-4 py-4 mb-3">
-      <View className="w-11 h-11 rounded-xl bg-[#D11B1B] items-center justify-center mr-4">
-        {getServiceIcon(tx.service)}
-      </View>
-      <View className="flex-1">
-        <Text className="text-white font-semibold text-base">{tx.service}</Text>
-        {tx.clientName ? (
-          <Text className="text-gray-400 text-xs mt-0.5">{tx.clientName}</Text>
-        ) : null}
-      </View>
-      <Text className="text-green-400 font-bold text-base">+ Cred/{tx.amount}</Text>
-    </View>
+    <AnimatedBorderCard style={{ marginBottom: 16 }}>
+      <LinearGradient
+        colors={["#1a0208", "#6B0A0A", "#C41818"]}
+        start={{ x: 0, y: 0.5 }}
+        end={{ x: 1, y: 0.5 }}
+        style={{ borderRadius: 16 }}
+      >
+        <View className="flex-row items-center px-4 py-4">
+          <View className="w-11 h-11 rounded-xl bg-[#9E1A34] items-center justify-center mr-4">
+            {getServiceIcon(tx.service)}
+          </View>
+          <View className="flex-1">
+            <Text className="text-white font-semibold text-base">
+              {tx.service}
+            </Text>
+            {tx.clientName ? (
+              <Text className="text-red-200 text-xs mt-0.5">{tx.clientName}</Text>
+            ) : null}
+          </View>
+          <Text style={{ color: "#FFEE00", fontWeight: "800", fontSize: 15 }}>
+            + S/ {toSoles(tx.amount)}
+          </Text>
+        </View>
+      </LinearGradient>
+    </AnimatedBorderCard>
   );
 }
 
@@ -90,7 +165,9 @@ function AddBankAccountModal({
 
   useEffect(() => {
     if (visible) {
-      apiGetBanks().then(setBanks).catch(() => {});
+      apiGetBanks()
+        .then(setBanks)
+        .catch(() => {});
       setSelectedBank(null);
       setAccountNumber("");
       setHolderName("");
@@ -99,7 +176,8 @@ function AddBankAccountModal({
 
   const handleSave = async () => {
     if (!selectedBank) return Alert.alert("Error", "Selecciona un banco");
-    if (!accountNumber.trim()) return Alert.alert("Error", "Ingresa el número de cuenta");
+    if (!accountNumber.trim())
+      return Alert.alert("Error", "Ingresa el número de cuenta");
     setLoading(true);
     try {
       const account = await apiAddBankAccount({
@@ -120,11 +198,17 @@ function AddBankAccountModal({
     <Modal visible={visible} transparent animationType="slide">
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
-        style={{ flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(0,0,0,0.6)" }}
+        style={{
+          flex: 1,
+          justifyContent: "flex-end",
+          backgroundColor: "rgba(0,0,0,0.6)",
+        }}
       >
         <View className="bg-[#111] rounded-t-3xl px-6 pt-5 pb-8">
           <View className="flex-row items-center justify-between mb-5">
-            <Text className="text-white text-lg font-bold">Agregar cuenta bancaria</Text>
+            <Text className="text-white text-lg font-bold">
+              Agregar cuenta bancaria
+            </Text>
             <TouchableOpacity onPress={onClose}>
               <X size={22} color="#9ca3af" />
             </TouchableOpacity>
@@ -168,7 +252,9 @@ function AddBankAccountModal({
             {loading ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text className="text-white font-bold text-base">Guardar cuenta</Text>
+              <Text className="text-white font-bold text-base">
+                Guardar cuenta
+              </Text>
             )}
           </TouchableOpacity>
         </View>
@@ -176,7 +262,12 @@ function AddBankAccountModal({
         {/* Bank picker */}
         <Modal visible={showBankPicker} transparent animationType="fade">
           <TouchableOpacity
-            style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.6)", justifyContent: "center", paddingHorizontal: 24 }}
+            style={{
+              flex: 1,
+              backgroundColor: "rgba(0,0,0,0.6)",
+              justifyContent: "center",
+              paddingHorizontal: 24,
+            }}
             onPress={() => setShowBankPicker(false)}
             activeOpacity={1}
           >
@@ -186,16 +277,30 @@ function AddBankAccountModal({
                 keyExtractor={(b) => b.id.toString()}
                 renderItem={({ item }) => (
                   <TouchableOpacity
-                    style={{ flexDirection: "row", alignItems: "center", paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: "#2a2a2a" }}
-                    onPress={() => { setSelectedBank(item); setShowBankPicker(false); }}
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      paddingHorizontal: 20,
+                      paddingVertical: 16,
+                      borderBottomWidth: 1,
+                      borderBottomColor: "#2a2a2a",
+                    }}
+                    onPress={() => {
+                      setSelectedBank(item);
+                      setShowBankPicker(false);
+                    }}
                   >
                     <Text className="text-white flex-1">{item.name}</Text>
-                    {selectedBank?.id === item.id && <CheckCircle size={18} color="#D11B1B" />}
+                    {selectedBank?.id === item.id && (
+                      <CheckCircle size={18} color="#D11B1B" />
+                    )}
                   </TouchableOpacity>
                 )}
                 ListEmptyComponent={
                   <View className="py-8 items-center">
-                    <Text className="text-gray-500">No hay bancos disponibles</Text>
+                    <Text className="text-gray-500">
+                      No hay bancos disponibles
+                    </Text>
                   </View>
                 }
               />
@@ -221,7 +326,9 @@ function WithdrawalModal({
   onSuccess: () => void;
 }) {
   const [accounts, setAccounts] = useState<BankAccount[]>([]);
-  const [selectedAccount, setSelectedAccount] = useState<BankAccount | null>(null);
+  const [selectedAccount, setSelectedAccount] = useState<BankAccount | null>(
+    null,
+  );
   const [credits, setCredits] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingAccounts, setLoadingAccounts] = useState(false);
@@ -269,7 +376,10 @@ function WithdrawalModal({
     if (!credits || creditsNum <= 0)
       return Alert.alert("Error", "Ingresa un monto válido");
     if (creditsNum > balance)
-      return Alert.alert("Saldo insuficiente", `Solo tienes Cred/ ${balance} disponibles`);
+      return Alert.alert(
+        "Saldo insuficiente",
+        `Solo tienes Cred/ ${balance} disponibles`,
+      );
     if (!selectedAccount)
       return Alert.alert("Error", "Selecciona una cuenta bancaria");
 
@@ -282,10 +392,19 @@ function WithdrawalModal({
       Alert.alert(
         "Solicitud enviada",
         `Tu solicitud de retiro de S/ ${soles} fue enviada. El equipo la procesará en 1-3 días hábiles.`,
-        [{ text: "OK", onPress: () => { onClose(); onSuccess(); } }]
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              onClose();
+              onSuccess();
+            },
+          },
+        ],
       );
     } catch (e: any) {
-      const msg = e?.response?.data?.message ?? "No se pudo enviar la solicitud";
+      const msg =
+        e?.response?.data?.message ?? "No se pudo enviar la solicitud";
       Alert.alert("Error", msg);
     } finally {
       setLoading(false);
@@ -297,11 +416,20 @@ function WithdrawalModal({
       <Modal visible={visible} transparent animationType="slide">
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : undefined}
-          style={{ flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(0,0,0,0.6)" }}
+          style={{
+            flex: 1,
+            justifyContent: "flex-end",
+            backgroundColor: "rgba(0,0,0,0.6)",
+          }}
         >
-          <View className="bg-[#111] rounded-t-3xl px-6 pt-5 pb-8" style={{ maxHeight: "85%" }}>
+          <View
+            className="bg-[#111] rounded-t-3xl px-6 pt-5 pb-8"
+            style={{ maxHeight: "85%" }}
+          >
             <View className="flex-row items-center justify-between mb-5">
-              <Text className="text-white text-lg font-bold">Solicitar pago</Text>
+              <Text className="text-white text-lg font-bold">
+                Solicitar pago
+              </Text>
               <TouchableOpacity onPress={onClose}>
                 <X size={22} color="#9ca3af" />
               </TouchableOpacity>
@@ -311,11 +439,15 @@ function WithdrawalModal({
               {/* Balance */}
               <View className="bg-[#1a1a1a] rounded-xl px-4 py-3 mb-5 flex-row justify-between">
                 <Text className="text-gray-400 text-sm">Saldo disponible</Text>
-                <Text className="text-white font-bold text-sm">Cred/ {balance}</Text>
+                <Text className="text-white font-bold text-sm">
+                  Cred/ {balance}
+                </Text>
               </View>
 
               {/* Credits input */}
-              <Text className="text-gray-400 text-xs mb-1">Monto a retirar (créditos)</Text>
+              <Text className="text-gray-400 text-xs mb-1">
+                Monto a retirar (créditos)
+              </Text>
               <TextInput
                 className="bg-[#1a1a1a] text-white rounded-xl px-4 py-3 text-lg font-bold mb-3"
                 placeholder="0"
@@ -328,34 +460,55 @@ function WithdrawalModal({
               {/* Soles conversion */}
               <View
                 className="rounded-xl px-4 py-3 mb-6 flex-row items-center justify-between"
-                style={{ backgroundColor: "rgba(209,27,27,0.1)", borderWidth: 1, borderColor: "rgba(209,27,27,0.3)" }}
+                style={{
+                  backgroundColor: "rgba(209,27,27,0.1)",
+                  borderWidth: 1,
+                  borderColor: "rgba(209,27,27,0.3)",
+                }}
               >
-                <Text className="text-gray-300 text-sm">Recibirás en soles</Text>
-                <Text className="text-[#D11B1B] font-black text-xl">S/ {soles}</Text>
+                <Text className="text-gray-300 text-sm">
+                  Recibirás en soles
+                </Text>
+                <Text className="text-[#D11B1B] font-black text-xl">
+                  S/ {soles}
+                </Text>
               </View>
 
               {/* Bank accounts */}
               <View className="flex-row items-center justify-between mb-3">
-                <Text className="text-white font-semibold">Cuenta de destino</Text>
+                <Text className="text-white font-semibold">
+                  Cuenta de destino
+                </Text>
                 <TouchableOpacity
                   style={{ flexDirection: "row", alignItems: "center", gap: 4 }}
                   onPress={() => setShowAddAccount(true)}
                 >
                   <Plus size={14} color="#D11B1B" />
-                  <Text className="text-[#D11B1B] text-xs font-semibold">Agregar</Text>
+                  <Text className="text-[#D11B1B] text-xs font-semibold">
+                    Agregar
+                  </Text>
                 </TouchableOpacity>
               </View>
 
               {loadingAccounts ? (
-                <ActivityIndicator color="#D11B1B" style={{ marginVertical: 16 }} />
+                <ActivityIndicator
+                  color="#D11B1B"
+                  style={{ marginVertical: 16 }}
+                />
               ) : accounts.length === 0 ? (
                 <TouchableOpacity
                   className="bg-[#1a1a1a] rounded-xl py-5 items-center mb-6"
-                  style={{ borderWidth: 1, borderColor: "#333", borderStyle: "dashed" }}
+                  style={{
+                    borderWidth: 1,
+                    borderColor: "#333",
+                    borderStyle: "dashed",
+                  }}
                   onPress={() => setShowAddAccount(true)}
                 >
                   <Plus size={20} color="#6b7280" />
-                  <Text className="text-gray-500 text-sm mt-2">Agrega una cuenta bancaria</Text>
+                  <Text className="text-gray-500 text-sm mt-2">
+                    Agrega una cuenta bancaria
+                  </Text>
                 </TouchableOpacity>
               ) : (
                 <View className="mb-6">
@@ -366,7 +519,9 @@ function WithdrawalModal({
                         key={acc.id}
                         className="flex-row items-center rounded-xl px-4 py-3 mb-2"
                         style={{
-                          backgroundColor: selected ? "rgba(209,27,27,0.1)" : "#1a1a1a",
+                          backgroundColor: selected
+                            ? "rgba(209,27,27,0.1)"
+                            : "#1a1a1a",
                           borderWidth: 1,
                           borderColor: selected ? "#D11B1B" : "#2a2a2a",
                         }}
@@ -374,21 +529,38 @@ function WithdrawalModal({
                       >
                         <View
                           style={{
-                            width: 20, height: 20, borderRadius: 10,
-                            borderWidth: 2, marginRight: 12,
+                            width: 20,
+                            height: 20,
+                            borderRadius: 10,
+                            borderWidth: 2,
+                            marginRight: 12,
                             borderColor: selected ? "#D11B1B" : "#6b7280",
-                            alignItems: "center", justifyContent: "center",
+                            alignItems: "center",
+                            justifyContent: "center",
                           }}
                         >
                           {selected && (
-                            <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: "#D11B1B" }} />
+                            <View
+                              style={{
+                                width: 10,
+                                height: 10,
+                                borderRadius: 5,
+                                backgroundColor: "#D11B1B",
+                              }}
+                            />
                           )}
                         </View>
                         <View style={{ flex: 1 }}>
-                          <Text className="text-white font-semibold text-sm">{acc.bankName}</Text>
-                          <Text className="text-gray-400 text-xs">{acc.accountNumber}</Text>
+                          <Text className="text-white font-semibold text-sm">
+                            {acc.bankName}
+                          </Text>
+                          <Text className="text-gray-400 text-xs">
+                            {acc.accountNumber}
+                          </Text>
                           {acc.accountHolderName ? (
-                            <Text className="text-gray-500 text-xs">{acc.accountHolderName}</Text>
+                            <Text className="text-gray-500 text-xs">
+                              {acc.accountHolderName}
+                            </Text>
                           ) : null}
                         </View>
                         <TouchableOpacity
@@ -416,7 +588,9 @@ function WithdrawalModal({
                 {loading ? (
                   <ActivityIndicator color="#fff" />
                 ) : (
-                  <Text className="text-white font-bold text-base">Solicitar S/ {soles}</Text>
+                  <Text className="text-white font-bold text-base">
+                    Solicitar S/ {soles}
+                  </Text>
                 )}
               </TouchableOpacity>
             </ScrollView>
@@ -463,8 +637,8 @@ export default function AnfitrianaGanancias() {
   }, []);
 
   return (
-    <View className="flex-1 bg-black">
-      <ScreenHeader title="Mis ganancias" role="anfitriona" />
+    <View style={{ flex: 1, backgroundColor: "#25060E" }}>
+      <ScreenHeader title="Mis ganancias" role="anfitriona" backgroundColor="#25060E" />
 
       {loading ? (
         <View className="flex-1 items-center justify-center">
@@ -475,65 +649,102 @@ export default function AnfitrianaGanancias() {
           className="flex-1"
           contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={() => load(true)} tintColor="#D11B1B" />
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => load(true)}
+              tintColor="#D11B1B"
+            />
           }
         >
-          <Text className="text-gray-400 text-sm mb-4">Resumen de tus ingresos</Text>
 
           {/* Total Card */}
-          <View className="bg-[#D11B1B] rounded-2xl px-6 py-5 mb-6">
+          <AnimatedBorderCard borderRadius={16} style={{ marginBottom: 24 }}>
+          <View style={{ backgroundColor: "#D11B1B", borderRadius: 14, paddingHorizontal: 24, paddingVertical: 20 }}>
             <Text className="text-red-200 text-xs font-semibold uppercase tracking-widest mb-1">
               Total acumulado
             </Text>
-            <Text className="text-white text-4xl font-black mb-4">Cred/ {data?.total ?? 0}</Text>
+            <Text
+              style={{
+                color: "#FFEE00",
+                fontSize: 36,
+                fontWeight: "900",
+                marginBottom: 16,
+              }}
+            >
+              S/ {toSoles(data?.total ?? 0)}
+            </Text>
             <View className="flex-row justify-between">
               <View className="items-center">
-                <Text className="text-white text-xl font-bold">Cred/ {data?.today ?? 0}</Text>
+                <Text
+                  style={{ color: "#FFEE00", fontSize: 20, fontWeight: "700" }}
+                >
+                  S/ {toSoles(data?.today ?? 0)}
+                </Text>
                 <Text className="text-red-200 text-xs mt-0.5">Hoy</Text>
               </View>
               <View className="w-px bg-red-400 mx-2" />
               <View className="items-center">
-                <Text className="text-white text-xl font-bold">Cred/ {data?.thisWeek ?? 0}</Text>
+                <Text
+                  style={{ color: "#FFEE00", fontSize: 20, fontWeight: "700" }}
+                >
+                  S/ {toSoles(data?.thisWeek ?? 0)}
+                </Text>
                 <Text className="text-red-200 text-xs mt-0.5">Esta semana</Text>
               </View>
               <View className="w-px bg-red-400 mx-2" />
               <View className="items-center">
-                <Text className="text-white text-xl font-bold">Cred/ {data?.total ?? 0}</Text>
+                <Text
+                  style={{ color: "#FFEE00", fontSize: 20, fontWeight: "700" }}
+                >
+                  S/ {toSoles(data?.total ?? 0)}
+                </Text>
                 <Text className="text-red-200 text-xs mt-0.5">Total</Text>
               </View>
             </View>
           </View>
+          </AnimatedBorderCard>
 
           {/* Action buttons */}
-          <View className="flex-row gap-2 mb-6">
+          <View className="mb-3">
+            <AnimatedBorderCard borderRadius={12} style={{ marginBottom: 12 }}>
+              <TouchableOpacity
+                style={{ backgroundColor: "#D11B1B", borderRadius: 10, paddingVertical: 16, alignItems: "center" }}
+                onPress={() => setShowWithdrawal(true)}
+              >
+                <Text style={{ color: "#FFEE00", fontSize: 16, fontWeight: "800" }}>
+                  Retirar dinero
+                </Text>
+              </TouchableOpacity>
+            </AnimatedBorderCard>
             <TouchableOpacity
-              className="flex-1 bg-[#D11B1B] rounded-xl py-3 items-center"
-              onPress={() => setShowWithdrawal(true)}
-            >
-              <Text className="text-white text-sm font-semibold">Solicitar pago</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              className="flex-row items-center gap-1.5 bg-[#1a1a1a] rounded-xl px-4 py-3"
+              className="flex-row items-center justify-center gap-1.5 bg-[#1a1a1a] rounded-xl py-3 mb-6"
               onPress={() => router.push("/(anfitriona)/solicitudes-retiro")}
             >
               <ClipboardList size={16} color="#9ca3af" />
-              <Text className="text-gray-400 text-sm font-semibold">Mis solicitudes</Text>
+              <Text className="text-gray-400 text-sm font-semibold">
+                Mis retiros
+              </Text>
             </TouchableOpacity>
           </View>
 
           {/* Transaction History Header */}
-          <Text className="text-white font-bold text-base mb-4">Historial de transacciones</Text>
+          <Text className="text-white font-bold text-base mb-4">
+            Historial de transacciones
+          </Text>
 
           {/* Transactions */}
           {data?.transactions.length === 0 ? (
             <View className="items-center py-12">
               <TrendingUp size={48} color="#333" />
               <Text className="text-gray-500 mt-4 text-center">
-                Aún no tienes ganancias registradas.{"\n"}¡Empieza a enviar mensajes bloqueados!
+                Aún no tienes ganancias registradas.{"\n"}¡Empieza a enviar
+                mensajes bloqueados!
               </Text>
             </View>
           ) : (
-            data?.transactions.map((tx) => <TransactionItem key={tx.id} tx={tx} />)
+            data?.transactions.map((tx) => (
+              <TransactionItem key={tx.id} tx={tx} />
+            ))
           )}
         </ScrollView>
       )}

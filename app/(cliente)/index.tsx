@@ -1,7 +1,10 @@
 import ScreenHeader from "@/components/Menu/ScreenHeader";
 import PostCard from "@/components/cliente/PostCard";
+import ClienteCreditsHeaderTitle from "@/components/cliente/home/ClienteCreditsHeaderTitle";
+import RechargeHeaderButton from "@/components/cliente/home/RechargeHeaderButton";
 import { getPublicHostesses } from "@/src/services/hostesses";
 import { apiGetSavedAnfitrionas } from "@/src/api/savedAnfitriona";
+import { apiGetMyWallet } from "@/src/api/userClient";
 import type { Anfitriona } from "@/src/types/anfitriona";
 import { StoriesBarFeed } from "@/src/components/user/StoriesBarFeed";
 import { useRouter } from "expo-router";
@@ -34,6 +37,7 @@ export default function ClienteInicio() {
 
   const router = useRouter();
   const [feed, setFeed] = useState<HistoryFeedItem[]>([]);
+  const [credits, setCredits] = useState<number>(15);
 
   const loadFeed = async () => {
     try {
@@ -50,6 +54,24 @@ export default function ClienteInicio() {
     useCallback(() => {
       loadFeed();
     }, [])
+  );
+
+  const loadCredits = useCallback(async () => {
+    try {
+      const wallet = await apiGetMyWallet();
+      const parsedBalance = Number(wallet?.balance);
+      if (Number.isFinite(parsedBalance)) {
+        setCredits(Math.max(0, Math.floor(parsedBalance)));
+      }
+    } catch {
+      setCredits(15);
+    }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      void loadCredits();
+    }, [loadCredits])
   );
 
   // Re-mide el contenedor cuando la app vuelve del segundo plano
@@ -145,7 +167,14 @@ export default function ClienteInicio() {
 
   return (
     <SafeAreaView edges={["top"]} className="flex-1 bg-black">
-      <ScreenHeader title="ANFITRIONAS" role="cliente" />
+      <ScreenHeader
+        title="ANFITRIONAS"
+        role="cliente"
+        renderHeaderTitle={() => <ClienteCreditsHeaderTitle credits={credits} />}
+        renderHeaderRight={() => (
+          <RechargeHeaderButton onPress={() => router.push("/(cliente)/credito")} />
+        )}
+      />
 
 
       {loading && (
@@ -194,6 +223,7 @@ export default function ClienteInicio() {
             onEndReachedThreshold={0.5}
             ListHeaderComponent={
               <View
+                className="-mt-1"
                 onLayout={(e) => {
                   const h = Math.round(e.nativeEvent.layout.height);
                   if (h !== storiesBarHeight) setStoriesBarHeight(h);

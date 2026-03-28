@@ -10,8 +10,8 @@ interface Props {
 
 export const StoriesBarFeed = ({ stories, onSelect }: Props) => {
     return (
-        <View className="bg-black py-1 border-b border-zinc-900">
-            <View className="flex-row justify-between items-center px-4 mb-2">
+        <View className="bg-black py-0 border-b border-zinc-900">
+            <View className="flex-row justify-between items-center px-4 mb-1">
                 <Text className="text-white text-[14px] font-semibold">Historias</Text>
             </View>
 
