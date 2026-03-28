@@ -7,7 +7,7 @@ import { StatusBar } from 'expo-status-bar';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Link } from "expo-router";
 import ConfirmDialog from '../components/ConfirmDialog';
-
+import { apiCountPendingWithdrawalRequests } from '../api/withdrawalRequest';
 
 import { apiGetAllPackages, apiDeletePackage } from '../api/package';
 import { PackageData } from '../types/package';
@@ -23,14 +23,29 @@ export default function AdminDashboard() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [confirmVisible, setConfirmVisible] = useState(false);
 
-
   const [stats, setStats] = useState({
     ganancias: 1202,
     solicitudesAnf: 8,
-    solicitudesPago: 34,
+    solicitudesPago: 0,
     anfitrionas: 13,
     compras: 48
   });
+
+  // Función independiente para el contador de solicitudes
+  const fetchWithdrawalCount = async () => {
+    try {
+
+      const count = await apiCountPendingWithdrawalRequests();
+
+
+      setStats(prev => ({
+        ...prev,
+        solicitudesPago: count
+      }));
+    } catch (error: any) {
+      console.error("Error silencioso al actualizar contador:", error.message);
+    }
+  };
 
   // Función para cargar los paquetes desde la API
   const fetchPackages = async () => {
@@ -51,12 +66,18 @@ export default function AdminDashboard() {
   useFocusEffect(
     useCallback(() => {
       fetchPackages();
+      fetchWithdrawalCount();
     }, [])
   );
+
   // Función para refrescar la lista de paquetes
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    fetchPackages();
+    // Ejecutamos ambas y esperamos que terminen
+    Promise.all([
+      fetchPackages(),
+      fetchWithdrawalCount()
+    ]).finally(() => setRefreshing(false));
   }, []);
 
   // Función para eliminar un paquete
@@ -104,8 +125,8 @@ export default function AdminDashboard() {
 
         <View className="flex-row flex-wrap justify-between">
           <StatCard title="Solicitud anfitrionas" value={stats.solicitudesAnf} icon="file-document-edit" />
-          <StatCard title="Solicitudes de pago" value={stats.solicitudesPago} icon="cash-clock" />
-          <StatCard title="Anfitrionas" value={stats.anfitrionas} icon="account-tie" color="#3b82f6" />
+          <StatCard title="Solicitudes de pago" value={stats.solicitudesPago} icon="cash-clock" onPress={() => router.push('/admin/listWithdrawalRequest' as any)} />
+          <StatCard title="Anfitrionas" value={stats.anfitrionas} icon="account-tie" color="#3b82f6" onPress={() => router.push('/admin/anfitriona' as any)} />
           <StatCard title="Solicitudes de compra" value={stats.compras} icon="cart-check" color="#8b5cf6" />
         </View>
 
@@ -124,13 +145,18 @@ export default function AdminDashboard() {
             </TouchableOpacity>
           </Link>
 
-          <TouchableOpacity
-            activeOpacity={0.7}
-            className="bg-[#1a1a1a] border border-gray-800 flex-row items-center px-6 py-2 rounded-2xl w-[48%] justify-center space-x-2"
+          <Link
+            asChild
+            href={"/admin/historyPayment"}
           >
-            <MaterialIcons name="payment" size={24} color="#e11d48" />
-            <Text className="text-white font-bold italic">Ver</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              activeOpacity={0.7}
+              className="bg-[#1a1a1a] border border-gray-800 flex-row items-center px-6 py-2 rounded-2xl w-[48%] justify-center space-x-2"
+            >
+              <MaterialIcons name="payment" size={24} color="#e11d48" />
+              <Text className="text-white font-bold italic">Ver</Text>
+            </TouchableOpacity>
+          </Link>
 
         </View>
 
