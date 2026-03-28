@@ -1,5 +1,6 @@
 import { Stack } from "expo-router";
 import HeaderTitle from "@/components/Menu/HeaderTitle";
+import { ReactNode } from "react";
 
 type Role = "anfitriona" | "cliente";
 
@@ -10,6 +11,8 @@ type Props = {
   showBackButton?: boolean;
 
   backgroundColor?: string;
+  renderHeaderTitle?: () => ReactNode;
+  renderHeaderRight?: () => ReactNode;
 };
 
 export default function ScreenHeader({
@@ -17,6 +20,8 @@ export default function ScreenHeader({
   role,
   showBackButton = false,
   backgroundColor = "black",
+  renderHeaderTitle,
+  renderHeaderRight,
 }: Props) {
   return (
     <Stack.Screen
@@ -25,12 +30,16 @@ export default function ScreenHeader({
         headerBackVisible: showBackButton,
         headerTitleAlign: "left",
 
-        headerTitle: () => (
-          <HeaderTitle
-            title={title}
-            role={role}
-          />
-        ),
+        headerTitle:
+          renderHeaderTitle ??
+          (() => (
+            <HeaderTitle
+              title={title}
+              role={role}
+            />
+          )),
+
+        headerRight: renderHeaderRight,
 
         headerStyle: {
           backgroundColor,

@@ -8,7 +8,7 @@ import { usePreventScreenCapture } from "expo-screen-capture";
 
 export default function Layout() {
   const insets = useSafeAreaInsets();
-  usePreventScreenCapture();
+  //usePreventScreenCapture();
   return (
 
       <AuthProvider>

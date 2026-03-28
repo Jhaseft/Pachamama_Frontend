@@ -37,7 +37,7 @@ export default function ProfileHeader({ name, avatar, coverImage, isOnline, like
         style={{ width, height: COVER_HEIGHT, backgroundColor: "#1a1a1a" }}
       >
         <Image
-          source={{ uri: coverImage }}
+          source={coverImage ? { uri: coverImage } : require("../../../assets/no_image.jpg")}
           style={{ width: "100%", height: "100%" }}
           resizeMode="cover"
         />
@@ -79,15 +79,11 @@ export default function ProfileHeader({ name, avatar, coverImage, isOnline, like
             overflow: "hidden",
           }}
         >
-          {avatar ? (
-            <Image source={{ uri: avatar }} style={{ width: "100%", height: "100%" }} />
-          ) : (
-            <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-              <Text style={{ color: "white", fontSize: 36, fontWeight: "bold" }}>
-                {name.charAt(0).toUpperCase()}
-              </Text>
-            </View>
-          )}
+          <Image
+            source={avatar ? { uri: avatar } : require("../../../assets/no_image.jpg")}
+            style={{ width: "100%", height: "100%" }}
+            resizeMode="cover"
+          />
         </View>
 
     

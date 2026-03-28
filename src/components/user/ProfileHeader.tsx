@@ -5,7 +5,11 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 export const ProfileHeader = ({ profile, onCoverPress, onAvatarPress }: any) => (
     <View className="w-full">
 
-        <ImageBackground source={{ uri: profile.cover }} className="h-52 w-full rounded-xl  justify-end items-end p-4">
+        <ImageBackground
+            source={profile.cover ? { uri: profile.cover } : require('../../../assets/no_image.jpg')}
+            className="h-52 w-full rounded-xl  justify-end items-end p-4"
+            resizeMode="cover"
+        >
             <TouchableOpacity
                 onPress={onCoverPress}
                 className="bg-zinc-800/80 p-1.5 rounded-full border border-zinc-600"
@@ -22,7 +26,7 @@ export const ProfileHeader = ({ profile, onCoverPress, onAvatarPress }: any) => 
 
             <View className="relative mr-5">
                 <Image
-                    source={{ uri: profile.avatar }}
+                    source={profile.avatar ? { uri: profile.avatar } : require('../../../assets/no_image.jpg')}
                     className="w-28 h-28 rounded-full border-4 border-black"
                 />
 

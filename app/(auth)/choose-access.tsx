@@ -1,60 +1,34 @@
-import { View, Text, Pressable, Alert } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Text, View } from "react-native";
 import { router } from "expo-router";
-import Screen from "../../components/Screen";
+import { SafeAreaView } from "react-native-safe-area-context";
+import PromoAccessCard from "@/components/auth/choose-access/PromoAccessCard";
+import SecondaryAccessLinks from "@/components/auth/choose-access/SecondaryAccessLinks";
 
 export default function ChooseAccess() {
   return (
-    <Screen>
-      <View className="mt-7">
-        <Text className="text-white text-3xl font-semibold text-center">
-          Bienvenido
-        </Text>
-        <Text className="text-white mt-2 text-center">
-          Elige como quieres ingresar a la app
-        </Text>
-      </View>
-
-      <View className="mt-8">
-        <Pressable
-          onPress={() => router.push("/(auth)/client-access")}
-          className="bg-[#D9D9D9] border border-neutral-800 rounded-2xl p-5 py-14 mb-4 items-center"
-        >
-          <Ionicons name="person" size={50} color="black" />
-          <View className="items-center mb-3">
-            <Text className="text-black text-2xl font-semibold text-center">
-              Cliente
-            </Text>
-          </View>
-          <Text className="text-black text-lg text-center">
-            Entrar / Crear cuenta
+    <View className="flex-1 bg-black">
+      <SafeAreaView edges={["top", "bottom"]} className="flex-1 px-6 pt-2 pb-6">
+        <View className="flex-1 mt-6">
+          <Text className="text-white text-5xl text-center font-bold">
+            Bienvenido
           </Text>
-        </Pressable>
-
-        <Pressable
-          onPress={() => router.push("/(auth)/login-hostess")}
-          className="bg-[#D9D9D9] border border-neutral-800 rounded-2xl p-5 py-14 mb-4 items-center"
-        >
-          <Ionicons name="person" size={50} color="black" />
-          <View className="flex-row items-center mb-3">
-            <Text className="text-black text-2xl font-semibold">Anfitriona</Text>
-          </View>
-          <Text className="text-black text-sm text-center">
-            Ingresar (solo cuentas aprobadas) {"\n"}
-            Las anfitrionas no pueden 
-            registrase libremente Solo cuentas aprobadas por el administrador.
+          <Text className="text-white text-3xl font-bold mt-6">
+            Amigas disponibles {'\n'} ahora 🔥
           </Text>
-        </Pressable>
-      </View>
+          <Text className="text-white/65 text-2xl mt-4">
+            Entra y empieza a chatear en segundos
+          </Text>
 
-      <Pressable
-        onPress={() => router.push("/(auth)/login-admin")}
-        className="mt-8"
-      >
-        <Text className="text-white text-lg text-center underline">
-          Acceso Admin
-        </Text>
-      </Pressable>
-    </Screen>
+          <PromoAccessCard
+            onPrimaryPress={() => router.push("/(auth)/client-access")}
+          />
+        </View>
+
+        <SecondaryAccessLinks
+          onHostessPress={() => router.push("/(auth)/login-hostess")}
+          onAdminPress={() => router.push("/(auth)/login-admin")}
+        />
+      </SafeAreaView>
+    </View>
   );
 }

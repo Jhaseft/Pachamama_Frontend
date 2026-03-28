@@ -36,6 +36,8 @@ export default function EditarPerfil() {
   const [rateCredits, setRateCredits] = useState('');
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
   const [avatarChanged, setAvatarChanged] = useState(false);
+  const [coverUri, setCoverUri] = useState<string | null>(null);
+  const [coverChanged, setCoverChanged] = useState(false);
 
   useEffect(() => {
     void loadProfile();
@@ -50,6 +52,7 @@ export default function EditarPerfil() {
       setBio(data.bio ?? '');
       setRateCredits(String(data.rateCredits ?? 0));
       setAvatarUri(data.avatarUrl ?? null);
+      setCoverUri(data.coverUrl ?? null);
     } catch (e) {
       Alert.alert('Error', 'No se pudo cargar el perfil.');
     } finally {
@@ -70,6 +73,19 @@ export default function EditarPerfil() {
     }
   };
 
+  const pickCover = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [16, 9],
+      quality: 0.8,
+    });
+    if (!result.canceled) {
+      setCoverUri(result.assets[0].uri);
+      setCoverChanged(true);
+    }
+  };
+
   const handleSave = async () => {
     if (!username.trim()) {
       Alert.alert(
@@ -82,11 +98,11 @@ export default function EditarPerfil() {
     setSaving(true);
     try {
       const avatarFile = avatarChanged && avatarUri
-        ? {
-            uri: avatarUri,
-            name: `avatar_${Date.now()}.jpg`,
-            type: 'image/jpeg',
-          }
+        ? { uri: avatarUri, name: `avatar_${Date.now()}.jpg`, type: 'image/jpeg' }
+        : undefined;
+
+      const coverFile = coverChanged && coverUri
+        ? { uri: coverUri, name: `cover_${Date.now()}.jpg`, type: 'image/jpeg' }
         : undefined;
 
       await apiUpdateMyProfile(
@@ -98,6 +114,7 @@ export default function EditarPerfil() {
           rateCredits: parseInt(rateCredits) || 0,
         },
         avatarFile,
+        coverFile,
       );
 
       Alert.alert('¡Listo!', 'Perfil actualizado correctamente.', [
@@ -167,36 +184,44 @@ export default function EditarPerfil() {
         contentContainerStyle={{ padding: 20, paddingBottom: insets.bottom + 32 }}
         keyboardShouldPersistTaps="handled"
       >
+        {/* Banner / Cover */}
+        <View style={{ marginBottom: 20 }}>
+          <Text style={{ color: '#e4e4e7', fontSize: 13, fontWeight: '600', marginBottom: 8 }}>
+            Foto de portada (banner)
+          </Text>
+          <TouchableOpacity onPress={pickCover} activeOpacity={0.85} style={{ position: 'relative' }}>
+            <Image
+              source={coverUri ? { uri: coverUri } : require('../../assets/no_image.jpg')}
+              style={{ width: '100%', height: 160, borderRadius: 12 }}
+              resizeMode="cover"
+            />
+            <View style={{
+              position: 'absolute', bottom: 10, right: 10,
+              backgroundColor: '#dc2626', borderRadius: 20, padding: 8,
+              borderWidth: 2, borderColor: '#111',
+            }}>
+              <MaterialCommunityIcons name="camera" size={18} color="white" />
+            </View>
+          </TouchableOpacity>
+          <Text style={{ color: '#71717a', fontSize: 12, marginTop: 6 }}>
+            Toca para cambiar el banner (16:9)
+          </Text>
+        </View>
+
         {/* Avatar */}
         <View style={{ alignItems: 'center', marginBottom: 28 }}>
           <TouchableOpacity onPress={pickAvatar} style={{ position: 'relative' }}>
-            {avatarUri ? (
-              <Image
-                source={{ uri: avatarUri }}
-                style={{
-                  width: 100,
-                  height: 100,
-                  borderRadius: 50,
-                  borderWidth: 3,
-                  borderColor: '#dc2626',
-                }}
-              />
-            ) : (
-              <View
-                style={{
-                  width: 100,
-                  height: 100,
-                  borderRadius: 50,
-                  backgroundColor: '#27272a',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  borderWidth: 3,
-                  borderColor: '#dc2626',
-                }}
-              >
-                <MaterialCommunityIcons name="account" size={48} color="#71717a" />
-              </View>
-            )}
+            <Image
+              source={avatarUri ? { uri: avatarUri } : require('../../assets/no_image.jpg')}
+              style={{
+                width: 100,
+                height: 100,
+                borderRadius: 50,
+                borderWidth: 3,
+                borderColor: '#dc2626',
+              }}
+              resizeMode="cover"
+            />
             <View
               style={{
                 position: 'absolute',
@@ -213,7 +238,7 @@ export default function EditarPerfil() {
             </View>
           </TouchableOpacity>
           <Text style={{ color: '#71717a', fontSize: 13, marginTop: 8 }}>
-            Toca para cambiar foto
+            Toca para cambiar foto de perfil
           </Text>
         </View>
 

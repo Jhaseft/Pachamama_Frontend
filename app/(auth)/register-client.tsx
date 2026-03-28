@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import {
   Text,
   Pressable,
+  TextInput,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -11,7 +12,6 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import Screen from "../../components/Screen";
-import TextField from "../../components/TextField";
 import PrimaryButton from "../../components/PrimaryButton";
 import { sendOtp } from "../../src/services/auth";
 import { COUNTRIES_LATAM, type CountryLatam } from "../../src/constants/countriesLatam";
@@ -88,17 +88,6 @@ export default function LoginClient() {
             Completa tu registro para crear tu cuenta.
           </Text>
 
-          <View className="mb-4">
-            <Text className="text-white text-xl font-bold mb-2">Pais</Text>
-            <Pressable
-              onPress={() => setCountryOpen(true)}
-              className="flex-row items-center justify-between bg-neutral-900 border border-white rounded-xl px-4 py-3"
-            >
-              <Text className="text-white">{country.name}</Text>
-              <Text className="text-white/70">+{country.dialCode}</Text>
-            </Pressable>
-          </View>
-
           <Modal
             visible={countryOpen}
             transparent
@@ -133,26 +122,39 @@ export default function LoginClient() {
             </View>
           </Modal>
 
-          <TextField
-            label="Número de celular"
-            placeholder="999 999 999"
-            keyboardType="phone-pad"
-            value={phone}
-            onChangeText={handlePhoneChange}
-            prefix={`+${country.dialCode}`}
-            textContentType="telephoneNumber"
-            maxLength={15}
-          />
+          <View className="mt-1">
+            <Text className="text-white text-base mb-2">Número de celular</Text>
+            <View className="h-14 rounded-2xl border border-white/20 bg-white/5 px-3 flex-row items-center">
+              <Pressable
+                onPress={() => setCountryOpen(true)}
+                className="h-full justify-center pr-3 mr-3 border-r border-white/20"
+              >
+                <Text className="text-white text-lg font-semibold">+{country.dialCode}</Text>
+              </Pressable>
+              <TextInput
+                className="flex-1 text-white text-lg"
+                placeholder="999 999 999"
+                placeholderTextColor="rgba(255,255,255,0.45)"
+                keyboardType="phone-pad"
+                value={phone}
+                onChangeText={handlePhoneChange}
+                textContentType="telephoneNumber"
+                maxLength={15}
+              />
+            </View>
+          </View>
 
           {error ? (
             <Text className="text-red-400 text-sm mt-2">{error}</Text>
           ) : null}
 
-          <PrimaryButton
-            title={loading ? "Enviando..." : "Enviar codigo"}
-            onPress={handleSend}
-            disabled={loading}
-          />
+          <View className="mt-6">
+            <PrimaryButton
+              title={loading ? "Enviando..." : "Enviar codigo"}
+              onPress={handleSend}
+              disabled={loading}
+            />
+          </View>
 
           <Pressable
             onPress={() => router.push("/(auth)/code-help")}
