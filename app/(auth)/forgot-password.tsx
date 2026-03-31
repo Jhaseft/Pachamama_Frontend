@@ -11,22 +11,18 @@ import { router } from "expo-router";
 import Screen from "../../components/Screen";
 import TextField from "../../components/TextField";
 import PrimaryButton from "../../components/PrimaryButton";
-import { loginWithEmail } from "../../src/services/auth";
-import { useAuth } from "../../src/context/AuthContext";
+import { forgotPassword } from "../../src/services/auth";
 
-export default function LoginClientEmail() {
+export default function ForgotPassword() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const { setSession } = useAuth();
 
-  const handleLogin = async () => {
+  const handleSubmit = async () => {
     const trimmedEmail = email.trim().toLowerCase();
-    const trimmedPassword = password.trim();
 
-    if (!trimmedEmail || !trimmedPassword) {
-      setError("Ingresa tu correo y contraseña.");
+    if (!trimmedEmail) {
+      setError("Ingresa tu correo.");
       return;
     }
 
@@ -39,18 +35,14 @@ export default function LoginClientEmail() {
     try {
       setLoading(true);
       setError("");
-      const response = await loginWithEmail(trimmedEmail, trimmedPassword);
-
-      if (response.user.role !== "USER") {
-        setError("Acceso solo para clientes.");
-        return;
-      }
-
-      await setSession(response.access_token, response.user);
-      router.replace("/(cliente)");
+      await forgotPassword(trimmedEmail);
+      router.push({
+        pathname: "/(auth)/reset-password",
+        params: { email: trimmedEmail },
+      });
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : "No se pudo iniciar sesión.";
+        err instanceof Error ? err.message : "No se pudo procesar la solicitud.";
       setError(message);
     } finally {
       setLoading(false);
@@ -75,9 +67,11 @@ export default function LoginClientEmail() {
             <Text className="text-white text-base ml-2">Volver</Text>
           </Pressable>
 
-          <Text className="text-white text-3xl font-bold">Iniciar sesión</Text>
+          <Text className="text-white text-3xl font-bold">
+            ¿Olvidaste tu contraseña?
+          </Text>
           <Text className="text-white/70 text-lg mt-2 mb-6">
-            Accede con tu correo y contraseña.
+            Ingresa tu correo y te enviaremos un código para recuperar tu cuenta.
           </Text>
 
           <TextField
@@ -89,43 +83,16 @@ export default function LoginClientEmail() {
             textContentType="emailAddress"
           />
 
-          <TextField
-            label="Contraseña"
-            placeholder="********"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            textContentType="password"
-          />
-
           {error ? (
             <Text className="text-red-400 text-sm mt-2">{error}</Text>
           ) : null}
 
           <PrimaryButton
-            title={loading ? "Ingresando..." : "Iniciar sesión"}
-            onPress={handleLogin}
+            title={loading ? "Enviando..." : "Enviar código"}
+            onPress={handleSubmit}
             disabled={loading}
             className="mt-4"
           />
-
-          <Pressable
-            onPress={() => router.push("/(auth)/forgot-password")}
-            className="mt-4"
-          >
-            <Text className="text-white/60 text-center underline">
-              ¿Olvidaste tu contraseña?
-            </Text>
-          </Pressable>
-
-          <Pressable
-            onPress={() => router.replace("/(auth)/register-client")}
-            className="mt-4"
-          >
-            <Text className="text-white/60 text-center underline">
-              Soy nuevo, crear cuenta22
-            </Text>
-          </Pressable>
         </ScrollView>
       </KeyboardAvoidingView>
     </Screen>
