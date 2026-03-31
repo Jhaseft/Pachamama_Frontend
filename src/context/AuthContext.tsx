@@ -11,6 +11,7 @@ import {
   setAccessToken,
   setUser,
 } from "../storage/authStorage";
+import { registerForPushNotifications, setupForegroundNotificationHandler, setupBackgroundNotificationHandler } from "../services/notifications";
 
 type AuthContextValue = {
   accessToken: string | null;
@@ -66,6 +67,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await Promise.all([setAccessToken(token), setUser(nextUser)]);
     setAccessTokenState(token);
     setUserState(nextUser);
+    // Registrar FCM token después del login
+    void registerForPushNotifications();
   }, []);
 
   const logout = useCallback(async () => {
@@ -76,6 +79,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     void hydrate();
+    setupBackgroundNotificationHandler();
+    const unsubscribeForeground = setupForegroundNotificationHandler();
+    return () => unsubscribeForeground();
   }, [hydrate]);
 
   const value = useMemo(
