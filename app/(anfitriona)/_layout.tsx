@@ -6,6 +6,7 @@ import { useAuth } from "@/src/context/AuthContext";
 import { useCallSocket, type IncomingCallData } from "@/hooks/useCallSocket";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
+import { onCallKeepAnswer, onCallKeepEnd, removeCallKeepListeners, endCallKeep } from "@/src/services/callkeep";
 
 function PulseRing({ size, delay }: { size: number; delay: number }) {
   const anim = useRef(new Animated.Value(0)).current;
@@ -51,13 +52,45 @@ export default function AnfitrianaLayout() {
   const [incomingCall, setIncomingCall] = useState<IncomingCallData | null>(null);
   const slideAnim = useRef(new Animated.Value(600)).current;
   const callSocket = useCallSocket(user?.id);
+  // Guardamos los datos de la llamada en un ref para usarlos cuando acepta desde CallKeep
+  const pendingCallRef = useRef<IncomingCallData | null>(null);
 
   useEffect(() => {
     if (!user?.id) return;
     const unsub = callSocket.onIncomingCall((data) => {
       setIncomingCall(data);
+      pendingCallRef.current = data; // guardamos los datos para CallKeep
     });
-    return unsub;
+
+    // Escuchar cuando el usuario acepta desde la pantalla nativa de CallKeep
+    onCallKeepAnswer((callId) => {
+      const data = pendingCallRef.current;
+      endCallKeep(callId);
+      router.push({
+        pathname: '/(anfitriona)/call' as any,
+        params: {
+          callId,
+          callerId:       data?.callerId       ?? '',
+          callerName:     data?.callerName     ?? 'Cliente',
+          callType:       data?.callType       ?? 'CALL',
+          pricePerMinute: String(data?.pricePerMinute ?? 0),
+        },
+      });
+      pendingCallRef.current = null;
+    });
+
+    // Escuchar cuando el usuario rechaza desde la pantalla nativa de CallKeep
+    onCallKeepEnd((callId) => {
+      const data = pendingCallRef.current;
+      endCallKeep(callId);
+      callSocket.rejectCall(callId, data?.callerId ?? '');
+      pendingCallRef.current = null;
+    });
+
+    return () => {
+      unsub();
+      removeCallKeepListeners();
+    };
   }, [user?.id]);
 
   // Animar entrada del modal

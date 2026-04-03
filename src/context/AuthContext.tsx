@@ -11,7 +11,10 @@ import {
   setAccessToken,
   setUser,
 } from "../storage/authStorage";
+
+//importamos funciones para manejar notificaciones push
 import { registerForPushNotifications, setupForegroundNotificationHandler, setupBackgroundNotificationHandler } from "../services/notifications";
+import { setupCallKeep } from "../services/callkeep";
 
 type AuthContextValue = {
   accessToken: string | null;
@@ -68,6 +71,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAccessTokenState(token);
     setUserState(nextUser);
     // Registrar FCM token después del login
+    //para registrar el token de FCM en el backend cada vez que el usuario inicia sesión,
+    //lo que asegura que el backend tenga el token actualizado para enviar notificaciones push al dispositivo del usuario
     void registerForPushNotifications();
   }, []);
 
@@ -77,8 +82,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUserState(null);
   }, []);
 
+  //sirve para cargar el perfil del usuario al iniciar la app,
+  //y también para registrar el token de FCM y configurar los handlers de notificaciones push
   useEffect(() => {
     void hydrate();
+    // Inicializar CallKeep para llamadas nativas
+    void setupCallKeep();
     setupBackgroundNotificationHandler();
     const unsubscribeForeground = setupForegroundNotificationHandler();
     return () => unsubscribeForeground();

@@ -1,4 +1,5 @@
 import { useAuth } from '@/src/context/AuthContext';
+import { activeChatRef } from '@/src/services/notifications';
 import {
   getMessages,
   markAsRead,
@@ -115,6 +116,11 @@ export default function ChatScreen() {
       }
     });
     return unsub;
+  }, [activeConversationId]);
+
+  useEffect(() => {
+    if (activeConversationId) activeChatRef.current = activeConversationId;
+    return () => { activeChatRef.current = null; };
   }, [activeConversationId]);
 
   useEffect(() => {

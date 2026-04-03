@@ -1,8 +1,19 @@
 import messaging from '@react-native-firebase/messaging';
 import { Platform } from 'react-native';
 import { apiUpdateFcmToken } from '../api/userProfile';
+import Toast from 'react-native-toast-message';
+import { displayIncomingCall } from './callkeep';
+
+// Ref global para saber qué conversación está activa
+// Se actualiza desde ChatScreen al entrar/salir
+export const activeChatRef = { current: null as string | null };
+
+// Ref global para saber en qué pantalla está la anfitriona
+// Se actualiza desde chats.tsx y chat/[conversationId].tsx
+export const anfitrionaChatScreenRef = { current: false };
 
 // SOLICITAR PERMISOS Y REGISTRAR TOKEN
+// Pide permiso al usuario, obtiene el FCM token y lo guarda en el backend
 export const registerForPushNotifications = async (): Promise<void> => {
     try {
         const authStatus = await messaging().requestPermission();
@@ -37,17 +48,63 @@ export const registerForPushNotifications = async (): Promise<void> => {
 };
 
 // MANEJAR NOTIFICACIONES EN FOREGROUND
+// Se activa cuando la app está ABIERTA y llega una notificación
+// Firebase no muestra nada automáticamente en foreground, así que lo hacemos nosotros con Toast
 export const setupForegroundNotificationHandler = (): (() => void) => {
+
+    // Mapa de tipos — define qué color de Toast mostrar según el tipo de notificación
+    // El backend envía el 'type' dentro del campo data del mensaje
+    // 'success' = verde, 'error' = rojo, 'info' = azul
+    const toastConfig: Record<string, 'success' | 'error' | 'info'> = {
+        WITHDRAWAL_APPROVED: 'success',
+        WITHDRAWAL_REJECTED: 'error',
+        NEW_MESSAGE:         'info',// mensaje nuevo normal
+        NEW_LOCKED_MESSAGE:   'info', //mensage bloqueado, se muestra como info aunque es un mensaje nuevo
+        MESSAGE_UNLOCKED:     'success',// mensaje desbloqueado, se muestra como success aunque es un mensaje nuevo
+        INCOMING_CALL:       'info',// llamada entrante, se muestra como info aunque es un mensaje nuevo
+        CALL_ACEPTED:       'success',// llamada aceptada, se muestra como success aunque es un mensaje nuevo
+        CALL_REJECTED:       'error',// llamada rechazada, se muestra como error aunque es un mensaje nuevo
+        CALL_BILLED:         'info',// llamada facturada, se muestra como info aunque es un mensaje nuevo
+    };
+
     const unsubscribe = messaging().onMessage(async (remoteMessage) => {
-        console.log('Notificación en foreground:', remoteMessage);
-        // Aquí puedes mostrar un toast o alerta personalizada
+        const type = remoteMessage.data?.type as string;
+        const title = remoteMessage.notification?.title ?? 'Notificación';
+        const body = remoteMessage.notification?.body ?? '';
+
+        // Si es mensaje nuevo (normal o bloqueado) y el usuario está viendo esa conversación, no mostrar Toast
+        if (
+            (type === 'NEW_MESSAGE' || type === 'NEW_LOCKED_MESSAGE') &&
+            activeChatRef.current === remoteMessage.data?.conversationId
+        ) return;
+
+        // Si la anfitriona está en chats o dentro de un chat, ignorar notificaciones de llamada
+        if (
+            (type === 'INCOMING_CALL' || type === 'CALL_ACEPTED' || type === 'CALL_REJECTED') &&
+            anfitrionaChatScreenRef.current
+        ) return;
+
+        // INCOMING_CALL nunca se muestra en foreground — el UI de llamada entrante ya aparece en la app
+        if (type === 'INCOMING_CALL') return;
+
+        Toast.show({
+            type: toastConfig[type] ?? 'info',
+            text1: title,         // título en negrita arriba
+            text2: body,          // mensaje abajo
+            position: 'top',      // aparece arriba de la pantalla
+            visibilityTime: 4000, // desaparece después de 4 segundos
+            topOffset: 60,        // separación desde el borde superior
+        });
     });
+
+    // Retorna función para cancelar el listener (se llama en el useEffect cleanup)
     return unsubscribe;
 };
 
-// MANEJAR NOTIFICACIONES EN BACKGROUND/QUIT (tap del usuario)
+// MANEJAR NOTIFICACIONES EN BACKGROUND/QUIT
+// Se activa cuando el usuario toca la notificación para abrir la app
 export const setupBackgroundNotificationHandler = (): void => {
-    // Cuando la app está cerrada y el usuario toca la notificación
+    // Cuando la app está CERRADA y el usuario toca la notificación
     messaging()
         .getInitialNotification()
         .then((remoteMessage) => {
@@ -56,15 +113,29 @@ export const setupBackgroundNotificationHandler = (): void => {
             }
         });
 
-    // Cuando la app está en background y el usuario toca la notificación
+    // Cuando la app está en BACKGROUND y el usuario toca la notificación
     messaging().onNotificationOpenedApp((remoteMessage) => {
         console.log('App abierta desde notificación (background):', remoteMessage.data);
     });
 };
 
-// HANDLER DE BACKGROUND (debe registrarse fuera del componente, en index.js o _layout.tsx)
+// HANDLER DE BACKGROUND
+// Procesa mensajes cuando la app está cerrada — debe registrarse en index.js antes de que la app cargue
 export const setBackgroundMessageHandler = (): void => {
     messaging().setBackgroundMessageHandler(async (remoteMessage) => {
         console.log('Notificación recibida en background:', remoteMessage);
+
+        const type = remoteMessage.data?.type as string;
+
+        // Si es llamada entrante, mostrar pantalla nativa de llamada con sonido
+        if (type === 'INCOMING_CALL') {
+            const callId    = remoteMessage.data?.callId as string;
+            const callerName = remoteMessage.data?.callerName as string ?? 'Cliente';
+            const isVideo   = remoteMessage.data?.callType === 'VIDEO_CALL';
+
+            // Muestra la pantalla nativa del sistema (como WhatsApp)
+            // con botones de Aceptar/Rechazar y sonido de ringtone
+            displayIncomingCall(callId, callerName, isVideo);
+        }
     });
 };

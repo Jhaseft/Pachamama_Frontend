@@ -1,4 +1,5 @@
 import { useAuth } from '@/src/context/AuthContext';
+import { activeChatRef, anfitrionaChatScreenRef } from '@/src/services/notifications';
 import {
   getMessages,
   getMyServicePrices,
@@ -86,6 +87,15 @@ export default function AnfitrianaChat() {
 
   useEffect(() => {
     if (activeConversationId && user?.id) void markAsRead(activeConversationId, user.id);
+  }, [activeConversationId]);
+
+  useEffect(() => {
+    anfitrionaChatScreenRef.current = true;
+    if (activeConversationId) activeChatRef.current = activeConversationId;
+    return () => {
+      anfitrionaChatScreenRef.current = false;
+      activeChatRef.current = null;
+    };
   }, [activeConversationId]);
 
   async function loadServicePrices() {

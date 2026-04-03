@@ -1,5 +1,6 @@
 import ScreenHeader from '@/components/Menu/ScreenHeader';
 import { useAuth } from '@/src/context/AuthContext';
+import { anfitrionaChatScreenRef } from '@/src/services/notifications';
 import { getChats, type Chat } from '@/src/api/messages';
 import { useRouter } from 'expo-router';
 import { useEffect, useState, useCallback } from 'react';
@@ -57,6 +58,11 @@ export default function AnfitrianaChats() {
       setRefreshing(false);
     }
   }, [user?.id]);
+
+  useEffect(() => {
+    anfitrionaChatScreenRef.current = true;
+    return () => { anfitrionaChatScreenRef.current = false; };
+  }, []);
 
   useEffect(() => {
     void loadChats();
