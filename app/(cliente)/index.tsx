@@ -13,14 +13,17 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   AppState,
   AppStateStatus,
+  BackHandler,
   FlatList,
   LayoutChangeEvent,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { useAuth } from "@/src/context/AuthContext";
 import { apiGetStoriesFeed } from "@/src/api/anfitrionaHistory";
 import { HistoryFeedItem } from "@/src/types/historyViewClient";
 
@@ -36,6 +39,7 @@ export default function ClienteInicio() {
   const feedContainerRef = useRef<View>(null);
 
   const router = useRouter();
+  const { logout } = useAuth();
   const [feed, setFeed] = useState<HistoryFeedItem[]>([]);
   const [credits, setCredits] = useState<number>(15);
 
@@ -54,6 +58,31 @@ export default function ClienteInicio() {
     useCallback(() => {
       loadFeed();
     }, [])
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        Alert.alert(
+          'Cerrar sesión',
+          '¿Seguro que quieres cerrar sesión?',
+          [
+            { text: 'Cancelar', style: 'cancel' },
+            {
+              text: 'Cerrar sesión',
+              style: 'destructive',
+              onPress: async () => {
+                await logout();
+                router.replace('/(auth)/choose-access');
+              },
+            },
+          ],
+        );
+        return true;
+      };
+      const sub = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      return () => sub.remove();
+    }, [logout]),
   );
 
   const loadCredits = useCallback(async () => {

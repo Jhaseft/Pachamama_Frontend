@@ -4,7 +4,9 @@ import { DollarSign, Images, MessageCircle, Settings, Phone, Video } from "lucid
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Animated,
+  BackHandler,
   Easing,
   Image,
   Pressable,
@@ -13,6 +15,7 @@ import {
   Text,
   View,
 } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "../../src/context/AuthContext";
 import { getProfile } from "../../src/services/auth";
@@ -235,6 +238,31 @@ export default function AnfitrianaInicio() {
     setRefreshing(true);
     void loadData();
   }, [loadData]);
+
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        Alert.alert(
+          'Cerrar sesión',
+          '¿Seguro que quieres cerrar sesión?',
+          [
+            { text: 'Cancelar', style: 'cancel' },
+            {
+              text: 'Cerrar sesión',
+              style: 'destructive',
+              onPress: async () => {
+                await logout();
+                router.replace('/(auth)/choose-access');
+              },
+            },
+          ],
+        );
+        return true;
+      };
+      const sub = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      return () => sub.remove();
+    }, [logout]),
+  );
 
   return (
     <View style={{ flex: 1, backgroundColor: "#25060E" }}>
