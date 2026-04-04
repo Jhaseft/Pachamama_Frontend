@@ -14,7 +14,6 @@ import {
 
 //importamos funciones para manejar notificaciones push
 import { registerForPushNotifications, setupForegroundNotificationHandler, setupBackgroundNotificationHandler } from "../services/notifications";
-import { setupCallKeep } from "../services/callkeep";
 
 type AuthContextValue = {
   accessToken: string | null;
@@ -87,7 +86,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     void hydrate();
     // Inicializar CallKeep para llamadas nativas
-    void setupCallKeep();
     setupBackgroundNotificationHandler();
     const unsubscribeForeground = setupForegroundNotificationHandler();
     return () => unsubscribeForeground();
