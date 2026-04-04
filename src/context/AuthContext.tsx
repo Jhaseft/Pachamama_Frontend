@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
+import { AppState } from "react-native";
 import { getProfile } from "../services/auth";
 import type { User } from "../services/auth";
 import {
@@ -13,7 +14,7 @@ import {
 } from "../storage/authStorage";
 
 //importamos funciones para manejar notificaciones push
-import { registerForPushNotifications, setupForegroundNotificationHandler, setupBackgroundNotificationHandler } from "../services/notifications";
+import { registerForPushNotifications, setupForegroundNotificationHandler, setupBackgroundNotificationHandler, createNotificationChannel, appActiveRef } from "../services/notifications";
 
 type AuthContextValue = {
   accessToken: string | null;
@@ -85,10 +86,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   //y también para registrar el token de FCM y configurar los handlers de notificaciones push
   useEffect(() => {
     void hydrate();
-    // Inicializar CallKeep para llamadas nativas
+    void createNotificationChannel();
     setupBackgroundNotificationHandler();
     const unsubscribeForeground = setupForegroundNotificationHandler();
-    return () => unsubscribeForeground();
+    // Actualizar appActiveRef cuando la app cambia de estado
+    const sub = AppState.addEventListener('change', (state) => {
+      appActiveRef.current = state === 'active';
+    });
+    return () => { unsubscribeForeground(); sub.remove(); };
   }, [hydrate]);
 
   const value = useMemo(

@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { usePreventScreenCapture } from "expo-screen-capture";
 import { ActiveChatProvider } from '../src/context/ActiveChatContext';
 import Toast from "react-native-toast-message";
+import { toastConfig } from '../src/components/ToastConfig';
 
 export default function Layout() {
   const insets = useSafeAreaInsets();
@@ -17,7 +18,7 @@ export default function Layout() {
           <View className="flex-1 bg-black" style={{ backgroundColor: 'black' }}>
             <StatusBar style="light" />
             <Stack screenOptions={{ headerShown: false }} />
-            <Toast />
+            <Toast config={toastConfig} />
           </View>
         </ActiveChatProvider>
       </AuthProvider>

@@ -11,6 +11,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { RtcSurfaceView, VideoSourceType } from 'react-native-agora';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -180,7 +181,18 @@ export default function ClientCallScreen() {
       setBilling({ creditsCharged: data.creditsCharged, minutesBilled: data.minutesBilled });
     });
 
-    return () => { unsubAccepted(); unsubRejected(); unsubEnded(); unsubBilled(); clearInterval(timerRef.current!); };
+    const unsubWarning = callSocket.onCallWarning((data) => {
+      Toast.show({
+        type: 'error',
+        text1: '⚠️ Saldo bajo',
+        text2: `Te quedan ${data.balance} créditos`,
+        position: 'top',
+        visibilityTime: 4000,
+        topOffset: 60,
+      });
+    });
+
+    return () => { unsubAccepted(); unsubRejected(); unsubEnded(); unsubBilled(); unsubWarning(); clearInterval(timerRef.current!); };
   }, [user?.id]);
 
   // Auto-ocultar controles en videollamada
@@ -207,7 +219,9 @@ export default function ClientCallScreen() {
     callSocket.endCall(callId, anfitrionaId);
     agora.leave();
     clearInterval(timerRef.current!);
-    router.back();
+    // No navegamos de inmediato — esperamos el CALL_BILLED para mostrar el resumen
+    setCallState('ended');
+    setTimeout(() => router.back(), 3500);
   }
 
   function formatTime(s: number) {

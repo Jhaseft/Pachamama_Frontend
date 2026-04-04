@@ -1,5 +1,6 @@
-import React, { useCallback, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator, RefreshControl } from 'react-native';
+import React, { useCallback, useState, useEffect } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator, RefreshControl, Linking, AppState } from 'react-native';
+import notifee from '@notifee/react-native';
 import { StatCard } from '../components/StartCard';
 import { PlanItem } from '../components/package/PlanItem';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -9,7 +10,6 @@ import { Link } from "expo-router";
 import ConfirmDialog from '../components/ConfirmDialog';
 import { apiCountPendingWithdrawalRequests } from '../api/withdrawalRequest';
 import { getAdminDashboardData } from '../api/admin';
-
 import { apiGetAllPackages, apiDeletePackage } from '../api/package';
 import { PackageData } from '../types/package';
 import { useRouter, useFocusEffect } from 'expo-router';
@@ -20,9 +20,9 @@ export default function AdminDashboard() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [confirmVisible, setConfirmVisible] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState<boolean | null>(null);
 
   const [stats, setStats] = useState({
     ganancias: 0,
@@ -31,6 +31,31 @@ export default function AdminDashboard() {
     anfitrionas: 0,
     compras: 0
   });
+
+  useEffect(() => {
+    const checkPermissions = async () => {
+      const settings = await notifee.getNotificationSettings();
+      setNotificationsEnabled(settings.authorizationStatus >= 1);
+    };
+    checkPermissions();
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') checkPermissions();
+    });
+    return () => sub.remove();
+  }, []);
+
+  const handleNotificationsPress = () => {
+    Alert.alert(
+      'Notificaciones',
+      notificationsEnabled
+        ? '¿Quieres desactivar las notificaciones?'
+        : 'Las notificaciones están desactivadas. ¿Quieres activarlas?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Ir a Ajustes', onPress: () => Linking.openSettings() },
+      ]
+    );
+  };
 
   const fetchStats = async () => {
     try {
@@ -50,7 +75,6 @@ export default function AdminDashboard() {
     }
   };
 
-  // Función para cargar los paquetes desde la API
   const fetchPackages = async () => {
     try {
       setLoading(true);
@@ -65,7 +89,6 @@ export default function AdminDashboard() {
     }
   };
 
-  // Cargar los paquetes al montar el componente
   useFocusEffect(
     useCallback(() => {
       fetchPackages();
@@ -73,16 +96,11 @@ export default function AdminDashboard() {
     }, [])
   );
 
-  // Función para refrescar la lista de paquetes
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    Promise.all([
-      fetchPackages(),
-      fetchStats(),
-    ]).finally(() => setRefreshing(false));
+    Promise.all([fetchPackages(), fetchStats()]).finally(() => setRefreshing(false));
   }, []);
 
-  // Función para eliminar un paquete
   const handleDelete = (id: string) => {
     setDeleteId(id);
     setConfirmVisible(true);
@@ -90,7 +108,6 @@ export default function AdminDashboard() {
 
   const confirmDelete = async () => {
     if (!deleteId) return;
-
     try {
       await apiDeletePackage(deleteId);
       fetchPackages();
@@ -102,22 +119,30 @@ export default function AdminDashboard() {
       setDeleteId(null);
     }
   };
+
   return (
     <>
       <StatusBar style="light" />
 
       <ScrollView
-        className="flex-1 px-4  pt-10"
+        className="flex-1 px-4 pt-10"
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#A11213" />
         }
       >
-
         <View className="bg-[#A11213] p-2 rounded-2xl mb-4 items-center shadow-lg">
           <Text className="text-white text-[26px] font-black tracking-tight">
             Bienvenido Administrador
           </Text>
+          <TouchableOpacity
+            onPress={handleNotificationsPress}
+            className="mt-2 bg-white/20 px-4 py-1.5 rounded-full"
+          >
+            <Text className="text-white text-xs font-bold">
+              Notificaciones {notificationsEnabled === null ? '' : notificationsEnabled ? '✅' : '❌'}
+            </Text>
+          </TouchableOpacity>
         </View>
 
         <View className="bg-[#A11213] border border-gray-50/50 p-2 rounded-[30px] mb-4 items-center shadow-xl">
@@ -133,11 +158,7 @@ export default function AdminDashboard() {
         </View>
 
         <View className="flex-row justify-between mb-4 mt-4">
-
-          <Link
-            asChild
-            href={"createPackage"}
-          >
+          <Link asChild href={"createPackage"}>
             <TouchableOpacity
               activeOpacity={0.7}
               className="bg-red-800 flex-row items-center px-6 py-4 rounded-2xl w-[48%] justify-center"
@@ -147,10 +168,7 @@ export default function AdminDashboard() {
             </TouchableOpacity>
           </Link>
 
-          <Link
-            asChild
-            href={"/admin/historyPayment"}
-          >
+          <Link asChild href={"/admin/historyPayment"}>
             <TouchableOpacity
               activeOpacity={0.7}
               className="bg-[#1a1a1a] border border-gray-800 flex-row items-center px-6 py-2 rounded-2xl w-[48%] justify-center space-x-2"
@@ -159,7 +177,6 @@ export default function AdminDashboard() {
               <Text className="text-white font-bold italic">Ver</Text>
             </TouchableOpacity>
           </Link>
-
         </View>
 
         <Text className="text-white text-xl font-black mb-2 ml-1 italic tracking-tight uppercase">
@@ -180,7 +197,6 @@ export default function AdminDashboard() {
             />
           ))
         )}
-
       </ScrollView>
 
       <ConfirmDialog
@@ -190,8 +206,6 @@ export default function AdminDashboard() {
         onCancel={() => setConfirmVisible(false)}
         onConfirm={confirmDelete}
       />
-
-
     </>
   );
 }

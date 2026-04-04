@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   ScrollView, View, Text, Image, TouchableOpacity, FlatList,
-  ActivityIndicator, RefreshControl, Alert, Animated, Easing,
+  ActivityIndicator, RefreshControl, Alert, Animated, Easing, AppState, Linking,
 } from 'react-native';
+import notifee from '@notifee/react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link, useRouter } from 'expo-router';
 import { useAuth } from '@/src/context/AuthContext';
@@ -93,6 +94,7 @@ export default function AnfitrionaDashboard() {
   const [selectedGalleryItem, setSelectedGalleryItem] = useState<GalleryItem | null>(null);
   const [editingGalleryItem, setEditingGalleryItem] = useState<GalleryItem | null>(null);
   const [togglingOnline, setTogglingOnline] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState<boolean | null>(null);
 
   const galleryPublish = useGalleryPublish({ onSuccess: loadGallery });
 
@@ -121,6 +123,31 @@ export default function AnfitrionaDashboard() {
   }, []);
 
   useEffect(() => { void loadAll(); }, [loadAll]);
+
+  useEffect(() => {
+    const checkPermissions = async () => {
+      const settings = await notifee.getNotificationSettings();
+      setNotificationsEnabled(settings.authorizationStatus >= 1);
+    };
+    checkPermissions();
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') checkPermissions();
+    });
+    return () => sub.remove();
+  }, []);
+
+  const handleNotificationsPress = () => {
+    Alert.alert(
+      'Notificaciones',
+      notificationsEnabled
+        ? '¿Quieres desactivar las notificaciones?'
+        : 'Las notificaciones están desactivadas. ¿Quieres activarlas?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Ir a Ajustes', onPress: () => Linking.openSettings() },
+      ]
+    );
+  };
 
   const onRefresh = () => { setRefreshing(true); void loadAll(); };
 
@@ -390,6 +417,27 @@ export default function AnfitrionaDashboard() {
               <Text style={{ color: 'rgba(255,255,255,0.4)', fontWeight: '600', fontSize: 14 }}>Salir</Text>
             </TouchableOpacity>
           </View>
+
+          {/* Botón notificaciones */}
+          <TouchableOpacity
+            onPress={handleNotificationsPress}
+            activeOpacity={0.8}
+            style={{
+              backgroundColor: '#1a0208', borderRadius: 12,
+              borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)',
+              paddingVertical: 14, paddingHorizontal: 16,
+              flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
+            }}
+          >
+            <MaterialCommunityIcons
+              name={notificationsEnabled ? 'bell' : 'bell-off'}
+              size={18}
+              color={notificationsEnabled ? '#F6C16A' : 'rgba(255,255,255,0.4)'}
+            />
+            <Text style={{ color: notificationsEnabled ? '#F6C16A' : 'rgba(255,255,255,0.4)', fontWeight: '600', fontSize: 14 }}>
+              Notificaciones {notificationsEnabled ? '✅' : '❌'}
+            </Text>
+          </TouchableOpacity>
 
         </View>
 
