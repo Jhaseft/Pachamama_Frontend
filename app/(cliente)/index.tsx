@@ -114,11 +114,13 @@ export default function ClienteInicio() {
   };
 
   const loadMore = useCallback(async () => {
-    if (loadingMore || !hasMore.current) return;
+    if (loadingMore) return;
     setLoadingMore(true);
     try {
+      // Si ya no hay más páginas, volvemos a la página 1 (loop infinito)
+      const nextPage = hasMore.current ? page + 1 : 1;
       const [result, saved] = await Promise.all([
-        getPublicHostesses(page + 1),
+        getPublicHostesses(nextPage),
         apiGetSavedAnfitrionas().catch(() => ({ data: [], nextCursor: null })),
       ]);
       const savedIds = new Set(saved.data.map((s) => s.id));
@@ -126,7 +128,7 @@ export default function ClienteInicio() {
         ...prev,
         ...result.anfitrionas.map((a) => ({ ...a, isFavorite: savedIds.has(a.id) })),
       ]);
-      setPage(page + 1);
+      setPage(nextPage);
       hasMore.current = result.hasMore;
     } catch {
       // silencioso

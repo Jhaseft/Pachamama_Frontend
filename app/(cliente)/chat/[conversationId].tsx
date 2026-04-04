@@ -166,13 +166,31 @@ export default function ChatScreen() {
     if (!trimmed || !user?.id || !otherUserId || sending) return;
     setText('');
     setSending(true);
+
+    // Mensaje optimista: aparece inmediatamente en la lista con ID temporal
+    const tempId = `_pending_${Date.now()}`;
+    const tempMsg: Message = {
+      id: tempId,
+      conversationId: activeConversationId ?? '',
+      senderId: user.id,
+      text: trimmed,
+      read: false,
+      isLocked: false,
+      price: null,
+      isUnlocked: false,
+      createdAt: new Date().toISOString(),
+    };
+    setMessages((prev) => [...prev, tempMsg]);
+    scrollToEnd();
+
     try {
       const msg = await sendMessageHttp(user.id, otherUserId, trimmed);
-      setMessages((prev) => [...prev, msg]);
+      // Reemplazar el mensaje temporal con el real del servidor
+      setMessages((prev) => prev.map((m) => m.id === tempId ? msg : m));
       setActiveConversationId(msg.conversationId);
-      scrollToEnd();
     } catch {
       setText(trimmed);
+      setMessages((prev) => prev.filter((m) => m.id !== tempId));
     } finally {
       setSending(false);
     }
@@ -360,9 +378,22 @@ export default function ChatScreen() {
                         <Text style={styles.unlockedBadge}>🔓 Desbloqueado</Text>
                       )}
                       <Text style={styles.bubbleText}>{msg.text}</Text>
-                      <Text style={[styles.bubbleTime, isOwn ? styles.bubbleTimeOwn : styles.bubbleTimeOther]}>
-                        {formatTime(msg.createdAt)}
-                      </Text>
+                      {isOwn ? (
+                        <View style={styles.bubbleFooter}>
+                          <Text style={styles.bubbleTimeOwn}>{formatTime(msg.createdAt)}</Text>
+                          {msg.id.startsWith('_pending_') ? (
+                            <Ionicons name="time-outline" size={10} color="rgba(255,200,200,0.4)" />
+                          ) : msg.read ? (
+                            <Text style={styles.checkRead}>✓✓</Text>
+                          ) : (
+                            <Text style={styles.checkSent}>✓</Text>
+                          )}
+                        </View>
+                      ) : (
+                        <Text style={[styles.bubbleTime, styles.bubbleTimeOther]}>
+                          {formatTime(msg.createdAt)}
+                        </Text>
+                      )}
                     </View>
                   )}
                 </View>
@@ -410,15 +441,11 @@ export default function ChatScreen() {
           <TouchableOpacity
             onPress={handleSend}
             disabled={!text.trim() || sending}
-            style={[styles.sendBtn, (!text.trim() && !sending) && styles.sendBtnDisabled]}
+            style={[styles.sendBtn, (!text.trim() || sending) && styles.sendBtnDisabled]}
           >
-            {sending ? (
-              <ActivityIndicator size="small" color="white" />
-            ) : (
-              <Text style={styles.sendBtnText} numberOfLines={1} adjustsFontSizeToFit>
-                {msgPrice != null ? `Enviar (${msgPrice} cr.)` : 'Enviar'}
-              </Text>
-            )}
+            <Text style={styles.sendBtnText} numberOfLines={1} adjustsFontSizeToFit>
+              {msgPrice != null ? `Enviar (${msgPrice} cr.)` : 'Enviar'}
+            </Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -574,6 +601,13 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 21,
   },
+  bubbleFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: 3,
+    marginTop: 3,
+  },
   bubbleTime: {
     fontSize: 10,
     marginTop: 3,
@@ -581,9 +615,20 @@ const styles = StyleSheet.create({
   },
   bubbleTimeOwn: {
     color: 'rgba(255,200,200,0.6)',
+    fontSize: 10,
   },
   bubbleTimeOther: {
     color: 'rgba(255,255,255,0.35)',
+  },
+  checkSent: {
+    color: 'rgba(255,200,200,0.55)',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  checkRead: {
+    color: 'rgba(255,255,255,0.85)',
+    fontSize: 11,
+    fontWeight: '700',
   },
 
   // Locked bubble

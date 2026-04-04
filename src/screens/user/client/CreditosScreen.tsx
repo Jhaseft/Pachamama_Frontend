@@ -77,6 +77,9 @@ export default function CreditosScreen() {
           <Text style={styles.balanceText}>{wallet?.balance ?? 0}</Text>
         </View>
 
+        {/* Conversion info */}
+        <Text style={styles.conversionText}>1 crédito = 0.10 soles</Text>
+
         {/* Section title */}
         <View style={styles.sectionHeader}>
           <View style={styles.dividerLine} />
@@ -439,5 +442,14 @@ const styles = StyleSheet.create({
     color: "rgba(255,255,255,0.4)",
     fontSize: 13,
     marginTop: 12,
+  },
+  conversionText: {
+    color: "rgba(246,193,106,0.6)",
+    fontSize: 12,
+    fontWeight: "600",
+    textAlign: "center",
+    marginTop: -16,
+    marginBottom: 20,
+    letterSpacing: 0.5,
   },
 });

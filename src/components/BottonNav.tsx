@@ -2,11 +2,13 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { Link, usePathname, useRouter } from "expo-router";
 import { useAuth } from "../context/AuthContext";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function BottomNav() {
     const pathname = usePathname();
     const { logout } = useAuth();
     const router = useRouter();
+    const insets = useSafeAreaInsets();
 
     const handleLogout = async () => {
         await logout();
@@ -22,7 +24,7 @@ export default function BottomNav() {
 
     return (
 
-        <View className="bg-[#A11213] flex-row justify-around items-center py-3 rounded-t-2xl border-t border-red-700/40">
+        <View className="bg-[#A11213] flex-row justify-around items-center py-3 rounded-t-2xl border-t border-red-700/40" style={{ paddingBottom: insets.bottom > 0 ? insets.bottom : 12 }}>
 
             {tabs.map((tab) => {
                 const isActive = pathname === tab.route;
