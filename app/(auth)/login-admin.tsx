@@ -112,6 +112,15 @@ export default function LoginAdmin() {
             disabled={loading}
           />
 
+          <Pressable
+            onPress={() => router.push("/(auth)/forgot-password")}
+            className="mt-4"
+          >
+            <Text className="text-white/60 text-center underline">
+              ¿Olvidaste tu contraseña?
+            </Text>
+          </Pressable>
+
         </ScrollView>
       </KeyboardAvoidingView>
     </Screen>

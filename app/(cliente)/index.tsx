@@ -13,14 +13,17 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   AppState,
   AppStateStatus,
+  BackHandler,
   FlatList,
   LayoutChangeEvent,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { useAuth } from "@/src/context/AuthContext";
 import { apiGetStoriesFeed } from "@/src/api/anfitrionaHistory";
 import { HistoryFeedItem } from "@/src/types/historyViewClient";
 
@@ -36,6 +39,7 @@ export default function ClienteInicio() {
   const feedContainerRef = useRef<View>(null);
 
   const router = useRouter();
+  const { logout } = useAuth();
   const [feed, setFeed] = useState<HistoryFeedItem[]>([]);
   const [credits, setCredits] = useState<number>(15);
 
@@ -54,6 +58,31 @@ export default function ClienteInicio() {
     useCallback(() => {
       loadFeed();
     }, [])
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        Alert.alert(
+          'Salir',
+          'Seguro que quieres salir',
+          [
+            { text: 'Cancelar', style: 'cancel' },
+            {
+              text: 'Salir',
+              style: 'destructive',
+              onPress: async () => {
+                await logout();
+                BackHandler.exitApp();
+              },
+            },
+          ],
+        );
+        return true;
+      };
+      const sub = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      return () => sub.remove();
+    }, [logout]),
   );
 
   const loadCredits = useCallback(async () => {
@@ -114,11 +143,13 @@ export default function ClienteInicio() {
   };
 
   const loadMore = useCallback(async () => {
-    if (loadingMore || !hasMore.current) return;
+    if (loadingMore) return;
     setLoadingMore(true);
     try {
+      // Si ya no hay más páginas, volvemos a la página 1 (loop infinito)
+      const nextPage = hasMore.current ? page + 1 : 1;
       const [result, saved] = await Promise.all([
-        getPublicHostesses(page + 1),
+        getPublicHostesses(nextPage),
         apiGetSavedAnfitrionas().catch(() => ({ data: [], nextCursor: null })),
       ]);
       const savedIds = new Set(saved.data.map((s) => s.id));
@@ -126,7 +157,7 @@ export default function ClienteInicio() {
         ...prev,
         ...result.anfitrionas.map((a) => ({ ...a, isFavorite: savedIds.has(a.id) })),
       ]);
-      setPage(page + 1);
+      setPage(nextPage);
       hasMore.current = result.hasMore;
     } catch {
       // silencioso
@@ -257,3 +288,4 @@ export default function ClienteInicio() {
     </SafeAreaView>
   );
 }
+

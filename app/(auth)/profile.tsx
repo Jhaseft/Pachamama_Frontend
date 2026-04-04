@@ -10,7 +10,6 @@ import {
 import { router } from "expo-router";
 import TextField from "../../components/TextField";
 import PrimaryButton from "../../components/PrimaryButton";
-import CheckboxRow from "../../components/CheckboxRow";
 import { completeRegistration } from "../../src/services/auth";
 import { useAuth } from "../../src/context/AuthContext";
 import { getTempToken, removeTempToken } from "../../src/storage/authStorage";
@@ -165,11 +164,32 @@ export default function Profile() {
           textContentType="password"
         />
 
-        <CheckboxRow
-          checked={accepted}
-          onToggle={() => setAccepted((prev) => !prev)}
-          label="He leido y acepto los Terminos y Condiciones de uso."
-        />
+        <View style={{ flexDirection: 'row', alignItems: 'flex-start', marginTop: 8 }}>
+          <Pressable onPress={() => setAccepted((prev) => !prev)} style={{ marginTop: 3, marginRight: 12 }}>
+            <View
+              style={{
+                width: 20, height: 20, borderRadius: 4,
+                borderWidth: 1, borderColor: 'rgba(255,255,255,0.6)',
+                alignItems: 'center', justifyContent: 'center',
+                backgroundColor: accepted ? 'white' : 'transparent',
+              }}
+            >
+              {accepted && <View style={{ width: 12, height: 12, backgroundColor: 'black', borderRadius: 2 }} />}
+            </View>
+          </Pressable>
+          <Pressable onPress={() => setAccepted((prev) => !prev)} style={{ flex: 1 }}>
+            <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 18 }}>
+              He leido y acepto los{' '}
+              <Text
+                style={{ color: '#f87171', textDecorationLine: 'underline' }}
+                onPress={() => router.push('/(cliente)/terminos')}
+              >
+                Términos y Condiciones
+              </Text>
+              {' '}de uso.
+            </Text>
+          </Pressable>
+        </View>
 
         {error ? (
           <Text className="text-red-400 text-sm mt-2">{error}</Text>

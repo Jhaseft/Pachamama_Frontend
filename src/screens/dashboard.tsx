@@ -9,7 +9,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Link } from "expo-router";
 import ConfirmDialog from '../components/ConfirmDialog';
 import { apiCountPendingWithdrawalRequests } from '../api/withdrawalRequest';
-
+import { getAdminDashboardData } from '../api/admin';
 import { apiGetAllPackages, apiDeletePackage } from '../api/package';
 import { PackageData } from '../types/package';
 import { useRouter, useFocusEffect } from 'expo-router';
@@ -20,19 +20,17 @@ export default function AdminDashboard() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [confirmVisible, setConfirmVisible] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState<boolean | null>(null);
 
   const [stats, setStats] = useState({
-    ganancias: 1202,
-    solicitudesAnf: 8,
+    ganancias: 0,
+    solicitudesAnf: 0,
     solicitudesPago: 0,
-    anfitrionas: 13,
-    compras: 48
+    anfitrionas: 0,
+    compras: 0
   });
-
-  const [notificationsEnabled, setNotificationsEnabled] = useState<boolean | null>(null);
 
   useEffect(() => {
     const checkPermissions = async () => {
@@ -59,23 +57,24 @@ export default function AdminDashboard() {
     );
   };
 
-  // Función independiente para el contador de solicitudes
-  const fetchWithdrawalCount = async () => {
+  const fetchStats = async () => {
     try {
-
-      const count = await apiCountPendingWithdrawalRequests();
-
-
-      setStats(prev => ({
-        ...prev,
-        solicitudesPago: count
-      }));
+      const [data, withdrawalCount] = await Promise.all([
+        getAdminDashboardData(),
+        apiCountPendingWithdrawalRequests(),
+      ]);
+      setStats({
+        ganancias: data.deposits?.totalRevenue ?? 0,
+        solicitudesAnf: data.clients?.newThisMonth ?? 0,
+        solicitudesPago: withdrawalCount,
+        anfitrionas: data.anfitrionas?.total ?? 0,
+        compras: data.deposits?.pending ?? 0,
+      });
     } catch (error: any) {
-      console.error("Error silencioso al actualizar contador:", error.message);
+      console.error("Error al cargar estadísticas:", error.message);
     }
   };
 
-  // Función para cargar los paquetes desde la API
   const fetchPackages = async () => {
     try {
       setLoading(true);
@@ -90,25 +89,18 @@ export default function AdminDashboard() {
     }
   };
 
-  // Cargar los paquetes al montar el componente
   useFocusEffect(
     useCallback(() => {
       fetchPackages();
-      fetchWithdrawalCount();
+      fetchStats();
     }, [])
   );
 
-  // Función para refrescar la lista de paquetes
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    // Ejecutamos ambas y esperamos que terminen
-    Promise.all([
-      fetchPackages(),
-      fetchWithdrawalCount()
-    ]).finally(() => setRefreshing(false));
+    Promise.all([fetchPackages(), fetchStats()]).finally(() => setRefreshing(false));
   }, []);
 
-  // Función para eliminar un paquete
   const handleDelete = (id: string) => {
     setDeleteId(id);
     setConfirmVisible(true);
@@ -116,7 +108,6 @@ export default function AdminDashboard() {
 
   const confirmDelete = async () => {
     if (!deleteId) return;
-
     try {
       await apiDeletePackage(deleteId);
       fetchPackages();
@@ -128,18 +119,18 @@ export default function AdminDashboard() {
       setDeleteId(null);
     }
   };
+
   return (
     <>
       <StatusBar style="light" />
 
       <ScrollView
-        className="flex-1 px-4  pt-10"
+        className="flex-1 px-4 pt-10"
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#A11213" />
         }
       >
-
         <View className="bg-[#A11213] p-2 rounded-2xl mb-4 items-center shadow-lg">
           <Text className="text-white text-[26px] font-black tracking-tight">
             Bienvenido Administrador
@@ -167,11 +158,7 @@ export default function AdminDashboard() {
         </View>
 
         <View className="flex-row justify-between mb-4 mt-4">
-
-          <Link
-            asChild
-            href={"createPackage"}
-          >
+          <Link asChild href={"createPackage"}>
             <TouchableOpacity
               activeOpacity={0.7}
               className="bg-red-800 flex-row items-center px-6 py-4 rounded-2xl w-[48%] justify-center"
@@ -181,10 +168,7 @@ export default function AdminDashboard() {
             </TouchableOpacity>
           </Link>
 
-          <Link
-            asChild
-            href={"/admin/historyPayment"}
-          >
+          <Link asChild href={"/admin/historyPayment"}>
             <TouchableOpacity
               activeOpacity={0.7}
               className="bg-[#1a1a1a] border border-gray-800 flex-row items-center px-6 py-2 rounded-2xl w-[48%] justify-center space-x-2"
@@ -193,7 +177,6 @@ export default function AdminDashboard() {
               <Text className="text-white font-bold italic">Ver</Text>
             </TouchableOpacity>
           </Link>
-
         </View>
 
         <Text className="text-white text-xl font-black mb-2 ml-1 italic tracking-tight uppercase">
@@ -214,7 +197,6 @@ export default function AdminDashboard() {
             />
           ))
         )}
-
       </ScrollView>
 
       <ConfirmDialog
@@ -224,8 +206,6 @@ export default function AdminDashboard() {
         onCancel={() => setConfirmVisible(false)}
         onConfirm={confirmDelete}
       />
-
-
     </>
   );
 }

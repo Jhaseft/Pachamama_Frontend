@@ -11,7 +11,7 @@ import { toastConfig } from '../src/components/ToastConfig';
 
 export default function Layout() {
   const insets = useSafeAreaInsets();
-  //usePreventScreenCapture();
+  usePreventScreenCapture();
   return (
       <AuthProvider>
         <ActiveChatProvider>
