@@ -21,7 +21,6 @@ import {
   Image,
   KeyboardAvoidingView,
   ScrollView,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -244,41 +243,44 @@ export default function ChatScreen() {
   }
 
   return (
-    <View style={styles.root}>
+    <View className="flex-1 bg-[#0a0000]">
       <Stack.Screen options={{ headerShown: false }} />
 
-      {/* Header */}
-      <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+  
+      <View
+        className="flex-row items-center bg-[#140008] border-b border-[rgba(246,193,106,0.12)] pb-4 px-[14px] gap-[10px]"
+        style={{ paddingTop: insets.top + 10 }}
+      >
+        <TouchableOpacity onPress={() => router.back()} className="p-1">
           <Ionicons name="arrow-back" size={22} color="white" />
         </TouchableOpacity>
 
-        {/* Avatar + nombre */}
-        <TouchableOpacity onPress={goToProfile} style={styles.headerInfo} activeOpacity={0.75}>
-          <View style={styles.avatarWrap}>
+        
+        <TouchableOpacity onPress={goToProfile} className="flex-1 flex-row items-center gap-3" activeOpacity={0.75}>
+          <View className="w-12 h-12 rounded-full border-2 border-[#F6C16A] overflow-hidden">
             {otherUserAvatar ? (
-              <Image source={{ uri: otherUserAvatar }} style={styles.avatarImg} />
+              <Image source={{ uri: otherUserAvatar }} className="w-full h-full" />
             ) : (
-              <View style={styles.avatarFallback}>
-                <Text style={styles.avatarInitial}>
+              <View className="flex-1 bg-[#2a0810] items-center justify-center">
+                <Text className="text-[#F6C16A] font-bold text-lg">
                   {(otherUserName ?? 'U')[0].toUpperCase()}
                 </Text>
               </View>
             )}
           </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.headerName} numberOfLines={1}>{otherUserName ?? 'Chat'}</Text>
-            <Text style={styles.headerStatus}>Ver perfil</Text>
+          <View className="flex-1">
+            <Text className="text-white text-base font-bold" numberOfLines={1}>{otherUserName ?? 'Chat'}</Text>
+            <Text className="text-[rgba(246,193,106,0.6)] text-xs mt-0.5">Ver perfil</Text>
           </View>
         </TouchableOpacity>
 
-        {/* Llamada / Video */}
-        <View style={styles.headerActions}>
+        <View className="flex-row gap-2">
           <TouchableOpacity
             onPress={() => handleCall('CALL')}
             disabled={getPrice('CALL') === null}
             activeOpacity={0.7}
-            style={[styles.callBtn, getPrice('CALL') === null && { opacity: 0.35 }]}
+            className="w-[38px] h-[38px] rounded-full bg-[rgba(255,255,255,0.07)] items-center justify-center"
+            style={getPrice('CALL') === null ? { opacity: 0.35 } : undefined}
           >
             <Ionicons name="call" size={18} color="#4ade80" />
           </TouchableOpacity>
@@ -286,16 +288,17 @@ export default function ChatScreen() {
             onPress={() => handleCall('VIDEO_CALL')}
             disabled={getPrice('VIDEO_CALL') === null}
             activeOpacity={0.7}
-            style={[styles.callBtn, getPrice('VIDEO_CALL') === null && { opacity: 0.35 }]}
+            className="w-[38px] h-[38px] rounded-full bg-[rgba(255,255,255,0.07)] items-center justify-center"
+            style={getPrice('VIDEO_CALL') === null ? { opacity: 0.35 } : undefined}
           >
             <Ionicons name="videocam" size={20} color="#818cf8" />
           </TouchableOpacity>
         </View>
       </View>
 
-      <KeyboardAvoidingView key={kavKey} style={{ flex: 1 }} behavior="padding" keyboardVerticalOffset={0}>
+      <KeyboardAvoidingView key={kavKey} className="flex-1" behavior="padding" keyboardVerticalOffset={0}>
         {loading ? (
-          <View style={styles.loadingWrap}>
+          <View className="flex-1 items-center justify-center">
             <ActivityIndicator size="large" color="#F6C16A" />
           </View>
         ) : (
@@ -303,21 +306,21 @@ export default function ChatScreen() {
             ref={listRef}
             data={listData}
             keyExtractor={(item) => ('id' in item ? item.id : item.key)}
-            contentContainerStyle={styles.messageList}
+            contentContainerStyle={{ paddingHorizontal: 14, paddingVertical: 12, paddingBottom: 6 }}
             onContentSizeChange={scrollToEnd}
             ListEmptyComponent={
-              <View style={styles.emptyWrap}>
-                <Text style={styles.emptyText}>Inicia la conversación</Text>
+              <View className="items-center mt-16">
+                <Text className="text-[rgba(255,255,255,0.3)] text-sm">Inicia la conversación</Text>
               </View>
             }
             renderItem={({ item }) => {
               // Separador de fecha
               if ('type' in item && item.type === 'separator') {
                 return (
-                  <View style={styles.dateSepWrap}>
-                    <View style={styles.dateSepLine} />
-                    <Text style={styles.dateSepText}>{item.label}</Text>
-                    <View style={styles.dateSepLine} />
+                  <View className="flex-row items-center my-[14px] gap-2">
+                    <View className="flex-1 h-px bg-[rgba(255,255,255,0.08)]" />
+                    <Text className="text-[rgba(255,255,255,0.35)] text-[11px] font-medium">{item.label}</Text>
+                    <View className="flex-1 h-px bg-[rgba(255,255,255,0.08)]" />
                   </View>
                 );
               }
@@ -327,40 +330,55 @@ export default function ChatScreen() {
               const lockedAndNotUnlocked = msg.isLocked && !isOwn && !msg.isUnlocked;
 
               return (
-                <View style={[styles.msgRow, isOwn ? styles.msgRowOwn : styles.msgRowOther]}>
+                <View className={`mb-1 ${isOwn ? 'items-end' : 'items-start'}`}>
                   {lockedAndNotUnlocked ? (
-                    <View style={styles.lockedBubble}>
-                      <View style={styles.lockedTop}>
-                        <Text style={styles.lockIcon}>🔒</Text>
-                        <Text style={styles.lockedTitle}>Mensaje exclusivo</Text>
+                    <View
+                      className="max-w-[78%] bg-[#1a0208] rounded-[18px] rounded-bl-[4px] border border-[rgba(209,27,27,0.6)] px-[14px] py-3"
+                      style={{
+                        shadowColor: '#D11B1B',
+                        shadowOffset: { width: 0, height: 0 },
+                        shadowOpacity: 0.4,
+                        shadowRadius: 10,
+                        elevation: 4,
+                      }}
+                    >
+                      <View className="flex-row items-center gap-[6px] mb-[6px]">
+                        <Text className="text-lg">🔒</Text>
+                        <Text className="text-[rgba(246,193,106,0.9)] text-[13px] font-bold">Mensaje exclusivo</Text>
                       </View>
                       {msg.price != null && (
-                        <Text style={styles.lockedHint} numberOfLines={2}>
+                        <Text className="text-[rgba(255,255,255,0.45)] text-xs mb-[10px] leading-4" numberOfLines={2}>
                           Desbloquea para leer este mensaje
                         </Text>
                       )}
                       <TouchableOpacity
                         onPress={() => handleUnlock(msg.id, msg.price!)}
                         disabled={unlocking === msg.id}
-                        style={styles.unlockBtn}
+                        className="bg-[#D11B1B] rounded-xl py-2 px-[14px] items-center"
                       >
                         {unlocking === msg.id ? (
                           <ActivityIndicator size="small" color="white" />
                         ) : (
-                          <Text style={styles.unlockBtnText}>
+                          <Text className="text-white text-xs font-bold">
                             Desbloquear por {msg.price} crédito{msg.price !== 1 ? 's' : ''}
                           </Text>
                         )}
                       </TouchableOpacity>
-                      <Text style={styles.lockedTime}>{formatTime(msg.createdAt)}</Text>
+                      <Text className="text-[rgba(255,255,255,0.3)] text-[10px] mt-[6px] text-right">{formatTime(msg.createdAt)}</Text>
                     </View>
                   ) : (
-                    <View style={[styles.bubble, isOwn ? styles.bubbleOwn : styles.bubbleOther]}>
+                    <View
+                      className={`max-w-[78%] rounded-[18px] px-[14px] py-2 ${
+                        isOwn
+                          ? 'bg-[#8B1030] rounded-br-[4px]'
+                          : 'bg-[#1e1010] rounded-bl-[4px]'
+                      }`}
+                    >
                       {msg.isUnlocked && (
-                        <Text style={styles.unlockedBadge}>🔓 Desbloqueado</Text>
+                        <Text className="text-[#F6C16A] text-[10px] mb-[3px]">🔓 Desbloqueado</Text>
                       )}
-                      <Text style={styles.bubbleText}>{msg.text}</Text>
-                      <Text style={[styles.bubbleTime, isOwn ? styles.bubbleTimeOwn : styles.bubbleTimeOther]}>
+                      <Text className="text-white text-[15px] leading-[21px]">{msg.text}</Text>
+                      <Text className={`text-[10px] mt-[3px] text-right ${isOwn ? 'text-[rgba(255,200,200,0.6)]' : 'text-[rgba(255,255,255,0.35)]'}`}>
                         {formatTime(msg.createdAt)}
                       </Text>
                     </View>
@@ -373,12 +391,12 @@ export default function ChatScreen() {
 
         {/* Emoji picker panel */}
         {showEmoji && (
-          <View style={styles.emojiPanel}>
+          <View className="bg-[#140008] border-t border-[rgba(246,193,106,0.1)] py-2 px-[6px]">
             <ScrollView horizontal={false} showsVerticalScrollIndicator={false} style={{ maxHeight: 140 }}>
-              <View style={styles.emojiGrid}>
+              <View className="flex-row flex-wrap gap-[2px]">
                 {EMOJIS.map((e) => (
-                  <TouchableOpacity key={e} onPress={() => insertEmoji(e)} style={styles.emojiBtn}>
-                    <Text style={styles.emojiChar}>{e}</Text>
+                  <TouchableOpacity key={e} onPress={() => insertEmoji(e)} className="p-[6px] rounded-lg">
+                    <Text className="text-2xl">{e}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -387,7 +405,10 @@ export default function ChatScreen() {
         )}
 
         {/* Input bar */}
-        <View style={styles.inputBar}>
+        <View
+          className="flex-row items-center bg-[#140008] border-t border-[rgba(246,193,106,0.1)] px-[10px] pt-[10px] gap-[6px]"
+          style={{ paddingBottom: insets.bottom + 10 }}
+        >
           <TextInput
             ref={inputRef}
             value={text}
@@ -396,10 +417,11 @@ export default function ChatScreen() {
             placeholder={msgPrice != null ? `Enviar mensaje – ${msgPrice} cr.` : 'Escribe un mensaje...'}
             placeholderTextColor="rgba(246,193,106,0.5)"
             multiline
-            style={styles.input}
+            className="flex-1 bg-[#1a0208] text-white rounded-[22px] px-[14px] py-[10px] text-sm border border-[rgba(246,193,106,0.18)]"
+            style={{ maxHeight: 100 }}
           />
 
-          <TouchableOpacity style={styles.inputIcon} onPress={toggleEmoji}>
+          <TouchableOpacity className="p-1" onPress={toggleEmoji}>
             <Ionicons
               name={showEmoji ? 'happy' : 'happy-outline'}
               size={22}
@@ -410,12 +432,14 @@ export default function ChatScreen() {
           <TouchableOpacity
             onPress={handleSend}
             disabled={!text.trim() || sending}
-            style={[styles.sendBtn, (!text.trim() && !sending) && styles.sendBtnDisabled]}
+            className={`rounded-[22px] py-[10px] px-[14px] items-center justify-center min-w-[80px] ${
+              !text.trim() && !sending ? 'bg-[rgba(209,27,27,0.3)]' : 'bg-[#D11B1B]'
+            }`}
           >
             {sending ? (
               <ActivityIndicator size="small" color="white" />
             ) : (
-              <Text style={styles.sendBtnText} numberOfLines={1} adjustsFontSizeToFit>
+              <Text className="text-white text-[13px] font-bold" numberOfLines={1} adjustsFontSizeToFit>
                 {msgPrice != null ? `Enviar (${msgPrice} cr.)` : 'Enviar'}
               </Text>
             )}
@@ -425,284 +449,3 @@ export default function ChatScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: '#0a0000',
-  },
-
-  // Header
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#140008',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(246,193,106,0.12)',
-    paddingBottom: 16,
-    paddingHorizontal: 14,
-    gap: 10,
-  },
-  backBtn: {
-    padding: 4,
-  },
-  headerInfo: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  avatarWrap: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    borderWidth: 1.5,
-    borderColor: '#F6C16A',
-    overflow: 'hidden',
-  },
-  avatarImg: {
-    width: '100%',
-    height: '100%',
-  },
-  avatarFallback: {
-    flex: 1,
-    backgroundColor: '#2a0810',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarInitial: {
-    color: '#F6C16A',
-    fontWeight: '700',
-    fontSize: 18,
-  },
-  headerName: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  headerStatus: {
-    color: 'rgba(246,193,106,0.6)',
-    fontSize: 12,
-    marginTop: 2,
-  },
-  headerActions: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  callBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: 'rgba(255,255,255,0.07)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  // Loading / empty
-  loadingWrap: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  emptyWrap: {
-    alignItems: 'center',
-    marginTop: 60,
-  },
-  emptyText: {
-    color: 'rgba(255,255,255,0.3)',
-    fontSize: 14,
-  },
-
-  // Message list
-  messageList: {
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    paddingBottom: 6,
-  },
-
-  // Date separator
-  dateSepWrap: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 14,
-    gap: 8,
-  },
-  dateSepLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: 'rgba(255,255,255,0.08)',
-  },
-  dateSepText: {
-    color: 'rgba(255,255,255,0.35)',
-    fontSize: 11,
-    fontWeight: '500',
-  },
-
-  // Message rows
-  msgRow: {
-    marginBottom: 4,
-  },
-  msgRowOwn: {
-    alignItems: 'flex-end',
-  },
-  msgRowOther: {
-    alignItems: 'flex-start',
-  },
-
-  // Regular bubble
-  bubble: {
-    maxWidth: '78%',
-    borderRadius: 18,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-  },
-  bubbleOwn: {
-    backgroundColor: '#8B1030',
-    borderBottomRightRadius: 4,
-  },
-  bubbleOther: {
-    backgroundColor: '#1e1010',
-    borderBottomLeftRadius: 4,
-  },
-  unlockedBadge: {
-    color: '#F6C16A',
-    fontSize: 10,
-    marginBottom: 3,
-  },
-  bubbleText: {
-    color: 'white',
-    fontSize: 15,
-    lineHeight: 21,
-  },
-  bubbleTime: {
-    fontSize: 10,
-    marginTop: 3,
-    textAlign: 'right',
-  },
-  bubbleTimeOwn: {
-    color: 'rgba(255,200,200,0.6)',
-  },
-  bubbleTimeOther: {
-    color: 'rgba(255,255,255,0.35)',
-  },
-
-  // Locked bubble
-  lockedBubble: {
-    maxWidth: '78%',
-    backgroundColor: '#1a0208',
-    borderRadius: 18,
-    borderBottomLeftRadius: 4,
-    borderWidth: 1,
-    borderColor: 'rgba(209,27,27,0.6)',
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    shadowColor: '#D11B1B',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.4,
-    shadowRadius: 10,
-    elevation: 4,
-  },
-  lockedTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginBottom: 6,
-  },
-  lockIcon: {
-    fontSize: 18,
-  },
-  lockedTitle: {
-    color: 'rgba(246,193,106,0.9)',
-    fontSize: 13,
-    fontWeight: '700',
-  },
-  lockedHint: {
-    color: 'rgba(255,255,255,0.45)',
-    fontSize: 12,
-    marginBottom: 10,
-    lineHeight: 16,
-  },
-  unlockBtn: {
-    backgroundColor: '#D11B1B',
-    borderRadius: 12,
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    alignItems: 'center',
-  },
-  unlockBtnText: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  lockedTime: {
-    color: 'rgba(255,255,255,0.3)',
-    fontSize: 10,
-    marginTop: 6,
-    textAlign: 'right',
-  },
-
-  // Input bar
-  inputBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#140008',
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(246,193,106,0.1)',
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-    gap: 6,
-  },
-  inputIcon: {
-    padding: 4,
-  },
-  input: {
-    flex: 1,
-    backgroundColor: '#1a0208',
-    color: 'white',
-    borderRadius: 22,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    fontSize: 14,
-    maxHeight: 100,
-    borderWidth: 1,
-    borderColor: 'rgba(246,193,106,0.18)',
-  },
-  sendBtn: {
-    backgroundColor: '#D11B1B',
-    borderRadius: 22,
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-    minWidth: 80,
-  },
-  sendBtnDisabled: {
-    backgroundColor: 'rgba(209,27,27,0.3)',
-  },
-  sendBtnText: {
-    color: 'white',
-    fontSize: 13,
-    fontWeight: '700',
-  },
-
-  // Emoji picker
-  emojiPanel: {
-    backgroundColor: '#140008',
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(246,193,106,0.1)',
-    paddingVertical: 8,
-    paddingHorizontal: 6,
-  },
-  emojiGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 2,
-  },
-  emojiBtn: {
-    padding: 6,
-    borderRadius: 8,
-  },
-  emojiChar: {
-    fontSize: 24,
-  },
-});
