@@ -64,16 +64,16 @@ export default function ClienteInicio() {
     useCallback(() => {
       const onBackPress = () => {
         Alert.alert(
-          'Cerrar sesión',
-          '¿Seguro que quieres cerrar sesión?',
+          'Salir',
+          'Seguro que quieres salir',
           [
             { text: 'Cancelar', style: 'cancel' },
             {
-              text: 'Cerrar sesión',
+              text: 'Salir',
               style: 'destructive',
               onPress: async () => {
                 await logout();
-                router.replace('/(auth)/choose-access');
+                BackHandler.exitApp();
               },
             },
           ],
@@ -288,3 +288,4 @@ export default function ClienteInicio() {
     </SafeAreaView>
   );
 }
+
