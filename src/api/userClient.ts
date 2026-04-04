@@ -50,6 +50,16 @@ export const apiToggleClientStatus = async (id: string, isActive: boolean) => {
     }
 };
 
+// CONFIGURACIÓN DE LA PLATAFORMA
+export const apiGetConfig = async (): Promise<{ creditToSolesRate: number }> => {
+    try {
+        const response = await apiClient.get('users/config');
+        return response.data;
+    } catch {
+        return { creditToSolesRate: 1 };
+    }
+};
+
 // SERVICIOS DE BILLETERA
 export const apiGetMyWallet = async (): Promise<WalletResponse> => {
     try {

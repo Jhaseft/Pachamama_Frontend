@@ -1,4 +1,5 @@
 import ScreenHeader from "@/components/Menu/ScreenHeader";
+import { useCreditRate } from "@/src/hooks/useCreditRate";
 import { LinearGradient } from "expo-linear-gradient";
 import {
   apiGetMyEarnings,
@@ -44,8 +45,6 @@ import {
   ClipboardList,
 } from "lucide-react-native";
 
-const CREDITS_TO_SOLES = 0.1;
-const toSoles = (credits: number) => (credits * CREDITS_TO_SOLES).toFixed(2);
 
 function getServiceIcon(service: string) {
   const s = service.toLowerCase();
@@ -115,7 +114,7 @@ function AnimatedBorderCard({
   );
 }
 
-function TransactionItem({ tx }: { tx: EarningTransaction }) {
+function TransactionItem({ tx, toSoles }: { tx: EarningTransaction; toSoles: (n: number) => string }) {
   return (
     <AnimatedBorderCard style={{ marginBottom: 16 }}>
       <LinearGradient
@@ -317,11 +316,13 @@ function AddBankAccountModal({
 function WithdrawalModal({
   visible,
   balance,
+  creditRate,
   onClose,
   onSuccess,
 }: {
   visible: boolean;
   balance: number;
+  creditRate: number;
   onClose: () => void;
   onSuccess: () => void;
 }) {
@@ -335,7 +336,7 @@ function WithdrawalModal({
   const [showAddAccount, setShowAddAccount] = useState(false);
 
   const creditsNum = parseFloat(credits) || 0;
-  const soles = (creditsNum * CREDITS_TO_SOLES).toFixed(2);
+  const soles = (creditsNum * creditRate).toFixed(2);
 
   const loadAccounts = async () => {
     setLoadingAccounts(true);
@@ -614,6 +615,7 @@ function WithdrawalModal({
 
 export default function AnfitrianaGanancias() {
   const router = useRouter();
+  const { toSoles, creditRate } = useCreditRate();
   const [data, setData] = useState<EarningsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -743,7 +745,7 @@ export default function AnfitrianaGanancias() {
             </View>
           ) : (
             data?.transactions.map((tx) => (
-              <TransactionItem key={tx.id} tx={tx} />
+              <TransactionItem key={tx.id} tx={tx} toSoles={toSoles} />
             ))
           )}
         </ScrollView>
@@ -752,6 +754,7 @@ export default function AnfitrianaGanancias() {
       <WithdrawalModal
         visible={showWithdrawal}
         balance={data?.balance ?? 0}
+        creditRate={creditRate}
         onClose={() => setShowWithdrawal(false)}
         onSuccess={() => load(true)}
       />

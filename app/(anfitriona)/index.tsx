@@ -21,11 +21,7 @@ import { useAuth } from "../../src/context/AuthContext";
 import { getProfile } from "../../src/services/auth";
 import { apiGetMyEarnings, type EarningTransaction, type EarningsData } from "../../src/api/wallet";
 import { getChats } from "../../src/api/messages";
-
-// ─── Constantes ───────────────────────────────────────────────────────────────
-
-const CREDITS_TO_SOLES = 0.1;
-const toSoles = (credits: number) => (credits * CREDITS_TO_SOLES).toFixed(2);
+import { useCreditRate } from "../../src/hooks/useCreditRate";
 
 // ─── AnimatedBorderCard ───────────────────────────────────────────────────────
 
@@ -192,6 +188,7 @@ function formatRelativeTime(dateStr: string): string {
 
 export default function AnfitrianaInicio() {
   const { accessToken, user, isHydrated, setSession, logout } = useAuth();
+  const { toSoles } = useCreditRate();
   const [earnings, setEarnings] = useState<EarningsData | null>(null);
   const [loadingEarnings, setLoadingEarnings] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);

@@ -396,9 +396,22 @@ export default function ChatScreen() {
                         <Text className="text-[#F6C16A] text-[10px] mb-[3px]">🔓 Desbloqueado</Text>
                       )}
                       <Text className="text-white text-[15px] leading-[21px]">{msg.text}</Text>
-                      <Text className={`text-[10px] mt-[3px] text-right ${isOwn ? 'text-[rgba(255,200,200,0.6)]' : 'text-[rgba(255,255,255,0.35)]'}`}>
-                        {formatTime(msg.createdAt)}
-                      </Text>
+                      {isOwn ? (
+                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 3, marginTop: 3 }}>
+                          <Text className="text-[10px] text-[rgba(255,200,200,0.6)]">{formatTime(msg.createdAt)}</Text>
+                          {msg.id.startsWith('_pending_') ? (
+                            <Ionicons name="time-outline" size={10} color="rgba(255,200,200,0.4)" />
+                          ) : msg.read ? (
+                            <Text style={{ color: 'rgba(255,255,255,0.85)', fontSize: 11, fontWeight: '700' }}>✓✓</Text>
+                          ) : (
+                            <Text style={{ color: 'rgba(255,200,200,0.55)', fontSize: 11, fontWeight: '700' }}>✓</Text>
+                          )}
+                        </View>
+                      ) : (
+                        <Text className="text-[10px] mt-[3px] text-right text-[rgba(255,255,255,0.35)]">
+                          {formatTime(msg.createdAt)}
+                        </Text>
+                      )}
                     </View>
                   )}
                 </View>
@@ -449,18 +462,17 @@ export default function ChatScreen() {
 
           <TouchableOpacity
             onPress={handleSend}
-            disabled={!text.trim() || sending}
-            className={`rounded-[22px] py-[10px] px-[14px] items-center justify-center min-w-[80px] ${
-              !text.trim() && !sending ? 'bg-[rgba(209,27,27,0.3)]' : 'bg-[#D11B1B]'
-            }`}
+            disabled={!text.trim()}
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 20,
+              backgroundColor: text.trim() ? '#D11B1B' : 'rgba(209,27,27,0.3)',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
           >
-            {sending ? (
-              <ActivityIndicator size="small" color="white" />
-            ) : (
-              <Text className="text-white text-[13px] font-bold" numberOfLines={1} adjustsFontSizeToFit>
-                {msgPrice != null ? `Enviar (${msgPrice} cr.)` : 'Enviar'}
-              </Text>
-            )}
+            <Ionicons name="arrow-up" size={18} color="white" />
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
