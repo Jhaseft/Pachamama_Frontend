@@ -79,6 +79,11 @@ export function useCallSocket(userId: string | null | undefined) {
     return () => socketRef.current?.off('call_billed', cb);
   }
 
+  function onCallWarning(cb: (data: { balance: number }) => void) {
+    socketRef.current?.on('call_warning', cb);
+    return () => socketRef.current?.off('call_warning', cb);
+  }
+
   return {
     requestCall,
     acceptCall,
@@ -90,5 +95,6 @@ export function useCallSocket(userId: string | null | undefined) {
     onCallRejected,
     onCallEnded,
     onCallBilled,
+    onCallWarning,
   };
 }

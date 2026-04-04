@@ -6,11 +6,48 @@ import ProfileSummary from "@/components/cliente/perfil/ProfileSummary";
 import ProfileMenuSection from "@/components/cliente/perfil/ProfileMenuSection";
 import LogoutButton from "@/components/cliente/perfil/LogoutButton";
 import { useAuth } from "@/src/context/AuthContext";
+import { useEffect, useState } from "react";
+import { Linking, AppState } from "react-native";
+import notifee from "@notifee/react-native";
 
 export default function ClientePerfil() {
   const { user, logout } = useAuth();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const [notificationsEnabled, setNotificationsEnabled] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const checkPermissions = async () => {
+      const settings = await notifee.getNotificationSettings();
+      setNotificationsEnabled(settings.authorizationStatus >= 1);
+    };
+
+    // Verificar al montar
+    checkPermissions();
+
+    // Verificar cada vez que el usuario vuelve a la app desde ajustes
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') checkPermissions();
+    });
+
+    return () => sub.remove();
+  }, []);
+
+  const handleNotificationsPress = () => {
+    Alert.alert(
+      'Notificaciones',
+      notificationsEnabled
+        ? '¿Quieres desactivar las notificaciones?'
+        : 'Las notificaciones están desactivadas. ¿Quieres activarlas?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Ir a Ajustes',
+          onPress: () => Linking.openSettings(),
+        },
+      ]
+    );
+  };
 
   const handleLogout = () => {
     Alert.alert(
@@ -42,6 +79,14 @@ export default function ClientePerfil() {
     {
       label: "Historial",
       onPress: () => router.push("/(cliente)/historial" as any),
+    },
+    {
+      label: notificationsEnabled === null
+        ? "Notificaciones"
+        : notificationsEnabled
+          ? "Notificaciones ✅"
+          : "Notificaciones ❌",
+      onPress: handleNotificationsPress,
     },
   ];
 

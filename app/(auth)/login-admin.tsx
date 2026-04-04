@@ -13,6 +13,7 @@ import TextField from "../../components/TextField";
 import PrimaryButton from "../../components/PrimaryButton";
 import { loginWithEmail } from "../../src/services/auth";
 import { useAuth } from "../../src/context/AuthContext";
+import { registerForPushNotifications } from "../../src/services/notifications";
 
 export default function LoginAdmin() {
   const [email, setEmail] = useState("");
@@ -47,8 +48,8 @@ export default function LoginAdmin() {
       }
 
       await setSession(response.access_token, response.user);
-     // router.replace("/(app)/create-hostess-profile");
-     router.replace("/admin");
+      await registerForPushNotifications();
+      router.replace("/admin");
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "No se pudo iniciar sesión.";

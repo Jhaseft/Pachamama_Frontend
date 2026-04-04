@@ -1,5 +1,6 @@
-import React, { useCallback, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator, RefreshControl } from 'react-native';
+import React, { useCallback, useState, useEffect } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator, RefreshControl, Linking, AppState } from 'react-native';
+import notifee from '@notifee/react-native';
 import { StatCard } from '../components/StartCard';
 import { PlanItem } from '../components/package/PlanItem';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -30,6 +31,33 @@ export default function AdminDashboard() {
     anfitrionas: 13,
     compras: 48
   });
+
+  const [notificationsEnabled, setNotificationsEnabled] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const checkPermissions = async () => {
+      const settings = await notifee.getNotificationSettings();
+      setNotificationsEnabled(settings.authorizationStatus >= 1);
+    };
+    checkPermissions();
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') checkPermissions();
+    });
+    return () => sub.remove();
+  }, []);
+
+  const handleNotificationsPress = () => {
+    Alert.alert(
+      'Notificaciones',
+      notificationsEnabled
+        ? '¿Quieres desactivar las notificaciones?'
+        : 'Las notificaciones están desactivadas. ¿Quieres activarlas?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Ir a Ajustes', onPress: () => Linking.openSettings() },
+      ]
+    );
+  };
 
   // Función independiente para el contador de solicitudes
   const fetchWithdrawalCount = async () => {
@@ -116,6 +144,14 @@ export default function AdminDashboard() {
           <Text className="text-white text-[26px] font-black tracking-tight">
             Bienvenido Administrador
           </Text>
+          <TouchableOpacity
+            onPress={handleNotificationsPress}
+            className="mt-2 bg-white/20 px-4 py-1.5 rounded-full"
+          >
+            <Text className="text-white text-xs font-bold">
+              Notificaciones {notificationsEnabled === null ? '' : notificationsEnabled ? '✅' : '❌'}
+            </Text>
+          </TouchableOpacity>
         </View>
 
         <View className="bg-[#A11213] border border-gray-50/50 p-2 rounded-[30px] mb-4 items-center shadow-xl">

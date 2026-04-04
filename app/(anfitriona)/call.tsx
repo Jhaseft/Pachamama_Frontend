@@ -109,7 +109,9 @@ export default function AnfitrianaCallScreen() {
     callSocket.endCall(callId, callerId);
     agora.leave();
     clearInterval(timerRef.current!);
-    router.back();
+    // No navegamos de inmediato — esperamos el CALL_BILLED para mostrar el resumen
+    setEnded(true);
+    setTimeout(() => router.back(), 3500);
   }
 
   function formatTime(s: number) {
