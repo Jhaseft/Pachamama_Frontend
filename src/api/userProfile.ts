@@ -9,6 +9,7 @@ export const apiGetMyProfileUser = async (): Promise<MyProfileData> => {
 };
 
 // ACTUALIZAR FCM TOKEN
+//para actualizar el token de FCM en el backend cada vez que se registre o se refresque el token en el dispositivo del usuario
 export const apiUpdateFcmToken = async (fcmToken: string): Promise<void> => {
     try {
         await apiClient.patch('/users/fcm-token', { fcmToken });

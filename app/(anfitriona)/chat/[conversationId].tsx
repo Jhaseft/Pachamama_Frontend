@@ -1,4 +1,5 @@
 import { useAuth } from '@/src/context/AuthContext';
+import { activeChatRef, anfitrionaChatScreenRef } from '@/src/services/notifications';
 import {
   getMessages,
   getMyServicePrices,
@@ -17,6 +18,8 @@ import {
   FlatList,
   Image,
   KeyboardAvoidingView,
+  ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -25,14 +28,35 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 function formatTime(dateStr: string) {
-  return new Date(dateStr).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+  return new Date(dateStr).toLocaleTimeString('es-PE', {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 }
+
+function formatDateSeparator(dateStr: string) {
+  const d = new Date(dateStr);
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+  if (d.toDateString() === today.toDateString()) return 'Hoy';
+  if (d.toDateString() === yesterday.toDateString()) return 'Ayer';
+  return d.toLocaleDateString('es-PE', { day: 'numeric', month: 'long' });
+}
+
+const EMOJIS = [
+  '😀','😂','🥰','😍','😘','😋','🤩','😊','😏','🥺',
+  '😭','😤','🤣','🙄','💀','🔥','💯','👀','😈','🤦',
+  '❤️','🧡','💛','💚','💙','💜','💕','💋','🫶','🙏',
+  '👋','👍','🙌','💪','🎉','🌹','🌸','✨','💫','⭐',
+];
 
 export default function AnfitrianaChat() {
   const { user } = useAuth();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const listRef = useRef<FlatList>(null);
+  const inputRef = useRef<TextInput>(null);
 
   const { conversationId, otherUserId, otherUserName, otherUserAvatar } =
     useLocalSearchParams<{
@@ -52,12 +76,11 @@ export default function AnfitrianaChat() {
     conversationId !== 'new' ? conversationId : null,
   );
   const [kavKey, setKavKey] = useState(0);
+  const [showEmoji, setShowEmoji] = useState(false);
 
   const { onNewMessage } = useSocket(user?.id);
 
-  useEffect(() => {
-    void loadServicePrices();
-  }, []);
+  useEffect(() => { void loadServicePrices(); }, []);
 
   useEffect(() => {
     const sub = AppState.addEventListener('change', (next: AppStateStatus) => {
@@ -88,13 +111,22 @@ export default function AnfitrianaChat() {
     if (activeConversationId && user?.id) void markAsRead(activeConversationId, user.id);
   }, [activeConversationId]);
 
+  useEffect(() => {
+    anfitrionaChatScreenRef.current = true;
+    if (activeConversationId) activeChatRef.current = activeConversationId;
+    return () => {
+      anfitrionaChatScreenRef.current = false;
+      activeChatRef.current = null;
+    };
+  }, [activeConversationId]);
+
   async function loadServicePrices() {
     try {
       const prices = await getMyServicePrices();
       const msgPrice = prices.find((p) => p.serviceType === 'MESSAGE');
       if (msgPrice) setMessagePrice(msgPrice.price);
     } catch {
-      // silencioso — anfitriona puede no tener precios configurados
+      // silencioso
     }
   }
 
@@ -120,104 +152,153 @@ export default function AnfitrianaChat() {
     if (!trimmed || !user?.id || !otherUserId || sending) return;
     setText('');
     setSending(true);
+
+    // Mensaje optimista: aparece inmediatamente en la lista con ID temporal
+    const tempId = `_pending_${Date.now()}`;
+    const tempMsg: Message = {
+      id: tempId,
+      conversationId: activeConversationId ?? '',
+      senderId: user.id,
+      text: trimmed,
+      read: false,
+      isLocked,
+      price: isLocked ? messagePrice : null,
+      isUnlocked: false,
+      createdAt: new Date().toISOString(),
+    };
+    setMessages((prev) => [...prev, tempMsg]);
+    scrollToEnd();
+
     try {
       const msg = await sendMessageHttp(user.id, otherUserId, trimmed, isLocked);
-      setMessages((prev) => [...prev, msg]);
+      setMessages((prev) => prev.map((m) => m.id === tempId ? msg : m));
       setActiveConversationId(msg.conversationId);
       setIsLocked(false);
-      scrollToEnd();
     } catch {
       setText(trimmed);
+      setMessages((prev) => prev.filter((m) => m.id !== tempId));
     } finally {
       setSending(false);
     }
   }
 
+  function insertEmoji(emoji: string) {
+    setText((prev) => prev + emoji);
+    inputRef.current?.focus();
+  }
+
+  function toggleEmoji() {
+    setShowEmoji((v) => !v);
+    if (showEmoji) inputRef.current?.focus();
+  }
+
+  // Separadores de fecha
+  type ListItem = Message | { type: 'separator'; label: string; key: string };
+  const listData: ListItem[] = [];
+  let lastDate = '';
+  for (const msg of messages) {
+    const day = new Date(msg.createdAt).toDateString();
+    if (day !== lastDate) {
+      listData.push({ type: 'separator', label: formatDateSeparator(msg.createdAt), key: `sep-${day}` });
+      lastDate = day;
+    }
+    listData.push(msg);
+  }
+
+  const sendDisabled = !text.trim() || sending || (isLocked && messagePrice === null);
+
   return (
-    <View className="flex-1 bg-[#111]">
+    <View style={styles.root}>
       <Stack.Screen options={{ headerShown: false }} />
 
-      <View
-        className="flex-row items-center bg-[#1a1a1a] border-b border-gray-800"
-        style={{ paddingTop: insets.top + 8, paddingBottom: 12, paddingHorizontal: 16 }}
-      >
-        <TouchableOpacity onPress={() => router.back()} className="mr-3">
-          <Ionicons name="arrow-back" size={24} color="white" />
+      {/* Header */}
+      <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+          <Ionicons name="arrow-back" size={22} color="white" />
         </TouchableOpacity>
 
-        {otherUserAvatar ? (
-          <Image
-            source={{ uri: otherUserAvatar }}
-            className="w-[38px] h-[38px] rounded-full mr-[10px]"
-          />
-        ) : (
-          <View className="w-[38px] h-[38px] rounded-full bg-blue-900 items-center justify-center mr-[10px]">
-            <Text className="text-white font-bold">
-              {(otherUserName ?? 'U')[0].toUpperCase()}
-            </Text>
+        <View style={styles.headerInfo}>
+          <View style={styles.avatarWrap}>
+            {otherUserAvatar ? (
+              <Image source={{ uri: otherUserAvatar }} style={styles.avatarImg} />
+            ) : (
+              <View style={styles.avatarFallback}>
+                <Text style={styles.avatarInitial}>
+                  {(otherUserName ?? 'U')[0].toUpperCase()}
+                </Text>
+              </View>
+            )}
           </View>
-        )}
-
-        <Text className="text-white font-semibold text-base">
-          {otherUserName ?? 'Chat'}
-        </Text>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.headerName} numberOfLines={1}>{otherUserName ?? 'Chat'}</Text>
+            <Text style={styles.headerSub}>Cliente</Text>
+          </View>
+        </View>
       </View>
 
-      <KeyboardAvoidingView
-        key={kavKey}
-        className="flex-1"
-        behavior="padding"
-        keyboardVerticalOffset={0}
-      >
+      <KeyboardAvoidingView key={kavKey} style={{ flex: 1 }} behavior="padding" keyboardVerticalOffset={0}>
         {loading ? (
-          <View className="flex-1 items-center justify-center">
-            <ActivityIndicator size="large" color="#ec4899" />
+          <View style={styles.loadingWrap}>
+            <ActivityIndicator size="large" color="#F6C16A" />
           </View>
         ) : (
           <FlatList
             ref={listRef}
-            data={messages}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={{ padding: 16, paddingBottom: 8 }}
+            data={listData}
+            keyExtractor={(item) => ('id' in item ? item.id : item.key)}
+            contentContainerStyle={styles.messageList}
             onContentSizeChange={scrollToEnd}
             ListEmptyComponent={
-              <View className="items-center mt-16">
-                <Text className="text-gray-500 text-sm">Inicia la conversación</Text>
+              <View style={styles.emptyWrap}>
+                <Text style={styles.emptyText}>Inicia la conversación</Text>
               </View>
             }
             renderItem={({ item }) => {
-              const isOwn = item.senderId === user?.id;
+              if ('type' in item && item.type === 'separator') {
+                return (
+                  <View style={styles.dateSepWrap}>
+                    <View style={styles.dateSepLine} />
+                    <Text style={styles.dateSepText}>{item.label}</Text>
+                    <View style={styles.dateSepLine} />
+                  </View>
+                );
+              }
+
+              const msg = item as Message;
+              const isOwn = msg.senderId === user?.id;
+
               return (
-                <View className={`mb-2 ${isOwn ? 'items-end' : 'items-start'}`}>
-                  <View
-                    style={{
-                      maxWidth: '75%',
-                      backgroundColor: isOwn
-                        ? item.isLocked ? '#7c3aed' : '#be185d'
-                        : '#1f2937',
-                      borderRadius: 16,
-                      borderBottomRightRadius: isOwn ? 4 : 16,
-                      borderBottomLeftRadius: isOwn ? 16 : 4,
-                      paddingHorizontal: 14,
-                      paddingVertical: 8,
-                    }}
-                  >
-                    {item.isLocked && (
-                      <View className="flex-row items-center gap-1 mb-1">
-                        <Text className="text-yellow-400 text-sm">🔒</Text>
-                        {item.price != null && (
-                          <Text className="text-yellow-300 text-[11px] font-semibold">
-                            {item.price} créditos
-                          </Text>
-                        )}
+                <View style={[styles.msgRow, isOwn ? styles.msgRowOwn : styles.msgRowOther]}>
+                  <View style={[
+                    styles.bubble,
+                    isOwn
+                      ? msg.isLocked ? styles.bubbleOwnLocked : styles.bubbleOwn
+                      : styles.bubbleOther,
+                  ]}>
+                    {msg.isLocked && isOwn && (
+                      <View style={styles.lockedLabel}>
+                        <Text style={styles.lockedLabelText}>
+                          🔒 {msg.price != null ? `${msg.price} créditos` : 'Exclusivo'}
+                        </Text>
                       </View>
                     )}
-                    <Text className="text-white text-[15px]">{item.text ?? '(bloqueado)'}</Text>
-                    <Text
-                      className={`text-[10px] mt-[3px] text-right ${isOwn ? 'text-pink-200' : 'text-gray-500'}`}
-                    >
-                      {formatTime(item.createdAt)}
-                    </Text>
+                    <Text style={styles.bubbleText}>{msg.text ?? '(bloqueado)'}</Text>
+                    {isOwn ? (
+                      <View style={styles.bubbleFooter}>
+                        <Text style={styles.bubbleTimeOwn}>{formatTime(msg.createdAt)}</Text>
+                        {msg.id.startsWith('_pending_') ? (
+                          <Ionicons name="time-outline" size={10} color="rgba(255,200,200,0.4)" />
+                        ) : msg.read ? (
+                          <Text style={styles.checkRead}>✓✓</Text>
+                        ) : (
+                          <Text style={styles.checkSent}>✓</Text>
+                        )}
+                      </View>
+                    ) : (
+                      <Text style={[styles.bubbleTime, styles.bubbleTimeOther]}>
+                        {formatTime(msg.createdAt)}
+                      </Text>
+                    )}
                   </View>
                 </View>
               );
@@ -225,55 +306,312 @@ export default function AnfitrianaChat() {
           />
         )}
 
-        
+        {/* Aviso: lock sin precio configurado */}
         {isLocked && messagePrice === null && (
-          <View className="bg-yellow-900/60 px-4 py-2 mx-3 mb-1 rounded-lg">
-            <Text className="text-yellow-300 text-xs text-center">
-              Configura el precio de mensajes en tu perfil para usar esta función
+          <View style={styles.lockWarning}>
+            <Text style={styles.lockWarningText}>
+              ⚠️ Configura el precio de mensajes en tu perfil para usar esta función
             </Text>
           </View>
         )}
 
-        <View
-          className="flex-row items-end bg-[#1a1a1a] border-t border-gray-800 px-3 gap-2"
-          style={{ paddingVertical: 10 }}
-        >
+        {/* Emoji picker */}
+        {showEmoji && (
+          <View style={styles.emojiPanel}>
+            <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 140 }}>
+              <View style={styles.emojiGrid}>
+                {EMOJIS.map((e) => (
+                  <TouchableOpacity key={e} onPress={() => insertEmoji(e)} style={styles.emojiBtn}>
+                    <Text style={styles.emojiChar}>{e}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </ScrollView>
+          </View>
+        )}
+
+        {/* Input bar */}
+        <View style={styles.inputBar}>
           <TextInput
+            ref={inputRef}
             value={text}
             onChangeText={setText}
+            onFocus={() => setShowEmoji(false)}
             placeholder="Escribe un mensaje..."
-            placeholderTextColor="#6b7280"
+            placeholderTextColor="rgba(246,193,106,0.5)"
             multiline
-            className="flex-1 bg-[#111] text-white rounded-[22px] px-4 py-[10px] text-[15px] border border-gray-700"
-            style={{ maxHeight: 100 }}
+            style={styles.input}
           />
 
-          
-          <TouchableOpacity
-            onPress={() => setIsLocked((v) => !v)}
-            className={`w-10 h-10 rounded-full items-center justify-center ${
-              isLocked ? 'bg-violet-600' : 'bg-gray-700'
-            }`}
-          >
-            <Text className="text-base">{isLocked ? '🔒' : '🔓'}</Text>
+          {/* Emoji */}
+          <TouchableOpacity style={styles.iconBtn} onPress={toggleEmoji}>
+            <Ionicons
+              name={showEmoji ? 'happy' : 'happy-outline'}
+              size={22}
+              color={showEmoji ? '#F6C16A' : 'rgba(255,255,255,0.45)'}
+            />
           </TouchableOpacity>
 
-         
+          {/* Lock toggle */}
+          <TouchableOpacity
+            style={[styles.lockBtn, isLocked && styles.lockBtnActive]}
+            onPress={() => setIsLocked((v) => !v)}
+          >
+            <Text style={styles.lockBtnIcon}>{isLocked ? '🔒' : '🔓'}</Text>
+          </TouchableOpacity>
+
+          {/* Enviar */}
           <TouchableOpacity
             onPress={handleSend}
-            disabled={!text.trim() || sending || (isLocked && messagePrice === null)}
-            className={`w-11 h-11 rounded-full items-center justify-center ${
-              text.trim() && !(isLocked && messagePrice === null) ? 'bg-pink-500' : 'bg-gray-700'
-            }`}
+            disabled={sendDisabled}
+            style={[styles.sendBtn, sendDisabled && styles.sendBtnDisabled]}
           >
-            {sending ? (
-              <ActivityIndicator size="small" color="white" />
-            ) : (
-              <Ionicons name="arrow-up" size={20} color="white" />
-            )}
+            <Ionicons name="arrow-up" size={18} color="white" />
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: '#0a0000',
+  },
+
+  // Header
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#140008',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(246,193,106,0.12)',
+    paddingBottom: 16,
+    paddingHorizontal: 14,
+    gap: 10,
+  },
+  backBtn: { padding: 4 },
+  headerInfo: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  avatarWrap: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    borderWidth: 1.5,
+    borderColor: '#F6C16A',
+    overflow: 'hidden',
+  },
+  avatarImg: { width: '100%', height: '100%' },
+  avatarFallback: {
+    flex: 1,
+    backgroundColor: '#2a0810',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarInitial: {
+    color: '#F6C16A',
+    fontWeight: '700',
+    fontSize: 18,
+  },
+  headerName: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  headerSub: {
+    color: 'rgba(246,193,106,0.6)',
+    fontSize: 12,
+    marginTop: 2,
+  },
+
+  // Loading / empty
+  loadingWrap: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyWrap: {
+    alignItems: 'center',
+    marginTop: 60,
+  },
+  emptyText: {
+    color: 'rgba(255,255,255,0.3)',
+    fontSize: 14,
+  },
+
+  // Messages
+  messageList: {
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    paddingBottom: 6,
+  },
+  dateSepWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 14,
+    gap: 8,
+  },
+  dateSepLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+  },
+  dateSepText: {
+    color: 'rgba(255,255,255,0.35)',
+    fontSize: 11,
+    fontWeight: '500',
+  },
+  msgRow: { marginBottom: 4 },
+  msgRowOwn: { alignItems: 'flex-end' },
+  msgRowOther: { alignItems: 'flex-start' },
+
+  // Bubbles
+  bubble: {
+    maxWidth: '78%',
+    borderRadius: 18,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+  bubbleOwn: {
+    backgroundColor: '#8B1030',
+    borderBottomRightRadius: 4,
+  },
+  bubbleOwnLocked: {
+    backgroundColor: '#5C3A00',
+    borderBottomRightRadius: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(246,193,106,0.4)',
+  },
+  bubbleOther: {
+    backgroundColor: '#1e1010',
+    borderBottomLeftRadius: 4,
+  },
+  lockedLabel: {
+    marginBottom: 4,
+  },
+  lockedLabelText: {
+    color: '#F6C16A',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  bubbleText: {
+    color: 'white',
+    fontSize: 15,
+    lineHeight: 21,
+  },
+  bubbleFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: 3,
+    marginTop: 3,
+  },
+  bubbleTime: {
+    fontSize: 10,
+    marginTop: 3,
+    textAlign: 'right',
+  },
+  bubbleTimeOwn: {
+    color: 'rgba(255,200,200,0.6)',
+    fontSize: 10,
+  },
+  bubbleTimeOther: { color: 'rgba(255,255,255,0.35)' },
+  checkSent: {
+    color: 'rgba(255,200,200,0.55)',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  checkRead: {
+    color: 'rgba(255,255,255,0.85)',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+
+  // Lock warning
+  lockWarning: {
+    backgroundColor: 'rgba(246,193,106,0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(246,193,106,0.3)',
+    borderRadius: 10,
+    marginHorizontal: 12,
+    marginBottom: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+  lockWarningText: {
+    color: '#F6C16A',
+    fontSize: 12,
+    textAlign: 'center',
+  },
+
+  // Emoji picker
+  emojiPanel: {
+    backgroundColor: '#140008',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(246,193,106,0.1)',
+    paddingVertical: 8,
+    paddingHorizontal: 6,
+  },
+  emojiGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 2,
+  },
+  emojiBtn: { padding: 6, borderRadius: 8 },
+  emojiChar: { fontSize: 24 },
+
+  // Input bar
+  inputBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#140008',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(246,193,106,0.1)',
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    gap: 6,
+  },
+  input: {
+    flex: 1,
+    backgroundColor: '#1a0208',
+    color: 'white',
+    borderRadius: 22,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    fontSize: 14,
+    maxHeight: 100,
+    borderWidth: 1,
+    borderColor: 'rgba(246,193,106,0.18)',
+  },
+  iconBtn: { padding: 4 },
+  lockBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255,255,255,0.07)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  lockBtnActive: {
+    backgroundColor: 'rgba(246,193,106,0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(246,193,106,0.4)',
+  },
+  lockBtnIcon: { fontSize: 17 },
+  sendBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#D11B1B',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sendBtnDisabled: {
+    backgroundColor: 'rgba(209,27,27,0.3)',
+  },
+});

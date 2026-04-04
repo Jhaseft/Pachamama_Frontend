@@ -8,6 +8,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Link } from "expo-router";
 import ConfirmDialog from '../components/ConfirmDialog';
 import { apiCountPendingWithdrawalRequests } from '../api/withdrawalRequest';
+import { getAdminDashboardData } from '../api/admin';
 
 import { apiGetAllPackages, apiDeletePackage } from '../api/package';
 import { PackageData } from '../types/package';
@@ -24,26 +25,28 @@ export default function AdminDashboard() {
   const [confirmVisible, setConfirmVisible] = useState(false);
 
   const [stats, setStats] = useState({
-    ganancias: 1202,
-    solicitudesAnf: 8,
+    ganancias: 0,
+    solicitudesAnf: 0,
     solicitudesPago: 0,
-    anfitrionas: 13,
-    compras: 48
+    anfitrionas: 0,
+    compras: 0
   });
 
-  // Función independiente para el contador de solicitudes
-  const fetchWithdrawalCount = async () => {
+  const fetchStats = async () => {
     try {
-
-      const count = await apiCountPendingWithdrawalRequests();
-
-
-      setStats(prev => ({
-        ...prev,
-        solicitudesPago: count
-      }));
+      const [data, withdrawalCount] = await Promise.all([
+        getAdminDashboardData(),
+        apiCountPendingWithdrawalRequests(),
+      ]);
+      setStats({
+        ganancias: data.deposits?.totalRevenue ?? 0,
+        solicitudesAnf: data.clients?.newThisMonth ?? 0,
+        solicitudesPago: withdrawalCount,
+        anfitrionas: data.anfitrionas?.total ?? 0,
+        compras: data.deposits?.pending ?? 0,
+      });
     } catch (error: any) {
-      console.error("Error silencioso al actualizar contador:", error.message);
+      console.error("Error al cargar estadísticas:", error.message);
     }
   };
 
@@ -66,17 +69,16 @@ export default function AdminDashboard() {
   useFocusEffect(
     useCallback(() => {
       fetchPackages();
-      fetchWithdrawalCount();
+      fetchStats();
     }, [])
   );
 
   // Función para refrescar la lista de paquetes
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    // Ejecutamos ambas y esperamos que terminen
     Promise.all([
       fetchPackages(),
-      fetchWithdrawalCount()
+      fetchStats(),
     ]).finally(() => setRefreshing(false));
   }, []);
 

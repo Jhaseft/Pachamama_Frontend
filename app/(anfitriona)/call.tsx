@@ -109,7 +109,8 @@ export default function AnfitrianaCallScreen() {
     callSocket.endCall(callId, callerId);
     agora.leave();
     clearInterval(timerRef.current!);
-    router.back();
+    // Pequeño delay para que el socket tenga tiempo de enviar call_ended antes de desmontar
+    setTimeout(() => router.back(), 300);
   }
 
   function formatTime(s: number) {
@@ -152,23 +153,44 @@ export default function AnfitrianaCallScreen() {
         )}
 
         {/* ── Video local PiP ── */}
-        {isVideo && !agora.cameraOff && (
+        {isVideo && (
           <View style={{
             position: 'absolute',
             top: insets.top + 16,
             right: 16,
-            width: 90, height: 130,
-            borderRadius: 14,
+            width: 115,
+            height: 165,
+            borderRadius: 16,
             overflow: 'hidden',
             borderWidth: 2,
-            borderColor: 'rgba(255,255,255,0.4)',
-            elevation: 8,
+            borderColor: '#F6C16A',
+            shadowColor: '#000',
+            shadowOpacity: 0.6,
+            shadowRadius: 12,
+            elevation: 10,
             zIndex: 10,
           }}>
-            <RtcSurfaceView
-              canvas={{ uid: 0, sourceType: VideoSourceType.VideoSourceCamera }}
-              style={{ flex: 1 }}
-            />
+            {agora.cameraOff ? (
+              <View style={{ flex: 1, backgroundColor: '#1a0208', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                <Ionicons name="videocam-off" size={28} color="rgba(255,255,255,0.5)" />
+                <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 10 }}>Cámara apagada</Text>
+              </View>
+            ) : (
+              <RtcSurfaceView
+                canvas={{ uid: 0, sourceType: VideoSourceType.VideoSourceCamera }}
+                style={{ flex: 1 }}
+              />
+            )}
+            <View style={{
+              position: 'absolute', bottom: 6, left: 0, right: 0,
+              alignItems: 'center',
+            }}>
+              <Text style={{
+                color: 'white', fontSize: 10, fontWeight: '600',
+                backgroundColor: 'rgba(0,0,0,0.45)',
+                paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8,
+              }}>Tú</Text>
+            </View>
           </View>
         )}
 
