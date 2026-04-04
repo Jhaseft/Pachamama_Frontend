@@ -165,13 +165,31 @@ export default function ChatScreen() {
     if (!trimmed || !user?.id || !otherUserId || sending) return;
     setText('');
     setSending(true);
+
+    // Mensaje optimista: aparece inmediatamente en la lista con ID temporal
+    const tempId = `_pending_${Date.now()}`;
+    const tempMsg: Message = {
+      id: tempId,
+      conversationId: activeConversationId ?? '',
+      senderId: user.id,
+      text: trimmed,
+      read: false,
+      isLocked: false,
+      price: null,
+      isUnlocked: false,
+      createdAt: new Date().toISOString(),
+    };
+    setMessages((prev) => [...prev, tempMsg]);
+    scrollToEnd();
+
     try {
       const msg = await sendMessageHttp(user.id, otherUserId, trimmed);
-      setMessages((prev) => [...prev, msg]);
+      // Reemplazar el mensaje temporal con el real del servidor
+      setMessages((prev) => prev.map((m) => m.id === tempId ? msg : m));
       setActiveConversationId(msg.conversationId);
-      scrollToEnd();
     } catch {
       setText(trimmed);
+      setMessages((prev) => prev.filter((m) => m.id !== tempId));
     } finally {
       setSending(false);
     }

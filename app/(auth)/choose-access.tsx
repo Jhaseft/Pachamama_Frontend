@@ -20,7 +20,7 @@ export default function ChooseAccess() {
           </Text>
 
           <PromoAccessCard
-            onPrimaryPress={() => router.push("/(auth)/client-access")}
+            onPrimaryPress={() => router.push("/(auth)/login-client")}
           />
         </View>
 

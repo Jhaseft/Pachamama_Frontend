@@ -10,7 +10,7 @@ import Toast from "react-native-toast-message";
 
 export default function Layout() {
   const insets = useSafeAreaInsets();
-  //usePreventScreenCapture();
+  usePreventScreenCapture();
   return (
       <AuthProvider>
         <ActiveChatProvider>

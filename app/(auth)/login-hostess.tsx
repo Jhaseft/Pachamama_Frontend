@@ -111,6 +111,15 @@ export default function LoginHostess() {
             disabled={loading}
           />
 
+          <Pressable
+            onPress={() => router.push("/(auth)/forgot-password")}
+            className="mt-4"
+          >
+            <Text className="text-white/60 text-center underline">
+              ¿Olvidaste tu contraseña?
+            </Text>
+          </Pressable>
+
           <View className="mt-4 rounded-2xl border border-white/20 bg-[#D9D9D9] px-4 py-3">
             <Text className="text-black text-base font-semibold text-center">
               Solo cuentas aprobadas

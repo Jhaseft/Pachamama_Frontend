@@ -33,7 +33,6 @@ export default function EditarPerfil() {
   const [lastName, setLastName] = useState('');
   const [username, setUsername] = useState('');
   const [bio, setBio] = useState('');
-  const [rateCredits, setRateCredits] = useState('');
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
   const [avatarChanged, setAvatarChanged] = useState(false);
   const [coverUri, setCoverUri] = useState<string | null>(null);
@@ -50,7 +49,6 @@ export default function EditarPerfil() {
       setLastName(data.lastName ?? '');
       setUsername(data.username ?? '');
       setBio(data.bio ?? '');
-      setRateCredits(String(data.rateCredits ?? 0));
       setAvatarUri(data.avatarUrl ?? null);
       setCoverUri(data.coverUrl ?? null);
     } catch (e) {
@@ -111,7 +109,6 @@ export default function EditarPerfil() {
           lastName: lastName.trim() || undefined,
           username: username.trim(),
           bio: bio.trim(),
-          rateCredits: parseInt(rateCredits) || 0,
         },
         avatarFile,
         coverFile,
@@ -261,14 +258,6 @@ export default function EditarPerfil() {
           multiline
           numberOfLines={4}
         />
-        <Field
-          label="Créditos por conversación"
-          value={rateCredits}
-          onChangeText={setRateCredits}
-          placeholder="0"
-          keyboardType="numeric"
-        />
-
         {/* Info sobre campos no editables */}
         <View
           style={{

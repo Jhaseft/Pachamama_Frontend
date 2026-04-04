@@ -123,7 +123,7 @@ export default function LoginClientEmail() {
             className="mt-4"
           >
             <Text className="text-white/60 text-center underline">
-              Soy nuevo, crear cuenta22
+              Soy nuevo, crear cuenta
             </Text>
           </Pressable>
         </ScrollView>
