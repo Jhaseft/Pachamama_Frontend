@@ -57,7 +57,7 @@ export default function ClientePerfil() {
   ];
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#0f0f0f" }}>
+    <View style={{ flex: 1, backgroundColor: "#0d0000" }}>
       <ScreenHeader title="Perfil" role="cliente" />
 
       <ScrollView

@@ -3,6 +3,7 @@ import { Platform } from 'react-native';
 import { apiUpdateFcmToken } from '../api/userProfile';
 import Toast from 'react-native-toast-message';
 import { displayIncomingCall } from './callkeep';
+import notifee, { AndroidImportance } from '@notifee/react-native';
 
 // Ref global para saber qué conversación está activa
 // Se actualiza desde ChatScreen al entrar/salir
@@ -89,11 +90,31 @@ export const setupForegroundNotificationHandler = (): (() => void) => {
 
         Toast.show({
             type: toastConfig[type] ?? 'info',
-            text1: title,         // título en negrita arriba
-            text2: body,          // mensaje abajo
-            position: 'top',      // aparece arriba de la pantalla
-            visibilityTime: 4000, // desaparece después de 4 segundos
-            topOffset: 60,        // separación desde el borde superior
+            text1: title,
+            text2: body,
+            position: 'top',
+            visibilityTime: 4000,
+            topOffset: 60,
+        });
+
+        // Reproducir sonido del sistema con notifee
+        // En foreground Firebase no reproduce sonido, notifee lo hace por nosotros
+        const channelId = await notifee.createChannel({
+            id: 'default',
+            name: 'Notificaciones',
+            importance: AndroidImportance.HIGH, // HIGH activa sonido y vibración
+            sound: 'default',                   // usa el sonido del sistema
+        });
+
+        await notifee.displayNotification({
+            title,
+            body,
+            android: {
+                channelId,
+                sound: 'default',
+                importance: AndroidImportance.HIGH,
+                smallIcon: 'ic_launcher',
+            },
         });
     });
 
