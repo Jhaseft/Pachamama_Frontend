@@ -1,19 +1,41 @@
-// screens/AnfitrionaScreen.tsx
-import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, FlatList, ActivityIndicator } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { View, Text, FlatList, ActivityIndicator } from 'react-native';
+import { useFocusEffect } from 'expo-router';
 import { apiGetAllAnfitriona, apiToggleAnfitrionaStatus } from '../../../api/anfitriona';
-import { UserClientData } from '../../../types/userClient';
+import { UserAnfitrionaData } from '../../../types/userClient';
 import { AnfitrionaItem } from '../../../components/user/AnfitrionaItem';
 import SearchInput from '../../../components/SearchInput';
 import HeaderBack from '../../../components/HeaderBack';
+import { useRouter } from 'expo-router';
 
 export default function AnfitrionaScreen() {
-    const [anfitrionas, setAnfitrionas] = useState<UserClientData[]>([]);
+    const [anfitrionas, setAnfitrionas] = useState<UserAnfitrionaData[]>([]);
     const [search, setSearch] = useState('');
     const [nextCursor, setNextCursor] = useState<string | null>(null);
     const [isFetchingMore, setIsFetchingMore] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
+    const router = useRouter();
+
+    const handleNavigateToDetail = (item: UserAnfitrionaData) => {
+        router.push({
+            pathname: '/admin/anfitriona-detail' as any,
+            params: {
+                id: item.id,
+                firstName: item.firstName,
+                lastName: item.lastName,
+                phoneNumber: item.phoneNumber,
+                isActive: String(item.isActive),
+                balance: String(item.wallet?.balance ?? 0),
+                username: item.anfitrionaProfile?.username ?? '',
+                avatarUrl: item.anfitrionaProfile?.avatarUrl ?? '',
+                bio: item.anfitrionaProfile?.bio ?? '',
+                rateCredits: String(item.anfitrionaProfile?.rateCredits ?? 0),
+                isOnline: String(item.anfitrionaProfile?.isOnline ?? false),
+                email: item.email ?? '',
+            },
+        });
+    };
 
     // Función para cargar datos
     const loadAnfitrionas = async (text?: string, cursor?: string) => {
@@ -71,6 +93,11 @@ export default function AnfitrionaScreen() {
         loadAnfitrionas();
     }, []);
 
+    // Recargar al volver del detalle
+    useFocusEffect(useCallback(() => {
+        loadAnfitrionas(search);
+    }, []));
+
     // Efecto de búsqueda: se dispara cuando el usuario deja de escribir
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
@@ -84,7 +111,7 @@ export default function AnfitrionaScreen() {
 
 
     // Función para cambiar el estado del cliente (activar/suspender)
-    const handleStatusChange = async (user: UserClientData) => {
+    const handleStatusChange = async (user: UserAnfitrionaData) => {
         const originalStatus = user.isActive;
 
         setAnfitrionas(prev => prev.map(c =>
@@ -119,11 +146,9 @@ export default function AnfitrionaScreen() {
                     keyExtractor={(item) => item.id}
                     renderItem={({ item }) => (
                         <AnfitrionaItem
-                            name={`${item.firstName ?? ''} ${item.lastName ?? ''}`.trim()}
-                            phone={item.phoneNumber ?? ''}
-                            status={item.isActive ? 'activa' : 'inactiva'}
+                            item={item}
                             onStatusChange={() => handleStatusChange(item)}
-                            onEdit={() => { }}
+                            onEdit={() => handleNavigateToDetail(item)}
                         />
                     )}
                     onEndReached={handleLoadMore}

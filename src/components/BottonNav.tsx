@@ -1,19 +1,12 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { Link, usePathname, useRouter } from "expo-router";
-import { useAuth } from "../context/AuthContext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function BottomNav() {
     const pathname = usePathname();
-    const { logout } = useAuth();
     const router = useRouter();
     const insets = useSafeAreaInsets();
-
-    const handleLogout = async () => {
-        await logout();
-        router.replace("/(auth)/login-admin");
-    };
 
     const tabs = [
         { name: "Home", icon: "home", route: "/admin" },
@@ -50,11 +43,6 @@ export default function BottomNav() {
                     </Link>
                 );
             })}
-
-            <TouchableOpacity className="items-center flex-1" onPress={handleLogout}>
-                <FontAwesome5 name="sign-out-alt" size={24} color="#fca5a5" />
-                <Text className="text-[11px] mt-1 font-bold text-red-200">Salir</Text>
-            </TouchableOpacity>
 
         </View>
 

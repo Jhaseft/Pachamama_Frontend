@@ -13,6 +13,7 @@ import { getAdminDashboardData } from '../api/admin';
 import { apiGetAllPackages, apiDeletePackage } from '../api/package';
 import { PackageData } from '../types/package';
 import { useRouter, useFocusEffect } from 'expo-router';
+import { useAuth } from '../context/AuthContext';
 
 export default function AdminDashboard() {
 
@@ -23,6 +24,8 @@ export default function AdminDashboard() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState<boolean | null>(null);
+
+  const { logout } = useAuth();
 
   const [stats, setStats] = useState({
     ganancias: 0,
@@ -120,6 +123,11 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleLogout = async () => {
+    await logout();
+    router.replace("/(auth)/login-admin");
+  };
+
   return (
     <>
       <StatusBar style="light" />
@@ -131,7 +139,7 @@ export default function AdminDashboard() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#A11213" />
         }
       >
-        <View className="bg-[#A11213] p-2 rounded-2xl mb-4 items-center shadow-lg">
+        <View className="bg-[#A11213] p-2 rounded-2xl mb-2 items-center shadow-lg">
           <Text className="text-white text-[26px] font-black tracking-tight">
             Bienvenido Administrador
           </Text>
@@ -145,9 +153,20 @@ export default function AdminDashboard() {
           </TouchableOpacity>
         </View>
 
+        <TouchableOpacity
+          onPress={handleLogout}
+          activeOpacity={0.7}
+          className="flex-row items-center justify-center bg-[#1a1a1a] border border-red-900/40 py-3 rounded-xl mb-2"
+        >
+          <MaterialCommunityIcons name="logout" size={22} color="#f87171" />
+          <Text className="text-red-300 font-semibold ml-2">
+            Cerrar sesión
+          </Text>
+        </TouchableOpacity>
+
         <View className="bg-[#A11213] border border-gray-50/50 p-2 rounded-[30px] mb-4 items-center shadow-xl">
           <Text className="text-white text-lg font-bold mb-1 italic">Ganancias acumuladas</Text>
-          <Text className="text-green-500 text-4xl font-black">{`${stats.ganancias} $`}</Text>
+          <Text className="text-green-500 text-4xl font-black">{`${stats.ganancias} Soles`}</Text>
         </View>
 
         <View className="flex-row flex-wrap justify-between">

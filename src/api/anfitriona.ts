@@ -1,11 +1,19 @@
 // api/anfitriona.ts
 
 import apiClient from './client';
-import { UserClientData } from '../types/userClient';
+import { UserAnfitrionaData } from '../types/userClient';
 
 interface PaginatedAnfitriona {
-  data: UserClientData[];
+  data: UserAnfitrionaData[];
   nextCursor?: string | null;
+}
+
+export interface EditAnfitrionaRequest {
+  phoneNumber?: string;
+  username?: string;
+  bio?: string;
+  rateCredits?: number;
+  email?: string;
 }
 
 // LISTAR ANFITRIONAS (cursor pagination)
@@ -38,9 +46,21 @@ export const apiToggleAnfitrionaStatus = async (
       `/admin/anfitrionas/${id}/status`,
       { isActive }
     );
-
     return response.data;
   } catch (error: any) {
     throw error?.response?.data?.message || 'Error al actualizar estado';
+  }
+};
+
+// EDITAR DATOS DE ANFITRIONA
+export const apiEditAnfitriona = async (
+  id: string,
+  data: EditAnfitrionaRequest
+): Promise<UserAnfitrionaData> => {
+  try {
+    const response = await apiClient.patch(`/admin/anfitrionas/${id}/edit`, data);
+    return response.data;
+  } catch (error: any) {
+    throw error?.response?.data?.message || 'Error al editar anfitriona';
   }
 };

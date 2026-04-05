@@ -66,3 +66,4 @@ export type ToggleLikeResponse = {
   liked: boolean;
   likesCount: number;
 };
+
