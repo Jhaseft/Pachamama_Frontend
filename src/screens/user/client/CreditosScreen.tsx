@@ -21,7 +21,7 @@ import { Gem, X, Diamond } from "lucide-react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { apiGetAllPackages } from "@/src/api/package";
 import { PackageData } from "@/src/types/package";
-import { apiGetMyWallet, WalletResponse } from "@/src/api/userClient";
+import { apiGetMyWallet, apiGetConfig, WalletResponse } from "@/src/api/userClient";
 
 const WEB_URL = "https://caja-negra-pacha-web.wkhbmg.easypanel.host";
 
@@ -32,6 +32,7 @@ export default function CreditosScreen() {
   const [loading, setLoading] = useState(true);
   const [wallet, setWallet] = useState<WalletResponse | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [creditRate, setCreditRate] = useState<number>(1);
 
   useEffect(() => {
     void loadData();
@@ -40,12 +41,14 @@ export default function CreditosScreen() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [packagesData, walletData] = await Promise.all([
+      const [packagesData, walletData, configData] = await Promise.all([
         apiGetAllPackages(),
         apiGetMyWallet(),
+        apiGetConfig(),
       ]);
       setPackages(packagesData);
       setWallet(walletData);
+      setCreditRate(configData.creditToSolesRate);
     } catch (error) {
       console.error("Error cargando créditos:", error);
     } finally {
@@ -78,7 +81,7 @@ export default function CreditosScreen() {
         </View>
 
         {/* Conversion info */}
-        <Text style={styles.conversionText}>1 crédito = 0.10 soles</Text>
+        <Text style={styles.conversionText}>1 crédito = {creditRate} {creditRate === 1 ? 'sol' : 'soles'}</Text>
 
         {/* Section title */}
         <View style={styles.sectionHeader}>

@@ -6,7 +6,6 @@ export type MyProfileData = {
   lastName: string | null;
   username: string;
   bio: string;
-  rateCredits: number;
   isOnline: boolean;
   avatarUrl: string | null;
   coverUrl: string | null;
@@ -18,7 +17,6 @@ export type UpdateProfilePayload = {
   lastName?: string;
   username?: string;
   bio?: string;
-  rateCredits?: number;
   isOnline?: boolean;
 };
 
@@ -41,8 +39,6 @@ export const apiUpdateMyProfile = async (
   if (payload.lastName !== undefined) formData.append('lastName', payload.lastName);
   if (payload.username !== undefined) formData.append('username', payload.username);
   if (payload.bio !== undefined) formData.append('bio', payload.bio);
-  if (payload.rateCredits !== undefined)
-    formData.append('rateCredits', String(payload.rateCredits));
   if (payload.isOnline !== undefined)
     formData.append('isOnline', String(payload.isOnline));
 

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getAccessToken } from '../storage/authStorage';
+import { getAccessToken, removeAccessToken, removeUser } from '../storage/authStorage';
 import { API_URL } from '../config';
 
 const apiClient = axios.create({
@@ -9,14 +9,21 @@ const apiClient = axios.create({
 
 apiClient.interceptors.request.use(async (config) => {
   const token = await getAccessToken();
-
-console.log("DEBUG - URL COMPLETA:", (config.baseURL || '') + (config.url || ''));
-  console.log("🚀 Enviando petición a:", config.url);
-  console.log("🔑 Token detectado:", token ? "SÍ (empieza por " + token.substring(0, 10) + "...)" : "NO");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
+
+// Si el backend responde 401, la sesión expiró → limpiar storage
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error?.response?.status === 401) {
+      await Promise.all([removeAccessToken(), removeUser()]);
+    }
+    return Promise.reject(error);
+  },
+);
 
 export default apiClient;

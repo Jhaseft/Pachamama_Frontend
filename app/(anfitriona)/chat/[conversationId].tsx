@@ -308,8 +308,8 @@ export default function AnfitrianaChat() {
 
         {/* Aviso: lock sin precio configurado */}
         {isLocked && messagePrice === null && (
-          <View style={styles.lockWarning}>
-            <Text style={styles.lockWarningText}>
+          <View className="bg-[rgba(246,193,106,0.1)] border border-[rgba(246,193,106,0.3)] rounded-[10px] mx-3 mb-[6px] px-[14px] py-2">
+            <Text className="text-[#F6C16A] text-xs text-center">
               ⚠️ Configura el precio de mensajes en tu perfil para usar esta función
             </Text>
           </View>
@@ -317,12 +317,12 @@ export default function AnfitrianaChat() {
 
         {/* Emoji picker */}
         {showEmoji && (
-          <View style={styles.emojiPanel}>
+          <View className="bg-[#140008] border-t border-[rgba(246,193,106,0.1)] py-2 px-[6px]">
             <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 140 }}>
-              <View style={styles.emojiGrid}>
+              <View className="flex-row flex-wrap gap-[2px]">
                 {EMOJIS.map((e) => (
-                  <TouchableOpacity key={e} onPress={() => insertEmoji(e)} style={styles.emojiBtn}>
-                    <Text style={styles.emojiChar}>{e}</Text>
+                  <TouchableOpacity key={e} onPress={() => insertEmoji(e)} className="p-[6px] rounded-lg">
+                    <Text className="text-2xl">{e}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -331,7 +331,10 @@ export default function AnfitrianaChat() {
         )}
 
         {/* Input bar */}
-        <View style={styles.inputBar}>
+        <View
+          className="flex-row items-center bg-[#140008] border-t border-[rgba(246,193,106,0.1)] px-[10px] pt-[10px] gap-[6px]"
+          style={{ paddingBottom: insets.bottom + 10 }}
+        >
           <TextInput
             ref={inputRef}
             value={text}
@@ -340,11 +343,12 @@ export default function AnfitrianaChat() {
             placeholder="Escribe un mensaje..."
             placeholderTextColor="rgba(246,193,106,0.5)"
             multiline
-            style={styles.input}
+            className="flex-1 bg-[#1a0208] text-white rounded-[22px] px-[14px] py-[10px] text-sm border border-[rgba(246,193,106,0.18)]"
+            style={{ maxHeight: 100 }}
           />
 
           {/* Emoji */}
-          <TouchableOpacity style={styles.iconBtn} onPress={toggleEmoji}>
+          <TouchableOpacity className="p-1" onPress={toggleEmoji}>
             <Ionicons
               name={showEmoji ? 'happy' : 'happy-outline'}
               size={22}
@@ -354,17 +358,28 @@ export default function AnfitrianaChat() {
 
           {/* Lock toggle */}
           <TouchableOpacity
-            style={[styles.lockBtn, isLocked && styles.lockBtnActive]}
+            className="w-9 h-9 rounded-full items-center justify-center"
+            style={isLocked
+              ? { backgroundColor: 'rgba(246,193,106,0.15)', borderWidth: 1, borderColor: 'rgba(246,193,106,0.4)' }
+              : { backgroundColor: 'rgba(255,255,255,0.07)' }
+            }
             onPress={() => setIsLocked((v) => !v)}
           >
-            <Text style={styles.lockBtnIcon}>{isLocked ? '🔒' : '🔓'}</Text>
+            <Text style={{ fontSize: 17 }}>{isLocked ? '🔒' : '🔓'}</Text>
           </TouchableOpacity>
 
           {/* Enviar */}
           <TouchableOpacity
             onPress={handleSend}
             disabled={sendDisabled}
-            style={[styles.sendBtn, sendDisabled && styles.sendBtnDisabled]}
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 20,
+              backgroundColor: sendDisabled ? 'rgba(209,27,27,0.3)' : '#D11B1B',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
           >
             <Ionicons name="arrow-up" size={18} color="white" />
           </TouchableOpacity>

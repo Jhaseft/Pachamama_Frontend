@@ -19,6 +19,7 @@ import { apiGetMyGallery, apiDeleteGalleryImage, apiSetFeaturedGalleryImage } fr
 import type { HistoryItem } from '@/src/types/anfitrionaHistory';
 import type { GalleryItem } from '@/src/types/gallery';
 import { useGalleryPublish } from '@/src/hooks/useGalleryPublish';
+import { useCreditRate } from '@/src/hooks/useCreditRate';
 import GalleryGrid from '@/src/components/anfitriona/gallery/GalleryGrid';
 import PublishGalleryModal from '@/src/components/anfitriona/gallery/PublishGalleryModal';
 import GalleryItemViewer from '@/src/components/anfitriona/gallery/GalleryItemViewer';
@@ -26,8 +27,6 @@ import EditGalleryImageModal from '@/src/components/anfitriona/gallery/EditGalle
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const CREDITS_TO_SOLES = 0.1;
-const toSoles = (credits: number) => (credits * CREDITS_TO_SOLES).toFixed(2);
 
 const GOLD_BORDER = [
   '#F6C16A', '#FFE5A0', '#F6C16A', '#C9933A',
@@ -75,6 +74,7 @@ function AnimatedBorderCard({
 export default function AnfitrionaDashboard() {
   const { logout } = useAuth();
   const router = useRouter();
+  const { toSoles } = useCreditRate();
   const [stories, setStories] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
