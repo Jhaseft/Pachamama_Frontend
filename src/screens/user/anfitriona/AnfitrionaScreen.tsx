@@ -1,6 +1,7 @@
 // screens/AnfitrionaScreen.tsx
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator } from 'react-native';
+import { useRouter } from 'expo-router';
 import { apiGetAllAnfitriona, apiToggleAnfitrionaStatus } from '../../../api/anfitriona';
 import { UserClientData } from '../../../types/userClient';
 import { AnfitrionaItem } from '../../../components/user/AnfitrionaItem';
@@ -8,6 +9,7 @@ import SearchInput from '../../../components/SearchInput';
 import HeaderBack from '../../../components/HeaderBack';
 
 export default function AnfitrionaScreen() {
+    const router = useRouter();
     const [anfitrionas, setAnfitrionas] = useState<UserClientData[]>([]);
     const [search, setSearch] = useState('');
     const [nextCursor, setNextCursor] = useState<string | null>(null);
@@ -123,7 +125,16 @@ export default function AnfitrionaScreen() {
                             phone={item.phoneNumber ?? ''}
                             status={item.isActive ? 'activa' : 'inactiva'}
                             onStatusChange={() => handleStatusChange(item)}
-                            onEdit={() => { }}
+                            onEdit={() => router.push({
+                            pathname: '/(app)/editar-anfitriona',
+                            params: {
+                                id: item.id,
+                                firstName: item.firstName ?? '',
+                                lastName: item.lastName ?? '',
+                                username: (item as any).username ?? '',
+                                bio: (item as any).bio ?? '',
+                            },
+                        })}
                         />
                     )}
                     onEndReached={handleLoadMore}

@@ -28,6 +28,15 @@ export const apiGetAllAnfitriona = async (
   }
 };
 
+// EDITAR PERFIL DE ANFITRIONA (admin)
+export const apiAdminUpdateAnfitrionaProfile = async (
+  id: string,
+  payload: { firstName?: string; lastName?: string; username?: string; bio?: string },
+) => {
+  const response = await apiClient.patch(`/admin/anfitrionas/${id}/profile`, payload);
+  return response.data;
+};
+
 // CAMBIAR ESTADO
 export const apiToggleAnfitrionaStatus = async (
   id: string,
