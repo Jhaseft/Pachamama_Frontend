@@ -283,7 +283,7 @@ export default function AnfitrioneProfileScreen() {
 
   const callPrice = getPrice("CALL");
   const videoPrice = getPrice("VIDEO_CALL");
-  const chatPrice = profile?.rateCredits ?? getPrice("MESSAGE");
+  const chatPrice = getPrice("MESSAGE_SEND");
 
   const publicImages = profile?.galleryImages.filter(
     (img) => !img.isPremium || img.isUnlockedByViewer
