@@ -14,6 +14,7 @@ import { apiGetAllPackages, apiDeletePackage } from '../api/package';
 import { PackageData } from '../types/package';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useAuth } from '../context/AuthContext';
+import { useCreditRate } from '../hooks/useCreditRate';
 
 export default function AdminDashboard() {
 
@@ -26,6 +27,7 @@ export default function AdminDashboard() {
   const [notificationsEnabled, setNotificationsEnabled] = useState<boolean | null>(null);
 
   const { logout } = useAuth();
+  const { toSoles } = useCreditRate();
 
   const [stats, setStats] = useState({
     ganancias: 0,
@@ -166,7 +168,7 @@ export default function AdminDashboard() {
 
         <View className="bg-[#A11213] border border-gray-50/50 p-2 rounded-[30px] mb-4 items-center shadow-xl">
           <Text className="text-white text-lg font-bold mb-1 italic">Ganancias acumuladas</Text>
-          <Text className="text-green-500 text-4xl font-black">{`${stats.ganancias} Soles`}</Text>
+          <Text className="text-green-500 text-4xl font-black">{`${toSoles(stats.ganancias)} Soles`}</Text>
         </View>
 
         <View className="flex-row flex-wrap justify-between">

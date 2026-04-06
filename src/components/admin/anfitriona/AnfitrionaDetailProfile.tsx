@@ -1,6 +1,7 @@
 import { View, Text, Image, ActivityIndicator } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { AnfitrionaStats } from '../../../api/stats';
+import { useCreditRate } from '../../../hooks/useCreditRate';
 
 interface Props {
     firstName: string;

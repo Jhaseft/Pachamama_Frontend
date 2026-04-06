@@ -28,11 +28,18 @@ type ServiceConfig = {
 
 const SERVICES: ServiceConfig[] = [
   {
-    type: 'MESSAGE',
-    label: 'Mensaje Bloqueado',
-    description: 'Por cada respuesta con candado',
+    type: 'MESSAGE_SEND',
+    label: 'Costo por mensaje',
+    description: 'Créditos que el cliente paga al enviarte un mensaje',
     unit: 'créditos',
-    icon: <MaterialCommunityIcons name="message-lock" size={24} color="white" />,
+    icon: <MaterialCommunityIcons name="message-text" size={24} color="white" />,
+  },
+  {
+    type: 'MESSAGE',
+    label: 'Regalo',
+    description: 'Por cada regalo enviado al cliente',
+    unit: 'créditos',
+    icon: <MaterialCommunityIcons name="gift" size={24} color="white" />,
   },
   {
     type: 'CALL',
@@ -57,6 +64,7 @@ export default function Precios() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [prices, setPrices] = useState<Record<ServiceType, string>>({
+    MESSAGE_SEND: '',
     MESSAGE: '',
     CALL: '',
     VIDEO_CALL: '',
@@ -69,7 +77,7 @@ export default function Precios() {
   const loadPrices = async () => {
     try {
       const data = await apiGetMyServicePrices();
-      const mapped: Record<ServiceType, string> = { MESSAGE: '', CALL: '', VIDEO_CALL: '' };
+      const mapped: Record<ServiceType, string> = { MESSAGE_SEND: '', MESSAGE: '', CALL: '', VIDEO_CALL: '' };
       data.forEach((sp) => {
         mapped[sp.serviceType] = String(sp.price);
       });
@@ -82,10 +90,11 @@ export default function Precios() {
   };
 
   const handleSave = async () => {
-    // Validar que los campos con valor sean números válidos
     for (const service of SERVICES) {
       const val = prices[service.type];
-      if (val !== '' && (isNaN(Number(val)) || Number(val) < 1)) {
+      if (val === '') continue;
+      const num = Number(val);
+      if (isNaN(num) || num <= 0) {
         Alert.alert('Error', `El precio de "${service.label}" debe ser un número mayor a 0.`);
         return;
       }

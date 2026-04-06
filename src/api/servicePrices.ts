@@ -1,6 +1,6 @@
 import apiClient from './client';
 
-export type ServiceType = 'MESSAGE' | 'CALL' | 'VIDEO_CALL';
+export type ServiceType = 'MESSAGE' | 'MESSAGE_SEND' | 'CALL' | 'VIDEO_CALL';
 
 export type ServicePrice = {
   id: string;

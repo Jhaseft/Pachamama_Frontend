@@ -7,6 +7,7 @@ import {
   sendMessageHttp,
   type Message,
 } from '@/src/api/messages';
+import { apiGetUserWallet } from '@/src/api/userClient';
 import { useSocket } from '@/hooks/useSocket';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
@@ -77,10 +78,15 @@ export default function AnfitrianaChat() {
   );
   const [kavKey, setKavKey] = useState(0);
   const [showEmoji, setShowEmoji] = useState(false);
+  const [clientCredits, setClientCredits] = useState<number | null>(null);
 
   const { onNewMessage } = useSocket(user?.id);
 
   useEffect(() => { void loadServicePrices(); }, []);
+
+  useEffect(() => {
+    if (otherUserId) void loadClientCredits();
+  }, [otherUserId]);
 
   useEffect(() => {
     const sub = AppState.addEventListener('change', (next: AppStateStatus) => {
@@ -119,6 +125,16 @@ export default function AnfitrianaChat() {
       activeChatRef.current = null;
     };
   }, [activeConversationId]);
+
+  async function loadClientCredits() {
+    if (!otherUserId) return;
+    try {
+      const wallet = await apiGetUserWallet(otherUserId);
+      setClientCredits(wallet.balance);
+    } catch {
+      // silencioso
+    }
+  }
 
   async function loadServicePrices() {
     try {
@@ -231,7 +247,14 @@ export default function AnfitrianaChat() {
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.headerName} numberOfLines={1}>{otherUserName ?? 'Chat'}</Text>
-            <Text style={styles.headerSub}>Cliente</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 2 }}>
+              <Text style={styles.headerSub}>Cliente</Text>
+              {clientCredits !== null && (
+                <View style={styles.creditsBadge}>
+                  <Text style={styles.creditsBadgeText}>🪙 {clientCredits} créditos</Text>
+                </View>
+              )}
+            </View>
           </View>
         </View>
       </View>
@@ -278,7 +301,7 @@ export default function AnfitrianaChat() {
                     {msg.isLocked && isOwn && (
                       <View style={styles.lockedLabel}>
                         <Text style={styles.lockedLabelText}>
-                          🔒 {msg.price != null ? `${msg.price} créditos` : 'Exclusivo'}
+                          🎁 {msg.price != null ? `${msg.price} créditos` : 'Regalo'}
                         </Text>
                       </View>
                     )}
@@ -306,11 +329,11 @@ export default function AnfitrianaChat() {
           />
         )}
 
-        {/* Aviso: lock sin precio configurado */}
+        {/* Aviso: regalo sin precio configurado */}
         {isLocked && messagePrice === null && (
           <View className="bg-[rgba(246,193,106,0.1)] border border-[rgba(246,193,106,0.3)] rounded-[10px] mx-3 mb-[6px] px-[14px] py-2">
             <Text className="text-[#F6C16A] text-xs text-center">
-              ⚠️ Configura el precio de mensajes en tu perfil para usar esta función
+              ⚠️ Configura el precio de regalos en tu perfil para usar esta función
             </Text>
           </View>
         )}
@@ -356,7 +379,7 @@ export default function AnfitrianaChat() {
             />
           </TouchableOpacity>
 
-          {/* Lock toggle */}
+          {/* Gift toggle */}
           <TouchableOpacity
             className="w-9 h-9 rounded-full items-center justify-center"
             style={isLocked
@@ -365,7 +388,7 @@ export default function AnfitrianaChat() {
             }
             onPress={() => setIsLocked((v) => !v)}
           >
-            <Text style={{ fontSize: 17 }}>{isLocked ? '🔒' : '🔓'}</Text>
+            <Text style={{ fontSize: 17 }}>{isLocked ? '🎁' : '🎀'}</Text>
           </TouchableOpacity>
 
           {/* Enviar */}
@@ -441,7 +464,19 @@ const styles = StyleSheet.create({
   headerSub: {
     color: 'rgba(246,193,106,0.6)',
     fontSize: 12,
-    marginTop: 2,
+  },
+  creditsBadge: {
+    backgroundColor: 'rgba(246,193,106,0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(246,193,106,0.35)',
+    borderRadius: 10,
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+  },
+  creditsBadgeText: {
+    color: '#F6C16A',
+    fontSize: 11,
+    fontWeight: '600',
   },
 
   // Loading / empty
