@@ -1,5 +1,6 @@
 import { View, Text, Image } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useCreditRate } from '../../../hooks/useCreditRate';
 
 interface Props {
     firstName: string;
@@ -12,8 +13,7 @@ interface Props {
 
 export default function AnfitrionaDetailProfile({ firstName, lastName, avatarUrl, isActive, isOnline, balance }: Props) {
 
-    const CREDITS_TO_SOLES = 0.1;
-    const toSoles = (balance: number) => (balance * CREDITS_TO_SOLES).toFixed(2);
+    const { toSoles } = useCreditRate();
 
 
     return (

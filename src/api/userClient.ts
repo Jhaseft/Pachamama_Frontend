@@ -60,6 +60,18 @@ export const apiGetConfig = async (): Promise<{ creditToSolesRate: number }> => 
     }
 };
 
+// OBTENER WALLET DE UN USUARIO ESPECÍFICO (solo anfitrionas/admin)
+export const apiGetUserWallet = async (userId: string): Promise<WalletResponse> => {
+    try {
+        const response = await apiClient.get(`users/${userId}/wallet`);
+        return response.data;
+    } catch (error: any) {
+        throw new Error(
+            parseApiError(error, 'No se pudo cargar el saldo del cliente')
+        );
+    }
+};
+
 // SERVICIOS DE BILLETERA
 export const apiGetMyWallet = async (): Promise<WalletResponse> => {
     try {

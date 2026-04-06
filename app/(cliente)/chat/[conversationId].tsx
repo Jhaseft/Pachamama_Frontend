@@ -187,9 +187,13 @@ export default function ChatScreen() {
       // Reemplazar el mensaje temporal con el real del servidor
       setMessages((prev) => prev.map((m) => m.id === tempId ? msg : m));
       setActiveConversationId(msg.conversationId);
-    } catch {
+    } catch (e: any) {
       setText(trimmed);
       setMessages((prev) => prev.filter((m) => m.id !== tempId));
+      const msg = e?.message ?? '';
+      if (msg.toLowerCase().includes('créditos')) {
+        Alert.alert('Sin créditos', 'No tienes créditos suficientes para enviar mensajes. Recarga tu cuenta.');
+      }
     } finally {
       setSending(false);
     }
@@ -197,12 +201,12 @@ export default function ChatScreen() {
 
   async function handleUnlock(messageId: string, price: number) {
     Alert.alert(
-      'Desbloquear mensaje',
-      `¿Quieres desbloquear este mensaje por ${price} crédito${price !== 1 ? 's' : ''}?`,
+      'Abrir regalo',
+      `¿Quieres abrir este regalo por ${price} crédito${price !== 1 ? 's' : ''}?`,
       [
         { text: 'Cancelar', style: 'cancel' },
         {
-          text: `Desbloquear (${price} créditos)`,
+          text: `Abrir regalo (${price} créditos)`,
           onPress: async () => {
             setUnlocking(messageId);
             try {
@@ -215,7 +219,7 @@ export default function ChatScreen() {
                 ),
               );
             } catch (e: any) {
-              Alert.alert('Error', e?.message ?? 'No se pudo desbloquear el mensaje');
+              Alert.alert('Error', e?.message ?? 'No se pudo abrir el regalo');
             } finally {
               setUnlocking(null);
             }
@@ -225,7 +229,7 @@ export default function ChatScreen() {
     );
   }
 
-  const msgPrice = getPrice('MESSAGE' as ServicePrice['serviceType']);
+  const msgPrice = getPrice('MESSAGE_SEND' as ServicePrice['serviceType']);
 
   const EMOJIS = [
     '😀','😂','🥰','😍','😘','😋','🤩','😊','😏','🥺',
@@ -361,12 +365,12 @@ export default function ChatScreen() {
                       }}
                     >
                       <View className="flex-row items-center gap-[6px] mb-[6px]">
-                        <Text className="text-lg">🔒</Text>
-                        <Text className="text-[rgba(246,193,106,0.9)] text-[13px] font-bold">Mensaje exclusivo</Text>
+                        <Text className="text-lg">🎁</Text>
+                        <Text className="text-[rgba(246,193,106,0.9)] text-[13px] font-bold">Regalo exclusivo</Text>
                       </View>
                       {msg.price != null && (
                         <Text className="text-[rgba(255,255,255,0.45)] text-xs mb-[10px] leading-4" numberOfLines={2}>
-                          Desbloquea para leer este mensaje
+                          Abre este regalo para ver el mensaje
                         </Text>
                       )}
                       <TouchableOpacity
@@ -378,7 +382,7 @@ export default function ChatScreen() {
                           <ActivityIndicator size="small" color="white" />
                         ) : (
                           <Text className="text-white text-xs font-bold">
-                            Desbloquear por {msg.price} crédito{msg.price !== 1 ? 's' : ''}
+                            Abrir regalo por {msg.price} crédito{msg.price !== 1 ? 's' : ''}
                           </Text>
                         )}
                       </TouchableOpacity>
@@ -393,7 +397,7 @@ export default function ChatScreen() {
                       }`}
                     >
                       {msg.isUnlocked && (
-                        <Text className="text-[#F6C16A] text-[10px] mb-[3px]">🔓 Desbloqueado</Text>
+                        <Text className="text-[#F6C16A] text-[10px] mb-[3px]">🎁 Regalo abierto</Text>
                       )}
                       <Text className="text-white text-[15px] leading-[21px]">{msg.text}</Text>
                       {isOwn ? (
