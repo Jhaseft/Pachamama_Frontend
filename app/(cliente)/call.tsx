@@ -1,6 +1,7 @@
 import { useAuth } from '@/src/context/AuthContext';
 import { useCallSocket, type CallType } from '@/hooks/useCallSocket';
 import { useAgoraCall } from '@/hooks/useAgoraCall';
+import { apiGetMyWallet } from '@/src/api/userClient';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import {
@@ -150,49 +151,98 @@ export default function ClientCallScreen() {
   const callSocket = useCallSocket(user?.id);
   const agora = useAgoraCall({ channelName: callId, uid, isVideo, enabled: callState === 'connected' });
 
+  const callEndedRef = useRef(false);
+
   useEffect(() => {
     if (!user?.id || !anfitrionaId) return;
 
-    callSocket.requestCall({
-      callId,
-      callerId: user.id,
-      receiverId: anfitrionaId,
-      callType: callType as CallType,
-      callerName: [user.firstName, user.lastName].filter(Boolean).join(' ') || 'Cliente',
-      callerAvatar: null,
-      pricePerMinute: price,
-    });
+    let active = true;
+    const unsubs: Array<() => void> = [];
 
-    const unsubAccepted = callSocket.onCallAccepted(() => {
-      setCallState('connected');
-      timerRef.current = setInterval(() => setSeconds((s) => s + 1), 1000);
-    });
-    const unsubRejected = callSocket.onCallRejected(() => {
-      setCallState('rejected');
-      setTimeout(() => router.back(), 2500);
-    });
-    const unsubEnded = callSocket.onCallEnded(() => {
-      setCallState('ended');
-      clearInterval(timerRef.current!);
+    const endCallNow = (reason: string) => {
+      if (callEndedRef.current) return;
+      callEndedRef.current = true;
+      callSocket.endCall(callId, anfitrionaId);
       agora.leave();
+      clearInterval(timerRef.current!);
+      Toast.show({ type: 'error', text1: 'Llamada finalizada', text2: reason, position: 'top', visibilityTime: 4000, topOffset: 60 });
+      setCallState('ended');
       setTimeout(() => router.back(), 3500);
-    });
-    const unsubBilled = callSocket.onCallBilled((data) => {
-      setBilling({ creditsCharged: data.creditsCharged, minutesBilled: data.minutesBilled });
-    });
+    };
 
-    const unsubWarning = callSocket.onCallWarning((data) => {
-      Toast.show({
-        type: 'error',
-        text1: '⚠️ Saldo bajo',
-        text2: `Te quedan ${data.balance} créditos`,
-        position: 'top',
-        visibilityTime: 4000,
-        topOffset: 60,
+    const setupListeners = () => {
+      callSocket.requestCall({
+        callId,
+        callerId: user.id,
+        receiverId: anfitrionaId,
+        callType: callType as CallType,
+        callerName: [user.firstName, user.lastName].filter(Boolean).join(' ') || 'Cliente',
+        callerAvatar: null,
+        pricePerMinute: price,
       });
-    });
 
-    return () => { unsubAccepted(); unsubRejected(); unsubEnded(); unsubBilled(); unsubWarning(); clearInterval(timerRef.current!); };
+      unsubs.push(
+        callSocket.onCallAccepted(() => {
+          setCallState('connected');
+          timerRef.current = setInterval(() => setSeconds((s) => s + 1), 1000);
+        }),
+        callSocket.onCallRejected(() => {
+          setCallState('rejected');
+          setTimeout(() => router.back(), 2500);
+        }),
+        callSocket.onCallEnded(() => {
+          callEndedRef.current = true;
+          setCallState('ended');
+          clearInterval(timerRef.current!);
+          agora.leave();
+          setTimeout(() => router.back(), 3500);
+        }),
+        callSocket.onCallBilled((data) => {
+          setBilling({ creditsCharged: data.creditsCharged, minutesBilled: data.minutesBilled });
+        }),
+        callSocket.onCallWarning((data) => {
+          if (data.balance <= 0) {
+            endCallNow('Se agotaron tus créditos');
+          } else {
+            Toast.show({
+              type: 'error',
+              text1: '⚠️ Saldo bajo',
+              text2: `Te quedan ${data.balance} crédito${data.balance !== 1 ? 's' : ''}`,
+              position: 'top',
+              visibilityTime: 4000,
+              topOffset: 60,
+            });
+          }
+        }),
+      );
+    };
+
+    apiGetMyWallet()
+      .then((wallet) => {
+        if (!active) return;
+        if (price > 0 && wallet.balance < price) {
+          Toast.show({
+            type: 'error',
+            text1: 'Saldo insuficiente',
+            text2: `Necesitas al menos ${price} crédito${price !== 1 ? 's' : ''} para llamar`,
+            position: 'top',
+            visibilityTime: 3500,
+            topOffset: 60,
+          });
+          setTimeout(() => router.back(), 2500);
+          return;
+        }
+        setupListeners();
+      })
+      .catch(() => {
+        if (active) setupListeners();
+      });
+
+    return () => {
+      active = false;
+      unsubs.forEach((u) => u());
+      clearInterval(timerRef.current!);
+    };
   }, [user?.id]);
 
   // Auto-ocultar controles en videollamada
@@ -216,6 +266,8 @@ export default function ClientCallScreen() {
   }
 
   function handleHangUp() {
+    if (callEndedRef.current) return;
+    callEndedRef.current = true;
     callSocket.endCall(callId, anfitrionaId);
     agora.leave();
     clearInterval(timerRef.current!);
