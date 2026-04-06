@@ -125,6 +125,7 @@ export default function ClientsScreen() {
                         <UserItem
                             name={`${item.firstName ?? ''} ${item.lastName ?? ''}`.trim()}
                             status={item.isActive ? 'activo' : 'suspendido'}
+                            balance={item.wallet?.balance}
                             onStatusChange={() => handleStatusChange(item)}
                             onAddCredits={() => { }}
                         />

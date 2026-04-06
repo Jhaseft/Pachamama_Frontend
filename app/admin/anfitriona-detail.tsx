@@ -1,8 +1,9 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { View, ScrollView, Alert, KeyboardAvoidingView, Platform, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { apiEditAnfitriona } from '@/src/api/anfitriona';
+import { getAnfitrionaStats, type AnfitrionaStats } from '@/src/api/stats';
 import AnfitrionaDetailHeader from '@/src/components/admin/anfitriona/AnfitrionaDetailHeader';
 import AnfitrionaDetailProfile from '@/src/components/admin/anfitriona/AnfitrionaDetailProfile';
 import AnfitrionaPhoneField, { parsePhone } from '@/src/components/admin/anfitriona/AnfitrionaPhoneField';
@@ -19,7 +20,12 @@ export default function AnfitrionaDetailScreen() {
 
     const isActive = params.isActive === 'true';
     const isOnline = params.isOnline === 'true';
-    const balance = parseFloat(params.balance ?? '0');
+
+    const [stats, setStats] = useState<AnfitrionaStats | null>(null);
+
+    useEffect(() => {
+        getAnfitrionaStats(params.id).then(setStats).catch(() => {});
+    }, [params.id]);
 
     const parsed = parsePhone(params.phoneNumber ?? '');
     const [countryCode, setCountryCode] = useState(parsed.code);
@@ -88,7 +94,7 @@ export default function AnfitrionaDetailScreen() {
                         avatarUrl={params.avatarUrl ?? ''}
                         isActive={isActive}
                         isOnline={isOnline}
-                        balance={balance}
+                        stats={stats}
                     />
 
                     <View className="bg-[#141414] rounded-2xl border border-zinc-800 overflow-hidden">

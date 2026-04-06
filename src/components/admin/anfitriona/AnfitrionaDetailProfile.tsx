@@ -1,5 +1,6 @@
-import { View, Text, Image } from 'react-native';
+import { View, Text, Image, ActivityIndicator } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { AnfitrionaStats } from '../../../api/stats';
 
 interface Props {
     firstName: string;
@@ -7,15 +8,10 @@ interface Props {
     avatarUrl: string;
     isActive: boolean;
     isOnline: boolean;
-    balance: number;
+    stats: AnfitrionaStats | null;
 }
 
-export default function AnfitrionaDetailProfile({ firstName, lastName, avatarUrl, isActive, isOnline, balance }: Props) {
-
-    const CREDITS_TO_SOLES = 0.1;
-    const toSoles = (balance: number) => (balance * CREDITS_TO_SOLES).toFixed(2);
-
-
+export default function AnfitrionaDetailProfile({ firstName, lastName, avatarUrl, isActive, isOnline, stats }: Props) {
     return (
         <>
             <View className="items-center mb-6">
@@ -43,15 +39,43 @@ export default function AnfitrionaDetailProfile({ firstName, lastName, avatarUrl
                 </View>
             </View>
 
-            <View className="flex-row items-center gap-3 bg-[#1a0505] rounded-2xl border border-[#A11B1B] p-4 mb-3">
-                <View className="w-9 h-9 rounded-xl bg-[#2d0a0a] items-center justify-center">
-                    <MaterialCommunityIcons name="wallet-outline" size={18} color="#A11B1B" />
+            {!stats ? (
+                <View className="items-center py-4 mb-3">
+                    <ActivityIndicator color="#A11B1B" />
                 </View>
-                <View>
-                    <Text className="text-zinc-500 text-[10px] uppercase tracking-widest">Saldo en Billetera</Text>
-                    <Text className="text-white text-[15px] font-semibold mt-0.5">{toSoles(balance)} soles</Text>
+            ) : (
+                <View className="gap-2 mb-3">
+                    <View className="flex-row items-center gap-3 bg-[#1a0505] rounded-2xl border border-[#A11B1B] p-4">
+                        <View className="w-9 h-9 rounded-xl bg-[#2d0a0a] items-center justify-center">
+                            <MaterialCommunityIcons name="wallet-outline" size={18} color="#A11B1B" />
+                        </View>
+                        <View className="flex-1">
+                            <Text className="text-zinc-500 text-[10px] uppercase tracking-widest">Saldo en Billetera</Text>
+                            <Text className="text-white text-[15px] font-semibold mt-2">
+                                Soles/ {stats.balance.soles}
+                                <Text className="text-zinc-500 text-xs"> ({stats.balance.credits} créditos)</Text>
+                            </Text>
+                        </View>
+                    </View>
+
+                    <Text className="text-white text-lg font-bold mt-2 italic">Ganancias en Soles</Text>
+
+                    <View className="flex-row gap-2">
+                        <View className="flex-1 bg-[#141414] rounded-2xl border border-zinc-800 p-3">
+                            <Text className="text-zinc-500 text-[10px] uppercase tracking-widest mb-1">Hoy</Text>
+                            <Text className="text-green-400 text-[15px] font-bold">{stats.earnings.today.soles}</Text>
+                        </View>
+                        <View className="flex-1 bg-[#141414] rounded-2xl border border-zinc-800 p-3">
+                            <Text className="text-zinc-500 text-[10px] uppercase tracking-widest mb-1">Este mes</Text>
+                            <Text className="text-green-400 text-[15px] font-bold">{stats.earnings.thisMonth.soles}</Text>
+                        </View>
+                        <View className="flex-1 bg-[#141414] rounded-2xl border border-zinc-800 p-3">
+                            <Text className="text-zinc-500 text-[10px] uppercase tracking-widest mb-1">Total</Text>
+                            <Text className="text-green-400 text-[15px] font-bold">{stats.earnings.total.soles}</Text>
+                        </View>
+                    </View>
                 </View>
-            </View>
+            )}
         </>
     );
 }
