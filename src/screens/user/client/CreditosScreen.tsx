@@ -78,7 +78,7 @@ export default function CreditosScreen() {
         <View style={styles.balancePill}>
           <Gem color="#60d4f7" size={30} strokeWidth={1.5} fill="#a8edfb" />
           <Text style={styles.balanceText}>{wallet?.balance ?? 0}</Text>
-        </View>
+        </View>r
 
         {/* Conversion info */}
         <Text style={styles.conversionText}>1 crédito = {creditRate} {creditRate === 1 ? 'sol' : 'soles'}</Text>

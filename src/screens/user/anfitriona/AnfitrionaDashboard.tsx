@@ -439,6 +439,30 @@ export default function AnfitrionaDashboard() {
             </Text>
           </TouchableOpacity>
 
+          {/* Botón Suscripciones */}
+          <AnimatedBorderCard borderColors={GOLD_BORDER} borderRadius={12}>
+            <TouchableOpacity
+              onPress={() => router.push('/(anfitriona)/subcripcion' as any)}
+              activeOpacity={0.8}
+              style={{
+                backgroundColor: '#1a0208', borderRadius: 10,
+                paddingVertical: 16, paddingHorizontal: 16,
+                flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
+              }}
+            >
+              <MaterialCommunityIcons name="crown" size={20} color="#F6C16A" />
+              <View>
+                <Text style={{ color: '#F6C16A', fontWeight: '800', fontSize: 15, letterSpacing: 0.5 }}>
+                  Suscripciones
+                </Text>
+                <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, marginTop: 1 }}>
+                  Gestiona tu plan de suscripción
+                </Text>
+              </View>
+              <MaterialCommunityIcons name="chevron-right" size={20} color="rgba(255,255,255,0.3)" style={{ marginLeft: 'auto' }} />
+            </TouchableOpacity>
+          </AnimatedBorderCard>
+
         </View>
 
         {/* ── Historias ── */}

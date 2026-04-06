@@ -5,6 +5,8 @@ import { apiGetPublicServicePrices, type ServicePrice } from "@/src/api/serviceP
 import { apiGetStoriesFeed } from "@/src/api/anfitrionaHistory";
 import type { HistoryFeedItem } from "@/src/types/historyViewClient";
 import type { AnfitrioneProfileDetail } from "@/src/types/anfitrionaProfile";
+import { apiGetPublicPlan, apiBuySubscription, apiGetSubscriptionStatus } from "@/src/api/subscriptions";
+import type { SubscriptionPlan, SubscriptionStatus } from "@/src/types/subscriptions";
 import { useAuth } from "@/src/context/AuthContext";
 import { useUnlockImage } from "@/src/hooks/useUnlockImage";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -14,6 +16,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   Animated,
   ActivityIndicator,
+  Alert,
   Image,
   Modal,
   PanResponder,
@@ -191,6 +194,10 @@ export default function AnfitrioneProfileScreen() {
   const [servicePrices, setServicePrices] = useState<ServicePrice[]>([]);
   const [viewingImage, setViewingImage] = useState<string | null>(null);
   const [storyFeedItem, setStoryFeedItem] = useState<HistoryFeedItem | null>(null);
+  const [subPlan, setSubPlan] = useState<SubscriptionPlan | null>(null);
+  const [subStatus, setSubStatus] = useState<SubscriptionStatus | null>(null);
+  const [showSubModal, setShowSubModal] = useState(false);
+  const [buying, setBuying] = useState(false);
 
   useEffect(() => { void loadProfile(); }, [id]);
 
@@ -208,6 +215,13 @@ export default function AnfitrioneProfileScreen() {
       setServicePrices(prices);
       const match = feed.find((item) => item.userId === id);
       setStoryFeedItem(match ?? null);
+      // Cargar plan y estado de suscripción en paralelo
+      const [plan, status] = await Promise.allSettled([
+        apiGetPublicPlan(id),
+        apiGetSubscriptionStatus(id),
+      ]);
+      if (plan.status === 'fulfilled') setSubPlan(plan.value);
+      if (status.status === 'fulfilled') setSubStatus(status.value);
     } catch {
       setError("No se pudo cargar el perfil. Verifica tu conexión.");
     } finally {
@@ -281,6 +295,36 @@ export default function AnfitrioneProfileScreen() {
     });
   };
 
+  const handleBuySubscription = async () => {
+    if (!id) return;
+    setBuying(true);
+    try {
+      const res = await apiBuySubscription(id);
+      setSubStatus({ isSubscribed: true, expiresAt: res.expiresAt });
+      setShowSubModal(false);
+      await loadProfile();
+    } catch (e: any) {
+      const msg = e?.response?.data?.message ?? e?.message ?? '';
+      const isInsufficient = msg.toLowerCase().includes('credit') || msg.toLowerCase().includes('saldo') || msg.toLowerCase().includes('insuf');
+      Alert.alert(
+        isInsufficient ? 'Saldo insuficiente' : 'Error',
+        isInsufficient
+          ? `Necesitas ${subPlan?.price} créditos para suscribirte. Recarga tu saldo e intenta de nuevo.`
+          : 'No se pudo completar la suscripción. Intenta de nuevo.',
+        isInsufficient
+          ? [
+              { text: 'Cancelar', style: 'cancel' },
+              { text: 'Recargar', onPress: () => { setShowSubModal(false); router.push('/(cliente)/credito'); } },
+            ]
+          : [{ text: 'OK' }]
+      );
+    } finally {
+      setBuying(false);
+    }
+  };
+
+  const isSubscribed = subStatus?.isSubscribed === true &&
+    (subStatus.expiresAt ? new Date(subStatus.expiresAt) > new Date() : true);
   const callPrice = getPrice("CALL");
   const videoPrice = getPrice("VIDEO_CALL");
   const chatPrice = profile?.rateCredits ?? getPrice("MESSAGE");
@@ -493,6 +537,57 @@ export default function AnfitrioneProfileScreen() {
               </View>
             </ScrollView>
 
+            {/* ── Suscripción ── */}
+            {subPlan ? (
+              <TouchableOpacity
+                onPress={() => !isSubscribed && setShowSubModal(true)}
+                activeOpacity={isSubscribed ? 1 : 0.85}
+                style={{
+                  borderRadius: 16,
+                  overflow: 'hidden',
+                  borderWidth: 1,
+                  borderColor: isSubscribed ? '#22c55e40' : '#F6C16A40',
+                }}
+              >
+                <LinearGradient
+                  colors={isSubscribed ? ['#0d1a00', '#0f2200'] : ['#1a1000', '#2a1a00']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14, gap: 12 }}
+                >
+                  <View style={{
+                    width: 42, height: 42, borderRadius: 12,
+                    backgroundColor: isSubscribed ? '#0d2200' : '#2a1a00',
+                    alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <MaterialCommunityIcons
+                      name={isSubscribed ? 'check-decagram' : 'crown'}
+                      size={22}
+                      color={isSubscribed ? '#22c55e' : '#F6C16A'}
+                    />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ color: isSubscribed ? '#22c55e' : '#F6C16A', fontWeight: '800', fontSize: 14 }}>
+                      {isSubscribed ? '✦ Suscrito' : 'Suscribirse al plan'}
+                    </Text>
+                    <Text style={{ color: 'rgba(255,255,255,0.45)', fontSize: 12, marginTop: 2 }}>
+                      {isSubscribed
+                        ? `Acceso activo · ${subPlan.price} cr/mes`
+                        : `${subPlan.price} créditos/mes · Acceso a la galeria de la anfitriona`}
+                    </Text>
+                  </View>
+                  {!isSubscribed && (
+                    <View style={{
+                      backgroundColor: '#F6C16A', borderRadius: 999,
+                      paddingHorizontal: 12, paddingVertical: 6,
+                    }}>
+                      <Text style={{ color: '#1a1000', fontWeight: '800', fontSize: 12 }}>Unirse</Text>
+                    </View>
+                  )}
+                </LinearGradient>
+              </TouchableOpacity>
+            ) : null}
+
             {/* ── CTA principal ── */}
             <TouchableOpacity
               onPress={handleChat}
@@ -633,6 +728,84 @@ export default function AnfitrioneProfileScreen() {
           </View>
         </ScrollView>
       )}
+
+      {/* Modal suscripción */}
+      <Modal visible={showSubModal} transparent animationType="slide" onRequestClose={() => setShowSubModal(false)}>
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end', paddingBottom: 40 }}>
+          <View style={{ backgroundColor: '#141414', borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, gap: 20 }}>
+
+            {/* Header */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <View style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: '#2a1a00', alignItems: 'center', justifyContent: 'center' }}>
+                <MaterialCommunityIcons name="crown" size={26} color="#F6C16A" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ color: 'white', fontWeight: '800', fontSize: 17 }}>Plan de suscripción</Text>
+                <Text style={{ color: '#6b7280', fontSize: 12, marginTop: 2 }}>Acceso mensual exclusivo</Text>
+              </View>
+              <TouchableOpacity onPress={() => setShowSubModal(false)} style={{ padding: 4 }}>
+                <MaterialCommunityIcons name="close" size={22} color="#6b7280" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Info precio */}
+            <View style={{ backgroundColor: '#0f0f0f', borderRadius: 16, padding: 16, gap: 10 }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Text style={{ color: '#9ca3af', fontSize: 13 }}>Anfitriona</Text>
+                <Text style={{ color: 'white', fontWeight: '700', fontSize: 13 }}>{profile?.name}</Text>
+              </View>
+              <View style={{ height: 1, backgroundColor: '#1f1f1f' }} />
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Text style={{ color: '#9ca3af', fontSize: 13 }}>Precio</Text>
+                <Text style={{ color: '#F6C16A', fontWeight: '800', fontSize: 16 }}>{subPlan?.price} créditos / mes</Text>
+              </View>
+              <View style={{ height: 1, backgroundColor: '#1f1f1f' }} />
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Text style={{ color: '#9ca3af', fontSize: 13 }}>Acceso</Text>
+                <Text style={{ color: 'white', fontSize: 13 }}>Contenido exclusivo 30 días</Text>
+              </View>
+            </View>
+
+            {/* Botones */}
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <TouchableOpacity
+                onPress={() => setShowSubModal(false)}
+                style={{
+                  flex: 1, borderRadius: 14, paddingVertical: 15,
+                  alignItems: 'center', backgroundColor: '#1f1f1f',
+                  borderWidth: 1, borderColor: '#2a2a2a',
+                }}
+              >
+                <Text style={{ color: '#9ca3af', fontWeight: '700', fontSize: 15 }}>Cancelar</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={handleBuySubscription}
+                disabled={buying}
+                activeOpacity={0.85}
+                style={{ flex: 2, borderRadius: 14, overflow: 'hidden' }}
+              >
+                <LinearGradient
+                  colors={['#b45309', '#F6C16A', '#b45309']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={{ paddingVertical: 15, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 }}
+                >
+                  {buying ? (
+                    <ActivityIndicator size={18} color="#1a1000" />
+                  ) : (
+                    <>
+                      <MaterialCommunityIcons name="crown" size={18} color="#1a1000" />
+                      <Text style={{ color: '#1a1000', fontWeight: '800', fontSize: 15 }}>Suscribirme</Text>
+                    </>
+                  )}
+                </LinearGradient>
+              </TouchableOpacity>
+            </View>
+
+          </View>
+        </View>
+      </Modal>
 
       {/* Visor de imagen con zoom */}
       <Modal visible={!!viewingImage} transparent animationType="fade" statusBarTranslucent>

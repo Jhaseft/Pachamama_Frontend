@@ -147,16 +147,19 @@ export default function ClienteInicio() {
     setLoadingMore(true);
     try {
       // Si ya no hay más páginas, volvemos a la página 1 (loop infinito)
-      const nextPage = hasMore.current ? page + 1 : 1;
+      const looping = !hasMore.current;
+      const nextPage = looping ? 1 : page + 1;
       const [result, saved] = await Promise.all([
         getPublicHostesses(nextPage),
         apiGetSavedAnfitrionas().catch(() => ({ data: [], nextCursor: null })),
       ]);
       const savedIds = new Set(saved.data.map((s) => s.id));
-      setAnfitrionas((prev) => [
-        ...prev,
-        ...result.anfitrionas.map((a) => ({ ...a, isFavorite: savedIds.has(a.id) })),
-      ]);
+      const newItems = result.anfitrionas.map((a) => ({ ...a, isFavorite: savedIds.has(a.id) }));
+      setAnfitrionas((prev) => {
+        if (looping) return newItems;
+        const existingIds = new Set(prev.map((a) => a.id));
+        return [...prev, ...newItems.filter((a) => !existingIds.has(a.id))];
+      });
       setPage(nextPage);
       hasMore.current = result.hasMore;
     } catch {

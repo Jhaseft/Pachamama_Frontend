@@ -66,7 +66,7 @@ export default function PostCard({ anfitriona, height }: Props) {
     router.push(`/(cliente)/anfitrionas/${anfitriona.id}/verperfil` as any);
   };
 
-  const featuredImage = anfitriona.images[0];
+  const featuredImage = anfitriona.images?.[0] || null;
 
   return (
     <View style={{ width: W, height: cardHeight }}>
@@ -75,11 +75,15 @@ export default function PostCard({ anfitriona, height }: Props) {
         onPress={handleProfilePress}
         style={{ flex: 1 }}
       >
-        <Image
-          source={{ uri: featuredImage }}
-          style={{ position: "absolute", width: "100%", height: "100%" }}
-          resizeMode="cover"
-        />
+        {featuredImage ? (
+          <Image
+            source={{ uri: featuredImage }}
+            style={{ position: "absolute", width: "100%", height: "100%" }}
+            resizeMode="cover"
+          />
+        ) : (
+          <View style={{ position: "absolute", width: "100%", height: "100%", backgroundColor: "#1a0505" }} />
+        )}
       </TouchableOpacity>
 
       <LinearGradient
@@ -98,7 +102,10 @@ export default function PostCard({ anfitriona, height }: Props) {
               width: 50, height: 50, borderRadius: 25,
               borderWidth: 2, borderColor: "white", overflow: "hidden",
             }}>
-              <Image source={{ uri: anfitriona.avatar }} style={{ width: "100%", height: "100%" }} />
+              <Image
+                source={anfitriona.avatar ? { uri: anfitriona.avatar } : require('../../assets/no_image.jpg')}
+                style={{ width: "100%", height: "100%" }}
+              />
             </View>
 
             {anfitriona.isOnline && (

@@ -22,6 +22,7 @@ import { getProfile } from "../../src/services/auth";
 import { apiGetMyEarnings, type EarningTransaction, type EarningsData } from "../../src/api/wallet";
 import { getChats } from "../../src/api/messages";
 import { useCreditRate } from "../../src/hooks/useCreditRate";
+import SubscriptionBanner from "../../src/components/anfitriona/SubscriptionBanner";
 
 // ─── AnimatedBorderCard ───────────────────────────────────────────────────────
 
@@ -433,6 +434,8 @@ export default function AnfitrianaInicio() {
             </Pressable>
 
           </View>
+
+          <SubscriptionBanner />
 
           {/* ── Actividad reciente ── */}
           <Text style={{ color: "white", fontSize: 17, fontWeight: "700", marginBottom: 12 }}>

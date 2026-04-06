@@ -81,6 +81,10 @@ export default function ClientePerfil() {
       onPress: () => router.push("/(cliente)/historial" as any),
     },
     {
+      label: "Mis suscripciones",
+      onPress: () => router.push("/(cliente)/mis-suscripciones" as any),
+    },
+    {
       label: notificationsEnabled === null
         ? "Notificaciones"
         : notificationsEnabled
