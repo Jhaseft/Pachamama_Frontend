@@ -327,7 +327,7 @@ export default function AnfitrioneProfileScreen() {
     (subStatus.expiresAt ? new Date(subStatus.expiresAt) > new Date() : true);
   const callPrice = getPrice("CALL");
   const videoPrice = getPrice("VIDEO_CALL");
-  const chatPrice = profile?.rateCredits ?? getPrice("MESSAGE");
+  const chatPrice = getPrice("MESSAGE_SEND");
 
   const publicImages = profile?.galleryImages.filter(
     (img) => !img.isPremium || img.isUnlockedByViewer

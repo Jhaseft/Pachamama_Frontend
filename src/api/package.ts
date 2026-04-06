@@ -60,3 +60,13 @@ export const apiGetPackageById = async (id: string) => {
     throw new Error(parseApiError(error, 'No se pudo obtener la informacion del paquete'));
   }
 };
+
+// CREAR PAGO FLOW
+export const apiFlowCreatePayment = async (packageId: string): Promise<{ paymentUrl: string }> => {
+  try {
+    const response = await apiClient.post('/flow/create', { packageId });
+    return response.data;
+  } catch (error: any) {
+    throw new Error(parseApiError(error, 'No se pudo iniciar el pago'));
+  }
+};
