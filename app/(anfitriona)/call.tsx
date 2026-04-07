@@ -153,8 +153,8 @@ export default function AnfitrianaCallScreen() {
           />
         )}
 
-        {/* ── Video local PiP ── */}
-        {isVideo && (
+        {/* ── Video local PiP — aparece solo cuando el video remoto ya está cargado ── */}
+        {isVideo && agora.remoteUid !== null && (
           <View style={{
             position: 'absolute',
             top: insets.top + 16,
@@ -171,16 +171,17 @@ export default function AnfitrianaCallScreen() {
             elevation: 10,
             zIndex: 10,
           }}>
-            {agora.cameraOff ? (
-              <View style={{ flex: 1, backgroundColor: '#1a0208', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+            {/* RtcSurfaceView siempre montado — desmontarlo causa crash en Android
+                ("child already has a parent"). El overlay controla la visibilidad. */}
+            <RtcSurfaceView
+              canvas={{ uid: 0, sourceType: VideoSourceType.VideoSourceCamera }}
+              style={{ flex: 1 }}
+            />
+            {agora.cameraOff && (
+              <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#1a0208', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                 <Ionicons name="videocam-off" size={28} color="rgba(255,255,255,0.5)" />
                 <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 10 }}>Cámara apagada</Text>
               </View>
-            ) : (
-              <RtcSurfaceView
-                canvas={{ uid: 0, sourceType: VideoSourceType.VideoSourceCamera }}
-                style={{ flex: 1 }}
-              />
             )}
             <View style={{
               position: 'absolute', bottom: 6, left: 0, right: 0,
@@ -258,15 +259,13 @@ export default function AnfitrianaCallScreen() {
                   onPress={agora.toggleMute}
                   active={agora.muted}
                 />
-                {!isVideo && (
-                  <ControlBtn
-                    icon={agora.speakerOn ? 'volume-high' : 'volume-medium'}
-                    label={agora.speakerOn ? 'Auricular' : 'Altavoz'}
-                    onPress={agora.toggleSpeaker}
-                    active={agora.speakerOn}
-                    activeColor="#2563eb"
-                  />
-                )}
+                <ControlBtn
+                  icon={agora.speakerOn ? 'volume-high' : 'volume-medium'}
+                  label={agora.speakerOn ? 'Auricular' : 'Altavoz'}
+                  onPress={agora.toggleSpeaker}
+                  active={agora.speakerOn}
+                  activeColor="#2563eb"
+                />
                 {isVideo && (
                   <>
                     <ControlBtn
