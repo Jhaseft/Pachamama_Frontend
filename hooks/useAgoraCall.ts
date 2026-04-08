@@ -11,7 +11,7 @@ import { getAgoraToken } from '../src/api/calls';
 import { AGORA_APP_ID } from '../src/config';
 
 async function requestPermissions(isVideo: boolean): Promise<boolean> {
-  if (Platform.OS !== 'android') return true; // iOS pide sola al primer uso
+  if (Platform.OS !== 'android') return true;
 
   const perms: (keyof typeof PermissionsAndroid.PERMISSIONS)[] = ['RECORD_AUDIO'];
   if (isVideo) perms.push('CAMERA');
@@ -38,15 +38,18 @@ interface UseAgoraCallOptions {
 }
 
 export function useAgoraCall({ channelName, uid, isVideo, enabled }: UseAgoraCallOptions) {
-  const engineRef   = useRef<IRtcEngine | null>(null);
-  const handlerRef  = useRef<IRtcEngineEventHandler | null>(null);
-  const cancelRef   = useRef(false);
+  const engineRef  = useRef<IRtcEngine | null>(null);
+  const handlerRef = useRef<IRtcEngineEventHandler | null>(null);
+  const cancelRef  = useRef(false);
 
-  const [joined,     setJoined]     = useState(false);
-  const [remoteUid,  setRemoteUid]  = useState<number | null>(null);
-  const [muted,      setMuted]      = useState(false);
-  const [cameraOff,  setCameraOff]  = useState(false);
-  const [speakerOn,  setSpeakerOn]  = useState(isVideo); // video → speaker por defecto
+  const [joined,    setJoined]    = useState(false);
+  const [remoteUid, setRemoteUid] = useState<number | null>(null);
+  const [muted,     setMuted]     = useState(false);
+  // cameraOff controla solo el overlay visual y muteLocalVideoStream.
+  // El RtcSurfaceView SIEMPRE está montado para evitar el crash
+  // "child already has a parent" de Android al desmontar/remontar vistas de Agora.
+  const [cameraOff, setCameraOff] = useState(false);
+  const [speakerOn, setSpeakerOn] = useState(true);
 
   useEffect(() => {
     if (!enabled) return;
@@ -75,11 +78,22 @@ export function useAgoraCall({ channelName, uid, isVideo, enabled }: UseAgoraCal
         channelProfile: ChannelProfileType.ChannelProfileCommunication,
       });
 
-      // Guardar referencia al handler para poder desregistrarlo luego
       const handler: IRtcEngineEventHandler = {
         onJoinChannelSuccess: (connection) => {
           console.log('[Agora] Joined channel:', connection.channelId);
           setJoined(true);
+
+          if (isVideo) {
+            // El RtcSurfaceView ya está montado (siempre).
+            // Activar la cámara con un pequeño delay para que Agora
+            // haya terminado de inicializar el canal.
+            setTimeout(() => {
+              if (cancelRef.current) return;
+              engine.enableLocalVideo(true);
+              engine.muteLocalVideoStream(false);
+              engine.startPreview();
+            }, 300);
+          }
         },
         onUserJoined: (_connection, rUid) => {
           console.log('[Agora] Remote user joined:', rUid);
@@ -96,17 +110,15 @@ export function useAgoraCall({ channelName, uid, isVideo, enabled }: UseAgoraCal
       handlerRef.current = handler;
       engine.registerEventHandler(handler);
 
-      // Activar audio/video antes de unirse al canal
       engine.enableAudio();
       if (isVideo) {
         engine.enableVideo();
-        engine.startPreview();
+        engine.enableLocalVideo(true);
+        engine.muteLocalVideoStream(true); // Silenciar hasta que el canal esté listo
       }
 
-      // Solicitar token al backend
       const { token } = await getAgoraToken(channelName, uid);
 
-      // Si el efecto se limpió mientras esperábamos el token, liberar y salir
       if (cancelRef.current) {
         engine.release();
         engineRef.current = null;
@@ -121,8 +133,10 @@ export function useAgoraCall({ channelName, uid, isVideo, enabled }: UseAgoraCal
         autoSubscribeVideo: isVideo,
       });
 
-      // Video → altavoz por defecto; voz → auricular por defecto
-      engine.setEnableSpeakerphone(isVideo);
+      // Altavoz siempre activo al máximo volumen
+      engine.setEnableSpeakerphone(true);
+      engine.adjustPlaybackSignalVolume(400);
+      engine.adjustRecordingSignalVolume(100);
     } catch (e) {
       console.error('[Agora] Setup failed:', e);
     }
@@ -153,6 +167,11 @@ export function useAgoraCall({ channelName, uid, isVideo, enabled }: UseAgoraCal
   function toggleCamera() {
     const next = !cameraOff;
     engineRef.current?.muteLocalVideoStream(next);
+    if (!next) {
+      // Al reactivar: asegurarse de que el preview esté corriendo
+      engineRef.current?.enableLocalVideo(true);
+      engineRef.current?.startPreview();
+    }
     setCameraOff(next);
   }
 

@@ -3,7 +3,7 @@ import { toggleAnfitrianaLike } from "@/src/services/hostesses";
 import { apiToggleSavedAnfitriona } from "@/src/api/savedAnfitriona";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { Bookmark, Diamond, Flame, Heart } from "lucide-react-native";
+import { Bookmark, Diamond, Flame, Heart, MessageCircle } from "lucide-react-native";
 import { useRef, useState } from "react";
 import { Image, Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
 
@@ -64,6 +64,18 @@ export default function PostCard({ anfitriona, height }: Props) {
 
   const handleProfilePress = () => {
     router.push(`/(cliente)/anfitrionas/${anfitriona.id}/verperfil` as any);
+  };
+
+  const handleChat = () => {
+    router.push({
+      pathname: "/(cliente)/chat/[conversationId]" as any,
+      params: {
+        conversationId: "new",
+        otherUserId: anfitriona.id,
+        otherUserName: anfitriona.username ?? anfitriona.name,
+        otherUserAvatar: anfitriona.avatar ?? "",
+      },
+    });
   };
 
   const featuredImage = anfitriona.images?.[0] || null;
@@ -155,7 +167,7 @@ export default function PostCard({ anfitriona, height }: Props) {
       </View>
 
 
-      <View style={{ position: "absolute", bottom: 20, left: 12, right: 80 }}>
+      <View style={{ position: "absolute", bottom: 76, left: 12, right: 80 }}>
         <Text style={{ color: "white", fontWeight: "bold", fontSize: 18 }}>
           @{anfitriona.username ?? anfitriona.name}
         </Text>
@@ -173,6 +185,35 @@ export default function PostCard({ anfitriona, height }: Props) {
           </View>
         </View>
       </View>
+
+      {/* Botón Chatear ahora — ancho completo */}
+      <TouchableOpacity
+        onPress={handleChat}
+        activeOpacity={0.85}
+        style={{
+          position: "absolute",
+          bottom: 20,
+          left: 12,
+          right: 12,
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "#D11B1B",
+          borderRadius: 999,
+          paddingVertical: 12,
+          gap: 7,
+          shadowColor: "#D11B1B",
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.45,
+          shadowRadius: 8,
+          elevation: 6,
+        }}
+      >
+        <MessageCircle size={17} color="white" fill="white" />
+        <Text style={{ color: "white", fontWeight: "800", fontSize: 15, letterSpacing: 0.3 }}>
+          Chatear ahora
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 }
