@@ -8,7 +8,7 @@ import {
   ScrollView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { Link, router } from "expo-router";
 import Screen from "../../components/Screen";
 import TextField from "../../components/TextField";
 import PrimaryButton from "../../components/PrimaryButton";
@@ -111,8 +111,18 @@ export default function LoginHostess() {
             disabled={loading}
           />
 
+          <Link
+            asChild
+            href={'(auth)/register-anfitriona'}
+          >
+            <Text className="text-white/60 text-lg mt-3 text-center">
+              ¿No tienes cuenta?{" "}
+              <Text className="underline font-semibold">Regístrate aquí</Text>
+            </Text>
+          </Link>
+
           <Pressable
-            onPress={() => router.push("/(auth)/forgot-password")}
+            onPress={() => router.push({ pathname: "/(auth)/forgot-password", params: { role: "anfitriona" } })}
             className="mt-4"
           >
             <Text className="text-white/60 text-center underline">
@@ -120,15 +130,6 @@ export default function LoginHostess() {
             </Text>
           </Pressable>
 
-          <View className="mt-4 rounded-2xl border border-white/20 bg-[#D9D9D9] px-4 py-3">
-            <Text className="text-black text-base font-semibold text-center">
-              Solo cuentas aprobadas
-            </Text>
-            <Text className="text-black text-sm text-center mt-2">
-              Acceso exclusivo para anfitrionas verificadas y aprobadas por la
-              administración.
-            </Text>
-          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </Screen>

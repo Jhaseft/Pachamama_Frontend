@@ -82,7 +82,7 @@ export const AnfitrionaItem = ({ item, onStatusChange, onEdit }: AnfitrionaItemP
                     <ActivityIndicator size={10} color="#A11B1B" />
                 ) : (
                     <>
-                        <Text className="text-white text-[12px] font-bold">S/ {balance.soles}</Text>
+                        <Text className="text-white text-[12px] font-bold">Soles/ {balance.soles}</Text>
                         <Text className="text-zinc-600 text-[11px]">({balance.credits} créditos)</Text>
                     </>
                 )}

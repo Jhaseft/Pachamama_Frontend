@@ -32,6 +32,7 @@ export default function AnfitrionaScreen() {
                 rateCredits: String(item.anfitrionaProfile?.rateCredits ?? 0),
                 isOnline: String(item.anfitrionaProfile?.isOnline ?? false),
                 email: item.email ?? '',
+                idDocUrl: item.anfitrionaProfile?.idDocUrl ?? '',
             },
         });
     };

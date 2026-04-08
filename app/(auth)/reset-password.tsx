@@ -14,7 +14,8 @@ import PrimaryButton from "../../components/PrimaryButton";
 import { resetPassword } from "../../src/services/auth";
 
 export default function ResetPassword() {
-  const { email } = useLocalSearchParams<{ email: string }>();
+  const { email, role } = useLocalSearchParams<{ email: string; role?: string }>();
+  const roleValue = Array.isArray(role) ? role[0] : role || "client";
   const [code, setCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -50,7 +51,8 @@ export default function ResetPassword() {
       setLoading(true);
       setError("");
       await resetPassword(email ?? "", trimmedCode, trimmedPassword);
-      router.replace("/(auth)/login-client");
+      const loginRoute = roleValue === "anfitriona" ? "/(auth)/login-hostess" : "/(auth)/login-client";
+      router.replace(loginRoute);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "No se pudo restablecer la contraseña.";

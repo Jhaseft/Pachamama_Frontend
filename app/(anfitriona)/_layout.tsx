@@ -47,7 +47,9 @@ export default function AnfitrianaLayout() {
     pathname.includes("/chat/") ||
     pathname.includes("/precios") ||
     pathname.includes("/call") ||
-    pathname.includes("/vista-previa");
+
+    pathname.includes("/vista-previa") ||
+    pathname.includes("/terminos");
 
   const [incomingCall, setIncomingCall] = useState<IncomingCallData | null>(null);
   const slideAnim = useRef(new Animated.Value(600)).current;

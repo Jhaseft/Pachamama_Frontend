@@ -14,6 +14,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import Screen from "../../components/Screen";
 import PrimaryButton from "../../components/PrimaryButton";
 import { sendOtp, verifyOtp } from "../../src/services/auth";
+import { apiSendOtp, apiVerifyOtp } from "../../src/api/registerAnfitriona";
 import { useAuth } from "../../src/context/AuthContext";
 import { removeTempToken, setTempToken } from "../../src/storage/authStorage";
 
@@ -50,17 +51,32 @@ export default function Otp() {
   };
 
   const handleVerify = async () => {
-    if (roleValue !== "client") {
-      if (roleValue === "hostess") {
-        router.replace("/(app)/home-hostess");
-        return;
-      }
-      router.replace("/(auth)/profile");
+    if (roleValue === "hostess") {
+      router.replace("/(app)/home-hostess");
       return;
     }
 
     if (code.length < 6) {
       setError("Ingresa el c\u00f3digo completo.");
+      return;
+    }
+
+    if (roleValue === "anfitriona") {
+      try {
+        setLoading(true);
+        setError("");
+        const result = await apiVerifyOtp({ phoneNumber: phoneValue, code });
+        if (!result.needsProfile) {
+          setError("Este número ya tiene una cuenta registrada.");
+          return;
+        }
+        await setTempToken(result.tempToken);
+        router.replace("/(auth)/profile-anfitriona");
+      } catch (err: any) {
+        setError(typeof err === "string" ? err : "No se pudo verificar el código.");
+      } finally {
+        setLoading(false);
+      }
       return;
     }
 
@@ -90,6 +106,19 @@ export default function Otp() {
   };
 
   const handleResend = async () => {
+    if (roleValue === "anfitriona") {
+      try {
+        setResending(true);
+        await apiSendOtp({ phoneNumber: phoneValue });
+        Alert.alert("Reenviar", "Código reenviado");
+      } catch (err: any) {
+        setError(typeof err === "string" ? err : "No se pudo reenviar el código.");
+      } finally {
+        setResending(false);
+      }
+      return;
+    }
+
     if (roleValue !== "client") {
       Alert.alert("Reenviar", "Codigo reenviado");
       return;

@@ -7,13 +7,15 @@ import {
   ScrollView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import Screen from "../../components/Screen";
 import TextField from "../../components/TextField";
 import PrimaryButton from "../../components/PrimaryButton";
 import { forgotPassword } from "../../src/services/auth";
 
 export default function ForgotPassword() {
+  const { role } = useLocalSearchParams<{ role?: string }>();
+  const roleValue = Array.isArray(role) ? role[0] : role || "client";
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -38,7 +40,7 @@ export default function ForgotPassword() {
       await forgotPassword(trimmedEmail);
       router.push({
         pathname: "/(auth)/reset-password",
-        params: { email: trimmedEmail },
+        params: { email: trimmedEmail, role: roleValue },
       });
     } catch (err) {
       const message =

@@ -29,5 +29,7 @@ export interface UserAnfitrionaData {
         bio: string;
         rateCredits: number;
         isOnline: boolean;
+        idDocUrl?: string;
+        idDocPublicId?: string;
     }
 }

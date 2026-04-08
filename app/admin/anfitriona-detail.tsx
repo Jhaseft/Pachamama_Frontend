@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { View, ScrollView, Alert, KeyboardAvoidingView, Platform, Text } from 'react-native';
+import { View, ScrollView, Alert, KeyboardAvoidingView, Platform, Text, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { apiEditAnfitriona } from '@/src/api/anfitriona';
 import { getAnfitrionaStats, type AnfitrionaStats } from '@/src/api/stats';
@@ -16,6 +16,7 @@ export default function AnfitrionaDetailScreen() {
         id: string; firstName: string; lastName: string; phoneNumber: string;
         isActive: string; balance: string; username: string; avatarUrl: string;
         bio: string; rateCredits: string; isOnline: string; email: string;
+        idDocUrl: string;
     }>();
 
     const isActive = params.isActive === 'true';
@@ -109,11 +110,31 @@ export default function AnfitrionaDetailScreen() {
                         <AnfitrionaEditField label="Biografía" icon="text-box-outline" value={form.bio} editing={editing} onChange={(v) => setForm(p => ({ ...p, bio: v }))} multiline />
                         <AnfitrionaEditField label="Créditos de Calificación" icon="diamond-stone" value={form.rateCredits} editing={editing} onChange={(v) => setForm(p => ({ ...p, rateCredits: v }))} keyboardType="numeric" />
                         <AnfitrionaEditField label="Email" icon="email-outline" value={form.email} editing={editing} onChange={(v) => setForm(p => ({ ...p, email: v }))} keyboardType="email-address" isLast />
+            
+                        
                     </View>
 
                     <Text className="text-zinc-500 text-center py-4">
                         Puedes actualizar la información de la anfitriona utilizando el modo edición.
                     </Text>
+
+                    {params.idDocUrl ? (
+                        <View className="bg-[#141414] rounded-2xl border border-zinc-800 p-4 mb-4">
+                            <Text className="text-zinc-400 text-xs uppercase tracking-widest mb-3">Documento de identidad</Text>
+                            <Image
+                                source={{ uri: params.idDocUrl }}
+                                style={{ width: '100%', height: 220, borderRadius: 12, backgroundColor: '#222' }}
+                                resizeMode="contain"
+                                onLoad={() => console.log('[img] cargada:', params.idDocUrl)}
+                                onError={(e) => console.log('[img error]', e.nativeEvent.error)}
+                            />
+                        </View>
+                    ) : (
+                        <View className="bg-[#141414] rounded-2xl border border-zinc-800 p-4 mb-4 items-center">
+                            <Text className="text-zinc-400 text-xs uppercase tracking-widest mb-2">Documento de identidad</Text>
+                            <Text className="text-zinc-600 text-sm">No se ha subido ningún documento</Text>
+                        </View>
+                    )}
 
                 </ScrollView>
             </View>
