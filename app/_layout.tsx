@@ -32,7 +32,7 @@ function BackHandlerGuard() {
 
 export default function Layout() {
   const insets = useSafeAreaInsets();
-  //usePreventScreenCapture();
+  usePreventScreenCapture();
   return (
     <VersionGuard>
       <AuthProvider>
