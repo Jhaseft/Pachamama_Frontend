@@ -1,4 +1,5 @@
 import { apiFetch } from '../services/api';
+import apiClient from './client';
 
 export interface Chat {
   conversationId: string;
@@ -15,11 +16,20 @@ export interface Message {
   conversationId: string;
   senderId: string;
   text: string | null;
+  imageUrl?: string | null;
+  imagePublicId?: string | null;
   read: boolean;
   isLocked: boolean;
   price: number | null;
   isUnlocked: boolean;
   createdAt: string;
+}
+
+export interface UnlockedImage {
+  id: string;
+  imageUrl: string;
+  creditsSpent: number;
+  unlockedAt: string;
 }
 
 export interface ServicePrice {
@@ -63,4 +73,34 @@ export function markAsRead(conversationId: string, userId: string) {
     method: 'POST',
     body: JSON.stringify({ conversationId, userId }),
   });
+}
+
+// POST /messages/image — solo anfitriona puede enviar imágenes
+export async function sendImageHttp(
+  receiverId: string,
+  file: { uri: string; type: string; name: string },
+  isLocked = false,
+  price?: number,
+): Promise<Message> {
+  const form = new FormData();
+  form.append('file', file as any);
+  form.append('receiverId', receiverId);
+  form.append('isLocked', String(isLocked));
+  if (price != null) form.append('price', String(price));
+  const res = await apiClient.post('/messages/image', form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return res.data;
+}
+
+// POST /messages/:id/unlock-image — cliente desbloquea imagen
+export function unlockChatImage(messageId: string) {
+  return apiFetch<{ alreadyUnlocked: boolean; imageUrl: string }>(`/messages/${messageId}/unlock-image`, {
+    method: 'POST',
+  });
+}
+
+// GET /messages/my-unlocked-images — galería de imágenes desbloqueadas del cliente
+export function getMyUnlockedImages() {
+  return apiFetch<UnlockedImage[]>('/messages/my-unlocked-images');
 }

@@ -5,34 +5,36 @@ import {
   markAsRead,
   sendMessageHttp,
   unlockMessage,
+  unlockChatImage,
   type Message,
 } from '@/src/api/messages';
 import { apiGetPublicServicePrices, type ServicePrice } from '@/src/api/servicePrices';
 import { useSocket } from '@/hooks/useSocket';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Animated,
   AppState,
   AppStateStatus,
   FlatList,
   Image,
   KeyboardAvoidingView,
+  Modal,
+  PanResponder,
   ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 function formatTime(dateStr: string) {
-  return new Date(dateStr).toLocaleTimeString('es-PE', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  return new Date(dateStr).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
 }
 
 function formatDateSeparator(dateStr: string) {
@@ -45,11 +47,102 @@ function formatDateSeparator(dateStr: string) {
   return d.toLocaleDateString('es-PE', { day: 'numeric', month: 'long' });
 }
 
+const EMOJIS = [
+  '😀','😂','🥰','😍','😘','😋','🤩','😊','😏','🥺',
+  '😭','😤','🤣','🙄','💀','🔥','💯','👀','😈','🤦',
+  '❤️','🧡','💛','💚','💙','💜','💕','💋','🫶','🙏',
+  '👋','👍','🙌','💪','🎉','🌹','🌸','✨','💫','⭐',
+];
+
+type ListItem = Message | { type: 'separator'; label: string; key: string };
+
+function ImageViewerModal({ uri, onClose }: { uri: string; onClose: () => void }) {
+  const { width, height } = useWindowDimensions();
+  const translateY = useRef(new Animated.Value(0)).current;
+  const bgOpacity  = useRef(new Animated.Value(1)).current;
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
+  useEffect(() => {
+    translateY.setValue(0);
+    bgOpacity.setValue(1);
+  }, [uri]);
+
+  const pan = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, { dy, dx }) =>
+        Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 6,
+      onPanResponderMove: (_, { dy }) => {
+        translateY.setValue(dy);
+        bgOpacity.setValue(Math.max(0, 1 - Math.abs(dy) / 300));
+      },
+      onPanResponderRelease: (_, { dy, vy }) => {
+        if (Math.abs(dy) > 100 || Math.abs(vy) > 1) {
+          Animated.parallel([
+            Animated.timing(translateY, { toValue: dy > 0 ? height : -height, duration: 220, useNativeDriver: true }),
+            Animated.timing(bgOpacity, { toValue: 0, duration: 220, useNativeDriver: true }),
+          ]).start(() => onCloseRef.current());
+        } else {
+          Animated.parallel([
+            Animated.spring(translateY, { toValue: 0, useNativeDriver: true }),
+            Animated.timing(bgOpacity, { toValue: 1, duration: 180, useNativeDriver: true }),
+          ]).start();
+        }
+      },
+    })
+  ).current;
+
+  return (
+    <Modal visible transparent statusBarTranslucent animationType="fade" onRequestClose={() => onCloseRef.current()}>
+      <Animated.View style={{ flex: 1, backgroundColor: 'black', opacity: bgOpacity }}>
+        <TouchableOpacity
+          onPress={() => onCloseRef.current()}
+          style={{ position: 'absolute', top: 50, right: 16, zIndex: 10, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 20, padding: 8 }}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <Ionicons name="close" size={24} color="white" />
+        </TouchableOpacity>
+        <Animated.View
+          {...pan.panHandlers}
+          style={{ flex: 1, justifyContent: 'center', alignItems: 'center', transform: [{ translateY }] }}
+        >
+          <Image source={{ uri }} style={{ width, height: height * 0.88 }} resizeMode="contain" />
+        </Animated.View>
+      </Animated.View>
+    </Modal>
+  );
+}
+
+function ChatImage({ uri, msgId, onPress }: { uri: string; msgId: string; onPress?: () => void }) {
+  const [loading, setLoading] = useState(true);
+  const inner = (
+    <View style={{ width: 200, height: 200 }}>
+      <Image
+        source={{ uri }}
+        style={{ width: 200, height: 200 }}
+        resizeMode="cover"
+        onLoad={() => setLoading(false)}
+        onError={(e) => { console.log('[image-error]', msgId, e.nativeEvent.error); setLoading(false); }}
+      />
+      {loading && (
+        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.35)' }}>
+          <ActivityIndicator color="white" size="large" />
+        </View>
+      )}
+    </View>
+  );
+  if (onPress) {
+    return <TouchableOpacity activeOpacity={0.9} onPress={onPress}>{inner}</TouchableOpacity>;
+  }
+  return inner;
+}
+
 export default function ChatScreen() {
   const { user } = useAuth();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const listRef = useRef<FlatList>(null);
+  const inputRef = useRef<TextInput>(null);
 
   const { conversationId, otherUserId, otherUserName, otherUserAvatar } =
     useLocalSearchParams<{
@@ -64,19 +157,17 @@ export default function ChatScreen() {
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
   const [unlocking, setUnlocking] = useState<string | null>(null);
+  const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
   const [activeConversationId, setActiveConversationId] = useState(
     conversationId !== 'new' ? conversationId : null,
   );
   const [kavKey, setKavKey] = useState(0);
   const [servicePrices, setServicePrices] = useState<ServicePrice[]>([]);
   const [showEmoji, setShowEmoji] = useState(false);
-  const inputRef = useRef<TextInput>(null);
 
   useEffect(() => {
     if (!otherUserId) return;
-    apiGetPublicServicePrices(otherUserId)
-      .then(setServicePrices)
-      .catch(() => {});
+    apiGetPublicServicePrices(otherUserId).then(setServicePrices).catch(() => {});
   }, [otherUserId]);
 
   function getPrice(type: ServicePrice['serviceType']) {
@@ -101,20 +192,20 @@ export default function ChatScreen() {
 
   function goToProfile() {
     if (!otherUserId) return;
-    router.push({
-      pathname: '/(cliente)/anfitrionas/[id]/verperfil' as any,
-      params: { id: otherUserId },
-    });
+    router.push({ pathname: '/(cliente)/anfitrionas/[id]/verperfil' as any, params: { id: otherUserId } });
   }
 
   const { onNewMessage } = useSocket(user?.id);
 
   useEffect(() => {
     const sub = AppState.addEventListener('change', (next: AppStateStatus) => {
-      if (next === 'active') setKavKey((k) => k + 1);
+      if (next === 'active') {
+        setKavKey((k) => k + 1);
+        if (activeConversationId) setTimeout(() => void loadMessages(), 600);
+      }
     });
     return () => sub.remove();
-  }, []);
+  }, [activeConversationId]);
 
   useEffect(() => {
     if (!activeConversationId) { setLoading(false); return; }
@@ -126,7 +217,10 @@ export default function ChatScreen() {
       if (msg.conversationId === activeConversationId) {
         setMessages((prev) => {
           if (prev.find((m) => m.id === msg.id)) return prev;
-          return [...prev, msg];
+          const processed = (msg.isLocked && msg.imageUrl && !msg.isUnlocked)
+            ? { ...msg, imageUrl: msg.imageUrl.replace('/upload/', '/upload/e_blur:2000,q_5/') }
+            : msg;
+          return [...prev, processed];
         });
         scrollToEnd();
       }
@@ -146,11 +240,16 @@ export default function ChatScreen() {
   async function loadMessages() {
     if (!activeConversationId) return;
     try {
-      const data = await getMessages(activeConversationId);
+      const raw = await getMessages(activeConversationId);
+      const data = raw.map((msg) =>
+        (msg.isLocked && msg.imageUrl && !msg.isUnlocked)
+          ? { ...msg, imageUrl: msg.imageUrl.replace('/upload/', '/upload/e_blur:2000,q_5/') }
+          : msg
+      );
       setMessages(data);
       setTimeout(() => scrollToEnd(), 100);
-    } catch {
-      // silencioso
+    } catch (e) {
+      console.log('[loadMessages] error:', e);
     } finally {
       setLoading(false);
     }
@@ -165,8 +264,6 @@ export default function ChatScreen() {
     if (!trimmed || !user?.id || !otherUserId || sending) return;
     setText('');
     setSending(true);
-
-    // Mensaje optimista: aparece inmediatamente en la lista con ID temporal
     const tempId = `_pending_${Date.now()}`;
     const tempMsg: Message = {
       id: tempId,
@@ -181,18 +278,15 @@ export default function ChatScreen() {
     };
     setMessages((prev) => [...prev, tempMsg]);
     scrollToEnd();
-
     try {
       const msg = await sendMessageHttp(user.id, otherUserId, trimmed);
-      // Reemplazar el mensaje temporal con el real del servidor
       setMessages((prev) => prev.map((m) => m.id === tempId ? msg : m));
       setActiveConversationId(msg.conversationId);
     } catch (e: any) {
       setText(trimmed);
       setMessages((prev) => prev.filter((m) => m.id !== tempId));
-      const msg = e?.message ?? '';
-      if (msg.toLowerCase().includes('créditos')) {
-        Alert.alert('Sin créditos', 'No tienes créditos suficientes para enviar mensajes. Recarga tu cuenta.');
+      if ((e?.message ?? '').toLowerCase().includes('créditos')) {
+        Alert.alert('Sin créditos', 'No tienes créditos suficientes. Recarga tu cuenta.');
       }
     } finally {
       setSending(false);
@@ -213,10 +307,8 @@ export default function ChatScreen() {
               const result = await unlockMessage(messageId);
               setMessages((prev) =>
                 prev.map((m) =>
-                  m.id === messageId
-                    ? { ...m, text: result.text, isLocked: false, isUnlocked: true }
-                    : m,
-                ),
+                  m.id === messageId ? { ...m, text: result.text, isLocked: false, isUnlocked: true } : m
+                )
               );
             } catch (e: any) {
               Alert.alert('Error', e?.message ?? 'No se pudo abrir el regalo');
@@ -225,18 +317,56 @@ export default function ChatScreen() {
             }
           },
         },
-      ],
+      ]
+    );
+  }
+
+  async function handleUnlockImage(messageId: string, price: number) {
+    Alert.alert(
+      'Desbloquear imagen',
+      `¿Quieres ver esta imagen por ${price} crédito${price !== 1 ? 's' : ''}?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: `Desbloquear (${price} créditos)`,
+          onPress: async () => {
+            setUnlocking(messageId);
+            try {
+              const result = await unlockChatImage(messageId);
+              console.log('[unlock-image] result:', JSON.stringify(result));
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === messageId
+                    ? { ...m, imageUrl: result.imageUrl || m.imageUrl, isLocked: false, isUnlocked: true }
+                    : m
+                )
+              );
+            } catch (e: any) {
+              Alert.alert('Error', e?.message ?? 'No se pudo desbloquear la imagen');
+            } finally {
+              setUnlocking(null);
+            }
+          },
+        },
+      ]
     );
   }
 
   const msgPrice = getPrice('MESSAGE_SEND' as ServicePrice['serviceType']);
 
-  const EMOJIS = [
-    '😀','😂','🥰','😍','😘','😋','🤩','😊','😏','🥺',
-    '😭','😤','🤣','🙄','💀','🔥','💯','👀','😈','🤦',
-    '❤️','🧡','💛','💚','💙','💜','💕','💋','🫶','🙏',
-    '👋','👍','🙌','💪','🎉','🌹','🌸','✨','💫','⭐',
-  ];
+  const listData = useMemo<ListItem[]>(() => {
+    const result: ListItem[] = [];
+    let lastDate = '';
+    for (const msg of messages) {
+      const day = new Date(msg.createdAt).toDateString();
+      if (day !== lastDate) {
+        result.push({ type: 'separator', label: formatDateSeparator(msg.createdAt), key: `sep-${day}` });
+        lastDate = day;
+      }
+      result.push(msg);
+    }
+    return result;
+  }, [messages]);
 
   function insertEmoji(emoji: string) {
     setText((prev) => prev + emoji);
@@ -245,30 +375,14 @@ export default function ChatScreen() {
 
   function toggleEmoji() {
     setShowEmoji((v) => !v);
-    if (showEmoji) {
-      inputRef.current?.focus();
-    }
-  }
-
-  // Agrupar mensajes con separadores de fecha
-  type ListItem = Message | { type: 'separator'; label: string; key: string };
-
-  const listData: ListItem[] = [];
-  let lastDate = '';
-  for (const msg of messages) {
-    const day = new Date(msg.createdAt).toDateString();
-    if (day !== lastDate) {
-      listData.push({ type: 'separator', label: formatDateSeparator(msg.createdAt), key: `sep-${day}` });
-      lastDate = day;
-    }
-    listData.push(msg);
+    if (showEmoji) inputRef.current?.focus();
   }
 
   return (
+    <>
     <View className="flex-1 bg-[#0a0000]">
       <Stack.Screen options={{ headerShown: false }} />
 
-  
       <View
         className="flex-row items-center bg-[#140008] border-b border-[rgba(246,193,106,0.12)] pb-4 px-[14px] gap-[10px]"
         style={{ paddingTop: insets.top + 10 }}
@@ -277,7 +391,6 @@ export default function ChatScreen() {
           <Ionicons name="arrow-back" size={22} color="white" />
         </TouchableOpacity>
 
-        
         <TouchableOpacity onPress={goToProfile} className="flex-1 flex-row items-center gap-3" activeOpacity={0.75}>
           <View className="w-12 h-12 rounded-full border-2 border-[#F6C16A] overflow-hidden">
             {otherUserAvatar ? (
@@ -327,16 +440,20 @@ export default function ChatScreen() {
           <FlatList
             ref={listRef}
             data={listData}
-            keyExtractor={(item) => ('id' in item ? item.id : item.key)}
+            keyExtractor={(item) => {
+              if (!('id' in item)) return item.key;
+              const msg = item as Message;
+              return `${msg.id}-${msg.isUnlocked ? 'u' : 'l'}`;
+            }}
             contentContainerStyle={{ paddingHorizontal: 14, paddingVertical: 12, paddingBottom: 6 }}
             onContentSizeChange={scrollToEnd}
+            extraData={messages}
             ListEmptyComponent={
               <View className="items-center mt-16">
                 <Text className="text-[rgba(255,255,255,0.3)] text-sm">Inicia la conversación</Text>
               </View>
             }
             renderItem={({ item }) => {
-              // Separador de fecha
               if ('type' in item && item.type === 'separator') {
                 return (
                   <View className="flex-row items-center my-[14px] gap-2">
@@ -349,30 +466,74 @@ export default function ChatScreen() {
 
               const msg = item as Message;
               const isOwn = msg.senderId === user?.id;
-              const lockedAndNotUnlocked = msg.isLocked && !isOwn && !msg.isUnlocked;
+              const isImageMsg = !!msg.imageUrl;
+              const lockedImage = isImageMsg && msg.isLocked && !msg.isUnlocked && !isOwn;
+              const lockedText = !isImageMsg && msg.isLocked && !isOwn && !msg.isUnlocked;
 
               return (
                 <View className={`mb-1 ${isOwn ? 'items-end' : 'items-start'}`}>
-                  {lockedAndNotUnlocked ? (
+                  {lockedImage ? (
+                    <View
+                      className="rounded-[18px] rounded-bl-[4px] overflow-hidden border border-[rgba(209,27,27,0.5)]"
+                      style={{ width: 220, shadowColor: '#D11B1B', shadowOpacity: 0.5, shadowRadius: 12, elevation: 6 }}
+                    >
+                      <View className="flex-row items-center gap-2 bg-[#1a0208] px-3 py-2">
+                        <Ionicons name="images" size={14} color="#F6C16A" />
+                        <Text className="text-[#F6C16A] text-[12px] font-bold tracking-wide">Imagen exclusiva</Text>
+                      </View>
+                      <View style={{ position: 'relative' }}>
+                        <Image
+                          source={{ uri: msg.imageUrl! }}
+                          style={{ width: 220, height: 180 }}
+                          resizeMode="cover"
+                        />
+                        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.25)' }}>
+                          <Ionicons name="lock-closed" size={36} color="rgba(246,193,106,0.85)" />
+                        </View>
+                      </View>
+                      <View className="bg-[#0f0005] px-3 py-3 items-center gap-1">
+                        <TouchableOpacity
+                          onPress={() => handleUnlockImage(msg.id, msg.price!)}
+                          disabled={unlocking === msg.id}
+                          className="bg-[#D11B1B] rounded-xl py-2 px-5 items-center w-full"
+                        >
+                          {unlocking === msg.id ? (
+                            <ActivityIndicator size="small" color="white" />
+                          ) : (
+                            <Text className="text-white text-[13px] font-bold">
+                              Desbloquear · {msg.price} crédito{msg.price !== 1 ? 's' : ''}
+                            </Text>
+                          )}
+                        </TouchableOpacity>
+                        <Text className="text-[rgba(255,255,255,0.25)] text-right text-[10px]">{formatTime(msg.createdAt)}</Text>
+                      </View>
+                    </View>
+                  ) : isImageMsg ? (
+                    <View className={`rounded-[18px] overflow-hidden ${isOwn ? 'rounded-br-[4px]' : 'rounded-bl-[4px]'}`}>
+                      {msg.isUnlocked && !isOwn && (
+                        <View className="bg-[#1a0208] px-3 py-1">
+                          <Text className="text-[#F6C16A] text-[10px]">🔓 Imagen desbloqueada</Text>
+                        </View>
+                      )}
+                      <ChatImage key={msg.imageUrl} uri={msg.imageUrl!} msgId={msg.id} onPress={() => setSelectedImageUri(msg.imageUrl!)} />
+                      <View className={`px-2 py-1 ${isOwn ? 'bg-[#8B1030]' : 'bg-[#1e1010]'}`}>
+                        <Text className={`text-[10px] text-right ${isOwn ? 'text-[rgba(255,200,200,0.6)]' : 'text-[rgba(255,255,255,0.35)]'}`}>
+                          {formatTime(msg.createdAt)}
+                        </Text>
+                      </View>
+                    </View>
+                  ) : lockedText ? (
                     <View
                       className="max-w-[78%] bg-[#1a0208] rounded-[18px] rounded-bl-[4px] border border-[rgba(209,27,27,0.6)] px-[14px] py-3"
-                      style={{
-                        shadowColor: '#D11B1B',
-                        shadowOffset: { width: 0, height: 0 },
-                        shadowOpacity: 0.4,
-                        shadowRadius: 10,
-                        elevation: 4,
-                      }}
+                      style={{ shadowColor: '#D11B1B', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.4, shadowRadius: 10, elevation: 4 }}
                     >
                       <View className="flex-row items-center gap-[6px] mb-[6px]">
                         <Text className="text-lg">🎁</Text>
                         <Text className="text-[rgba(246,193,106,0.9)] text-[13px] font-bold">Regalo exclusivo</Text>
                       </View>
-                      {msg.price != null && (
-                        <Text className="text-[rgba(255,255,255,0.45)] text-xs mb-[10px] leading-4" numberOfLines={2}>
-                          Abre este regalo para ver el mensaje
-                        </Text>
-                      )}
+                      <Text className="text-[rgba(255,255,255,0.45)] text-xs mb-[10px] leading-4">
+                        Abre este regalo para ver el mensaje
+                      </Text>
                       <TouchableOpacity
                         onPress={() => handleUnlock(msg.id, msg.price!)}
                         disabled={unlocking === msg.id}
@@ -391,9 +552,7 @@ export default function ChatScreen() {
                   ) : (
                     <View
                       className={`max-w-[78%] rounded-[18px] px-[14px] py-2 ${
-                        isOwn
-                          ? 'bg-[#8B1030] rounded-br-[4px]'
-                          : 'bg-[#1e1010] rounded-bl-[4px]'
+                        isOwn ? 'bg-[#8B1030] rounded-br-[4px]' : 'bg-[#1e1010] rounded-bl-[4px]'
                       }`}
                     >
                       {msg.isUnlocked && (
@@ -424,7 +583,6 @@ export default function ChatScreen() {
           />
         )}
 
-        {/* Emoji picker panel */}
         {showEmoji && (
           <View className="bg-[#140008] border-t border-[rgba(246,193,106,0.1)] py-2 px-[6px]">
             <ScrollView horizontal={false} showsVerticalScrollIndicator={false} style={{ maxHeight: 140 }}>
@@ -439,7 +597,6 @@ export default function ChatScreen() {
           </View>
         )}
 
-        {/* Input bar */}
         <View
           className="flex-row items-center bg-[#140008] border-t border-[rgba(246,193,106,0.1)] px-[10px] pt-[10px] gap-[6px]"
           style={{ paddingBottom: insets.bottom + 10 }}
@@ -455,7 +612,6 @@ export default function ChatScreen() {
             className="flex-1 bg-[#1a0208] text-white rounded-[22px] px-[14px] py-[10px] text-sm border border-[rgba(246,193,106,0.18)]"
             style={{ maxHeight: 100 }}
           />
-
           <TouchableOpacity className="p-1" onPress={toggleEmoji}>
             <Ionicons
               name={showEmoji ? 'happy' : 'happy-outline'}
@@ -463,17 +619,13 @@ export default function ChatScreen() {
               color={showEmoji ? '#F6C16A' : 'rgba(255,255,255,0.45)'}
             />
           </TouchableOpacity>
-
           <TouchableOpacity
             onPress={handleSend}
             disabled={!text.trim()}
             style={{
-              width: 40,
-              height: 40,
-              borderRadius: 20,
+              width: 40, height: 40, borderRadius: 20,
               backgroundColor: text.trim() ? '#D11B1B' : 'rgba(209,27,27,0.3)',
-              alignItems: 'center',
-              justifyContent: 'center',
+              alignItems: 'center', justifyContent: 'center',
             }}
           >
             <Ionicons name="arrow-up" size={18} color="white" />
@@ -481,5 +633,9 @@ export default function ChatScreen() {
         </View>
       </KeyboardAvoidingView>
     </View>
+    {selectedImageUri && (
+      <ImageViewerModal uri={selectedImageUri} onClose={() => setSelectedImageUri(null)} />
+    )}
+    </>
   );
 }

@@ -5,20 +5,23 @@ import {
   getMyServicePrices,
   markAsRead,
   sendMessageHttp,
+  sendImageHttp,
   type Message,
 } from '@/src/api/messages';
 import { apiGetUserWallet } from '@/src/api/userClient';
 import { useSocket } from '@/hooks/useSocket';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   AppState,
   AppStateStatus,
   FlatList,
   Image,
   KeyboardAvoidingView,
+  Modal,
   ScrollView,
   StyleSheet,
   Text,
@@ -26,6 +29,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 function formatTime(dateStr: string) {
@@ -79,6 +83,10 @@ export default function AnfitrianaChat() {
   const [kavKey, setKavKey] = useState(0);
   const [showEmoji, setShowEmoji] = useState(false);
   const [clientCredits, setClientCredits] = useState<number | null>(null);
+  const [pendingImage, setPendingImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
+  const [imageModalVisible, setImageModalVisible] = useState(false);
+  const [imageLocked, setImageLocked] = useState(false);
+  const [imagePrice, setImagePrice] = useState('');
 
   const { onNewMessage } = useSocket(user?.id);
 
@@ -198,6 +206,66 @@ export default function AnfitrianaChat() {
     }
   }
 
+  async function handleSendImage() {
+    if (!otherUserId || sending) return;
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      quality: 0.8,
+    });
+    if (result.canceled) return;
+    setPendingImage(result.assets[0]);
+    setImageLocked(false);
+    setImagePrice('');
+    setImageModalVisible(true);
+  }
+
+  function handleConfirmSendImage() {
+    if (!pendingImage) return;
+    const price = imageLocked ? parseInt(imagePrice) : undefined;
+    if (imageLocked && (!price || price < 1)) {
+      Alert.alert('Precio inválido', 'Ingresa un precio mayor a 0.');
+      return;
+    }
+    setImageModalVisible(false);
+    doSendImage(pendingImage, imageLocked, price);
+    setPendingImage(null);
+  }
+
+  async function doSendImage(asset: ImagePicker.ImagePickerAsset, locked: boolean, price?: number) {
+    setSending(true);
+    const tempId = `_pending_${Date.now()}`;
+    const tempMsg: Message = {
+      id: tempId,
+      conversationId: activeConversationId ?? '',
+      senderId: user!.id,
+      text: null,
+      imageUrl: asset.uri,
+      read: false,
+      isLocked: locked,
+      price: price ?? null,
+      isUnlocked: false,
+      createdAt: new Date().toISOString(),
+    };
+    setMessages(prev => [...prev, tempMsg]);
+    scrollToEnd();
+    try {
+      const ext = asset.uri.split('.').pop() ?? 'jpg';
+      const msg = await sendImageHttp(
+        otherUserId!,
+        { uri: asset.uri, type: `image/${ext}`, name: `photo.${ext}` },
+        locked,
+        price,
+      );
+      setMessages(prev => prev.map(m => m.id === tempId ? msg : m));
+      setActiveConversationId(msg.conversationId);
+    } catch {
+      setMessages(prev => prev.filter(m => m.id !== tempId));
+      Alert.alert('Error', 'No se pudo enviar la imagen.');
+    } finally {
+      setSending(false);
+    }
+  }
+
   function insertEmoji(emoji: string) {
     setText((prev) => prev + emoji);
     inputRef.current?.focus();
@@ -305,7 +373,16 @@ export default function AnfitrianaChat() {
                         </Text>
                       </View>
                     )}
-                    <Text style={styles.bubbleText}>{msg.text ?? '(bloqueado)'}</Text>
+                    {msg.imageUrl ? (
+                      <Image
+                        source={{ uri: msg.imageUrl }}
+                        style={{ width: 200, height: 200, borderRadius: 12, marginBottom: 4 }}
+                        resizeMode="cover"
+                        blurRadius={msg.isLocked && !isOwn ? 20 : 0}
+                      />
+                    ) : (
+                      <Text style={styles.bubbleText}>{msg.text ?? '(bloqueado)'}</Text>
+                    )}
                     {isOwn ? (
                       <View style={styles.bubbleFooter}>
                         <Text style={styles.bubbleTimeOwn}>{formatTime(msg.createdAt)}</Text>
@@ -370,6 +447,11 @@ export default function AnfitrianaChat() {
             style={{ maxHeight: 100 }}
           />
 
+          {/* Imagen */}
+          <TouchableOpacity className="p-1" onPress={handleSendImage} disabled={sending}>
+            <Ionicons name="image-outline" size={22} color={sending ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.45)'} />
+          </TouchableOpacity>
+
           {/* Emoji */}
           <TouchableOpacity className="p-1" onPress={toggleEmoji}>
             <Ionicons
@@ -408,6 +490,102 @@ export default function AnfitrianaChat() {
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
+      {/* Modal enviar imagen */}
+      <Modal visible={imageModalVisible} transparent animationType="slide" onRequestClose={() => setImageModalVisible(false)}>
+        <KeyboardAvoidingView
+          behavior="padding"
+          style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.75)' }}
+        >
+          <View style={{ backgroundColor: '#140008', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, paddingBottom: insets.bottom + 24, gap: 16 }}>
+
+            {/* Header */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Text style={{ color: 'white', fontWeight: '800', fontSize: 16 }}>Enviar imagen</Text>
+              <TouchableOpacity onPress={() => setImageModalVisible(false)} style={{ padding: 4 }}>
+                <MaterialCommunityIcons name="close" size={22} color="rgba(255,255,255,0.5)" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Preview */}
+            {pendingImage && (
+              <View style={{ alignSelf: 'center', borderRadius: 16, overflow: 'hidden', borderWidth: 2, borderColor: imageLocked ? 'rgba(246,193,106,0.5)' : 'rgba(255,255,255,0.15)' }}>
+                <Image
+                  source={{ uri: pendingImage.uri }}
+                  style={{ width: 200, height: 200 }}
+                  resizeMode="cover"
+                  blurRadius={imageLocked ? 18 : 0}
+                />
+                {imageLocked && (
+                  <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.3)' }}>
+                    <MaterialCommunityIcons name="lock" size={36} color="#F6C16A" />
+                    <Text style={{ color: '#F6C16A', fontWeight: '700', fontSize: 12, marginTop: 4 }}>Bloqueada</Text>
+                  </View>
+                )}
+              </View>
+            )}
+
+            {/* Toggle gratis / bloqueada */}
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <TouchableOpacity
+                onPress={() => setImageLocked(false)}
+                style={{
+                  flex: 1, borderRadius: 12, paddingVertical: 12, alignItems: 'center',
+                  backgroundColor: !imageLocked ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.04)',
+                  borderWidth: 1, borderColor: !imageLocked ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.08)',
+                }}
+              >
+                <MaterialCommunityIcons name="image-outline" size={22} color={!imageLocked ? 'white' : 'rgba(255,255,255,0.3)'} />
+                <Text style={{ color: !imageLocked ? 'white' : 'rgba(255,255,255,0.4)', fontWeight: '700', fontSize: 13, marginTop: 4 }}>Gratis</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => setImageLocked(true)}
+                style={{
+                  flex: 1, borderRadius: 12, paddingVertical: 12, alignItems: 'center',
+                  backgroundColor: imageLocked ? 'rgba(246,193,106,0.12)' : 'rgba(255,255,255,0.04)',
+                  borderWidth: 1, borderColor: imageLocked ? 'rgba(246,193,106,0.4)' : 'rgba(255,255,255,0.08)',
+                }}
+              >
+                <MaterialCommunityIcons name="lock-outline" size={22} color={imageLocked ? '#F6C16A' : 'rgba(255,255,255,0.3)'} />
+                <Text style={{ color: imageLocked ? '#F6C16A' : 'rgba(255,255,255,0.4)', fontWeight: '700', fontSize: 13, marginTop: 4 }}>Bloqueada</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Input precio */}
+            {imageLocked && (
+              <View style={{ backgroundColor: '#0f0005', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(246,193,106,0.25)', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 14 }}>
+                <MaterialCommunityIcons name="diamond-stone" size={18} color="#F6C16A" style={{ marginRight: 8 }} />
+                <TextInput
+                  value={imagePrice}
+                  onChangeText={setImagePrice}
+                  keyboardType="numeric"
+                  placeholder="Precio en créditos"
+                  placeholderTextColor="rgba(246,193,106,0.35)"
+                  style={{ flex: 1, color: 'white', fontSize: 16, fontWeight: '700', paddingVertical: 12 }}
+                />
+                <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12 }}>créditos</Text>
+              </View>
+            )}
+
+            {/* Botón enviar */}
+            <TouchableOpacity
+              onPress={handleConfirmSendImage}
+              activeOpacity={0.85}
+              style={{
+                backgroundColor: '#D11B1B', borderRadius: 14,
+                paddingVertical: 15, alignItems: 'center',
+                flexDirection: 'row', justifyContent: 'center', gap: 8,
+              }}
+            >
+              <MaterialCommunityIcons name="send" size={18} color="white" />
+              <Text style={{ color: 'white', fontWeight: '800', fontSize: 15 }}>
+                {imageLocked ? `Enviar bloqueada${imagePrice ? ` · ${imagePrice} cred` : ''}` : 'Enviar imagen'}
+              </Text>
+            </TouchableOpacity>
+
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </View>
   );
 }
