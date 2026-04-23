@@ -261,7 +261,7 @@ export default function ChatScreen() {
 
   async function handleSend() {
     const trimmed = text.trim();
-    if (!trimmed || !user?.id || !otherUserId || sending) return;
+    if (!trimmed || !user?.id || !otherUserId || sending || isSpamBlocked) return;
     setText('');
     setSending(true);
     const tempId = `_pending_${Date.now()}`;
@@ -285,8 +285,11 @@ export default function ChatScreen() {
     } catch (e: any) {
       setText(trimmed);
       setMessages((prev) => prev.filter((m) => m.id !== tempId));
-      if ((e?.message ?? '').toLowerCase().includes('créditos')) {
+      const msg = (e?.message ?? '') as string;
+      if (msg.toLowerCase().includes('créditos')) {
         Alert.alert('Sin créditos', 'No tienes créditos suficientes. Recarga tu cuenta.');
+      } else if (msg.toLowerCase().includes('consecutivos')) {
+        // El backend ya bloqueó — la UI se actualiza sola por isSpamBlocked
       }
     } finally {
       setSending(false);
@@ -353,6 +356,18 @@ export default function ChatScreen() {
   }
 
   const msgPrice = getPrice('MESSAGE_SEND' as ServicePrice['serviceType']);
+
+  const SPAM_LIMIT = 5;
+  const unrespondedCount = useMemo(() => {
+    if (!user?.id) return 0;
+    let count = 0;
+    for (let i = messages.length - 1; i >= 0; i--) {
+      if (messages[i].senderId === user.id) count++;
+      else break;
+    }
+    return count;
+  }, [messages, user?.id]);
+  const isSpamBlocked = unrespondedCount >= SPAM_LIMIT;
 
   const listData = useMemo<ListItem[]>(() => {
     const result: ListItem[] = [];
@@ -597,6 +612,21 @@ export default function ChatScreen() {
           </View>
         )}
 
+        {isSpamBlocked && (
+          <View
+            style={{
+              flexDirection: 'row', alignItems: 'center', gap: 8,
+              backgroundColor: 'rgba(209,27,27,0.12)',
+              borderTopWidth: 1, borderTopColor: 'rgba(209,27,27,0.3)',
+              paddingHorizontal: 16, paddingVertical: 10,
+            }}
+          >
+            <Ionicons name="lock-closed" size={15} color="#D11B1B" />
+            <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, flex: 1, lineHeight: 17 }}>
+              Enviaste {SPAM_LIMIT} mensajes sin respuesta. Espera a que la anfitriona te conteste.
+            </Text>
+          </View>
+        )}
         <View
           className="flex-row items-center bg-[#140008] border-t border-[rgba(246,193,106,0.1)] px-[10px] pt-[10px] gap-[6px]"
           style={{ paddingBottom: insets.bottom + 10 }}
@@ -606,25 +636,32 @@ export default function ChatScreen() {
             value={text}
             onChangeText={setText}
             onFocus={() => setShowEmoji(false)}
-            placeholder={msgPrice != null ? `Enviar mensaje – ${msgPrice} cr.` : 'Escribe un mensaje...'}
-            placeholderTextColor="rgba(246,193,106,0.5)"
+            editable={!isSpamBlocked}
+            placeholder={
+              isSpamBlocked
+                ? 'Chat bloqueado hasta que la anfitriona responda'
+                : msgPrice != null
+                ? `Enviar mensaje – ${msgPrice} cr.`
+                : 'Escribe un mensaje...'
+            }
+            placeholderTextColor={isSpamBlocked ? 'rgba(209,27,27,0.5)' : 'rgba(246,193,106,0.5)'}
             multiline
             className="flex-1 bg-[#1a0208] text-white rounded-[22px] px-[14px] py-[10px] text-sm border border-[rgba(246,193,106,0.18)]"
-            style={{ maxHeight: 100 }}
+            style={[{ maxHeight: 100 }, isSpamBlocked && { opacity: 0.45, borderColor: 'rgba(209,27,27,0.3)' }]}
           />
-          <TouchableOpacity className="p-1" onPress={toggleEmoji}>
+          <TouchableOpacity className="p-1" onPress={toggleEmoji} disabled={isSpamBlocked}>
             <Ionicons
               name={showEmoji ? 'happy' : 'happy-outline'}
               size={22}
-              color={showEmoji ? '#F6C16A' : 'rgba(255,255,255,0.45)'}
+              color={isSpamBlocked ? 'rgba(255,255,255,0.2)' : showEmoji ? '#F6C16A' : 'rgba(255,255,255,0.45)'}
             />
           </TouchableOpacity>
           <TouchableOpacity
             onPress={handleSend}
-            disabled={!text.trim()}
+            disabled={!text.trim() || isSpamBlocked}
             style={{
               width: 40, height: 40, borderRadius: 20,
-              backgroundColor: text.trim() ? '#D11B1B' : 'rgba(209,27,27,0.3)',
+              backgroundColor: text.trim() && !isSpamBlocked ? '#D11B1B' : 'rgba(209,27,27,0.3)',
               alignItems: 'center', justifyContent: 'center',
             }}
           >
