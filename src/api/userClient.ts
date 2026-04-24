@@ -1,6 +1,7 @@
 // api/userClient.ts
 import apiClient from './client';
 import { UserClientData } from '../types/userClient';
+import { DEFAULT_RATES, RatesMap } from '../utils/currency';
 
 // Definimos la estructura de respuesta paginada que viene del Backend
 interface PaginatedClients {
@@ -51,12 +52,23 @@ export const apiToggleClientStatus = async (id: string, isActive: boolean) => {
 };
 
 // CONFIGURACIÓN DE LA PLATAFORMA
-export const apiGetConfig = async (): Promise<{ creditToSolesRate: number }> => {
+export interface PlatformConfig {
+    creditToSolesRate: number;
+    rates: RatesMap;
+    minVersion?: string;
+}
+
+export const apiGetConfig = async (): Promise<PlatformConfig> => {
     try {
         const response = await apiClient.get('users/config');
-        return response.data;
+        const data = response.data ?? {};
+        return {
+            creditToSolesRate: data.creditToSolesRate ?? 1,
+            rates: data.rates ?? DEFAULT_RATES,
+            minVersion: data.minVersion,
+        };
     } catch {
-        return { creditToSolesRate: 1 };
+        return { creditToSolesRate: 1, rates: DEFAULT_RATES };
     }
 };
 

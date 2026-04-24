@@ -1,6 +1,6 @@
 import apiClient from './client';
 import { PackageData } from '../types/package';
-
+ 
 /**
  * Servicio para la gestion de paquetes en Pachamama
  */
