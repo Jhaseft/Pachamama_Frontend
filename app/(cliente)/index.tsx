@@ -27,8 +27,10 @@ import { useAuth } from "@/src/context/AuthContext";
 import { apiGetStoriesFeed } from "@/src/api/anfitrionaHistory";
 import { HistoryFeedItem } from "@/src/types/historyViewClient";
 
+type AnfitrionaListItem = Anfitriona & { _listKey: string };
+
 export default function ClienteInicio() {
-  const [anfitrionas, setAnfitrionas] = useState<Anfitriona[]>([]);
+  const [anfitrionas, setAnfitrionas] = useState<AnfitrionaListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,6 +39,8 @@ export default function ClienteInicio() {
   const [page, setPage] = useState(1);
   const hasMore = useRef(true);
   const feedContainerRef = useRef<View>(null);
+  const allAnfitrionasRef = useRef<AnfitrionaListItem[]>([]);
+  const cycleCountRef = useRef(0);
 
   const router = useRouter();
   const { logout } = useAuth();
@@ -126,13 +130,20 @@ export default function ClienteInicio() {
     setLoading(true);
     setError(null);
     hasMore.current = true;
+    cycleCountRef.current = 0;
     try {
       const [result, saved] = await Promise.all([
         getPublicHostesses(1),
         apiGetSavedAnfitrionas().catch(() => ({ data: [], nextCursor: null })),
       ]);
       const savedIds = new Set(saved.data.map((s) => s.id));
-      setAnfitrionas(result.anfitrionas.map((a) => ({ ...a, isFavorite: savedIds.has(a.id) })));
+      const items: AnfitrionaListItem[] = result.anfitrionas.map((a) => ({
+        ...a,
+        isFavorite: savedIds.has(a.id),
+        _listKey: a.id,
+      }));
+      allAnfitrionasRef.current = items;
+      setAnfitrionas(items);
       setPage(1);
       hasMore.current = result.hasMore;
     } catch {
@@ -146,19 +157,34 @@ export default function ClienteInicio() {
     if (loadingMore) return;
     setLoadingMore(true);
     try {
-      // Si ya no hay más páginas, volvemos a la página 1 (loop infinito)
-      const looping = !hasMore.current;
-      const nextPage = looping ? 1 : page + 1;
+      if (!hasMore.current) {
+        // Ciclo sin API: agregar copia del dataset completo con claves únicas
+        cycleCountRef.current += 1;
+        const cycle = cycleCountRef.current;
+        const cycledItems = allAnfitrionasRef.current.map((a) => ({
+          ...a,
+          _listKey: `${a.id}_${cycle}`,
+        }));
+        setAnfitrionas((prev) => [...prev, ...cycledItems]);
+        return;
+      }
+      const nextPage = page + 1;
       const [result, saved] = await Promise.all([
         getPublicHostesses(nextPage),
         apiGetSavedAnfitrionas().catch(() => ({ data: [], nextCursor: null })),
       ]);
       const savedIds = new Set(saved.data.map((s) => s.id));
-      const newItems = result.anfitrionas.map((a) => ({ ...a, isFavorite: savedIds.has(a.id) }));
+      const newItems: AnfitrionaListItem[] = result.anfitrionas.map((a) => ({
+        ...a,
+        isFavorite: savedIds.has(a.id),
+        _listKey: a.id,
+      }));
       setAnfitrionas((prev) => {
-        if (looping) return newItems;
         const existingIds = new Set(prev.map((a) => a.id));
-        return [...prev, ...newItems.filter((a) => !existingIds.has(a.id))];
+        const filtered = newItems.filter((a) => !existingIds.has(a.id));
+        const next = [...prev, ...filtered];
+        allAnfitrionasRef.current = next;
+        return next;
       });
       setPage(nextPage);
       hasMore.current = result.hasMore;
@@ -248,7 +274,7 @@ export default function ClienteInicio() {
         <View ref={feedContainerRef} style={{ flex: 1 }} onLayout={handleFeedLayout}>
           <FlatList
             data={anfitrionas}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item) => item._listKey}
             pagingEnabled
             decelerationRate="fast"
             showsVerticalScrollIndicator={false}

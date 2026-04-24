@@ -7,7 +7,6 @@ import {
     Platform,
     ScrollView,
     View,
-    Modal,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -15,6 +14,7 @@ import Screen from "../../components/Screen";
 import PrimaryButton from "../../components/PrimaryButton";
 import { apiSendOtp } from "../../src/api/registerAnfitriona";
 import { COUNTRIES_LATAM, type CountryLatam } from "../../src/constants/countriesLatam";
+import CountryPickerModal from "../../components/auth/CountryPickerModal";
 
 export default function RegisterAnfitriona() {
     const [phone, setPhone] = useState("");
@@ -85,36 +85,11 @@ export default function RegisterAnfitriona() {
                         Completa tu registro para crear tu cuenta como anfitriona.
                     </Text>
 
-                    <Modal
+                    <CountryPickerModal
                         visible={countryOpen}
-                        transparent
-                        animationType="slide"
-                        onRequestClose={() => setCountryOpen(false)}
-                    >
-                        <View className="flex-1 bg-black/60">
-                            <Pressable className="flex-1" onPress={() => setCountryOpen(false)} />
-                            <View className="bg-neutral-900 border border-white/10 rounded-t-2xl p-4 max-h-[70%]">
-                                <Text className="text-white text-lg font-bold mb-3">
-                                    Selecciona un país
-                                </Text>
-                                <ScrollView>
-                                    {COUNTRIES_LATAM.map((item) => (
-                                        <Pressable
-                                            key={item.code}
-                                            onPress={() => {
-                                                setCountry(item);
-                                                setCountryOpen(false);
-                                            }}
-                                            className="flex-row items-center justify-between py-3 border-b border-white/10"
-                                        >
-                                            <Text className="text-white">{item.name}</Text>
-                                            <Text className="text-white/70">+{item.dialCode}</Text>
-                                        </Pressable>
-                                    ))}
-                                </ScrollView>
-                            </View>
-                        </View>
-                    </Modal>
+                        onClose={() => setCountryOpen(false)}
+                        onSelect={(item) => setCountry(item)}
+                    />
 
                     <View className="mt-1">
                         <Text className="text-white text-base mb-2">Número de celular</Text>

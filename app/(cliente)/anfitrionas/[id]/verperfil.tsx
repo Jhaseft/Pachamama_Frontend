@@ -8,18 +8,16 @@ import type { AnfitrioneProfileDetail } from "@/src/types/anfitrionaProfile";
 import { apiGetPublicPlan, apiBuySubscription, apiGetSubscriptionStatus } from "@/src/api/subscriptions";
 import type { SubscriptionPlan, SubscriptionStatus } from "@/src/types/subscriptions";
 import { useAuth } from "@/src/context/AuthContext";
-import { useUnlockImage } from "@/src/hooks/useUnlockImage";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback, useEffect, useState } from "react";
 import {
-  Animated,
   ActivityIndicator,
   Alert,
   Image,
   Modal,
-  PanResponder,
   ScrollView,
   StatusBar,
   Text,
@@ -28,153 +26,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 
-function ZoomableImage({ uri, width }: { uri: string; width: number }) {
-  const scale = useRef(new Animated.Value(1)).current;
-  const translateX = useRef(new Animated.Value(0)).current;
-  const translateY = useRef(new Animated.Value(0)).current;
-  const pinchRef = useRef<{ dist: number; scale: number } | null>(null);
-  const panRef = useRef<{ x: number; y: number; tx: number; ty: number } | null>(null);
-  const currentScale = useRef(1);
-  const currentTranslate = useRef({ x: 0, y: 0 });
-  const imageHeight = width * 1.3;
-
-  const getDist = (touches: any[]) => {
-    const dx = touches[0].pageX - touches[1].pageX;
-    const dy = touches[0].pageY - touches[1].pageY;
-    return Math.sqrt(dx * dx + dy * dy);
-  };
-
-  const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
-  const getPanBounds = (nextScale: number) => ({
-    x: Math.max(0, ((width * nextScale) - width) / 2),
-    y: Math.max(0, ((imageHeight * nextScale) - imageHeight) / 2),
-  });
-  const clampTranslate = (x: number, y: number, nextScale: number) => {
-    const bounds = getPanBounds(nextScale);
-    return {
-      x: clamp(x, -bounds.x, bounds.x),
-      y: clamp(y, -bounds.y, bounds.y),
-    };
-  };
-  const setTranslate = (x: number, y: number) => {
-    translateX.setValue(x);
-    translateY.setValue(y);
-    currentTranslate.current = { x, y };
-  };
-
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onStartShouldSetPanResponderCapture: () => true,
-      onMoveShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponderCapture: () => true,
-      onPanResponderTerminationRequest: () => false,
-      onPanResponderGrant: (evt) => {
-        const t = evt.nativeEvent.touches;
-        if (t.length === 2) {
-          pinchRef.current = { dist: getDist(t), scale: currentScale.current };
-          panRef.current = null;
-        } else if (t.length === 1 && currentScale.current > 1) {
-          panRef.current = {
-            x: t[0].pageX,
-            y: t[0].pageY,
-            tx: currentTranslate.current.x,
-            ty: currentTranslate.current.y,
-          };
-          pinchRef.current = null;
-        } else {
-          pinchRef.current = null;
-          panRef.current = null;
-        }
-      },
-      onPanResponderMove: (evt) => {
-        const t = evt.nativeEvent.touches;
-
-        if (t.length === 2) {
-          panRef.current = null;
-          if (!pinchRef.current) {
-            pinchRef.current = { dist: getDist(t), scale: currentScale.current };
-            return;
-          }
-          const newScale = Math.max(
-            1,
-            Math.min(4, pinchRef.current.scale * (getDist(t) / pinchRef.current.dist))
-          );
-          scale.setValue(newScale);
-          currentScale.current = newScale;
-          const clamped = clampTranslate(
-            currentTranslate.current.x,
-            currentTranslate.current.y,
-            newScale
-          );
-          setTranslate(clamped.x, clamped.y);
-          return;
-        }
-
-        pinchRef.current = null;
-
-        if (t.length === 1 && currentScale.current > 1) {
-          if (!panRef.current) {
-            panRef.current = {
-              x: t[0].pageX,
-              y: t[0].pageY,
-              tx: currentTranslate.current.x,
-              ty: currentTranslate.current.y,
-            };
-          }
-          const nextX = panRef.current.tx + (t[0].pageX - panRef.current.x);
-          const nextY = panRef.current.ty + (t[0].pageY - panRef.current.y);
-          const clamped = clampTranslate(nextX, nextY, currentScale.current);
-          setTranslate(clamped.x, clamped.y);
-          return;
-        }
-
-        panRef.current = null;
-      },
-      onPanResponderRelease: () => {
-        pinchRef.current = null;
-        panRef.current = null;
-        if (currentScale.current < 1.1) {
-          Animated.parallel([
-            Animated.spring(scale, { toValue: 1, useNativeDriver: true }),
-            Animated.spring(translateX, { toValue: 0, useNativeDriver: true }),
-            Animated.spring(translateY, { toValue: 0, useNativeDriver: true }),
-          ]).start();
-          currentScale.current = 1;
-          currentTranslate.current = { x: 0, y: 0 };
-        } else {
-          const clamped = clampTranslate(
-            currentTranslate.current.x,
-            currentTranslate.current.y,
-            currentScale.current
-          );
-          setTranslate(clamped.x, clamped.y);
-        }
-      },
-      onPanResponderTerminate: () => {
-        pinchRef.current = null;
-        panRef.current = null;
-      },
-    })
-  ).current;
-
-  return (
-    <View
-      style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
-      {...panResponder.panHandlers}
-    >
-      <Animated.Image
-        source={{ uri }}
-        style={{
-          width,
-          height: imageHeight,
-          transform: [{ scale }, { translateX }, { translateY }],
-        }}
-        resizeMode="contain"
-      />
-    </View>
-  );
-}
+import { ZoomableImage } from "@/components/cliente/profile/ZoomableImage";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const COVER_HEIGHT = 270;
@@ -186,7 +38,6 @@ export default function AnfitrioneProfileScreen() {
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const { user } = useAuth();
-  const { unlockImage, unlockingImageId } = useUnlockImage();
 
   const [profile, setProfile] = useState<AnfitrioneProfileDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -200,6 +51,12 @@ export default function AnfitrioneProfileScreen() {
   const [buying, setBuying] = useState(false);
 
   useEffect(() => { void loadProfile(); }, [id]);
+
+  useFocusEffect(
+    useCallback(() => {
+      void loadProfile();
+    }, [id])
+  );
 
   const loadProfile = async () => {
     if (!id) return;
@@ -270,18 +127,6 @@ export default function AnfitrioneProfileScreen() {
     });
   }
 
-  const handleImageUnlocked = (imageId: string) => {
-    setProfile((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        galleryImages: prev.galleryImages.map((img) =>
-          img.id === imageId ? { ...img, isUnlockedByViewer: true } : img
-        ),
-      };
-    });
-  };
-
   const handleChat = () => {
     if (!profile) return;
     router.push({
@@ -335,8 +180,6 @@ export default function AnfitrioneProfileScreen() {
   const privateImages = profile?.galleryImages.filter(
     (img) => img.isPremium && !img.isUnlockedByViewer
   ) ?? [];
-  const privateCredits = privateImages.reduce((s, i) => s + (i.unlockCredits ?? 0), 0);
-
   return (
     <View style={{ flex: 1, backgroundColor: "#0a0000" }}>
       <Stack.Screen options={{ headerShown: false }} />
@@ -646,10 +489,22 @@ export default function AnfitrioneProfileScreen() {
                         ))}
                       </View>
                     </View>
-                    <TouchableOpacity style={{
-                      marginTop: 10, borderWidth: 1, borderColor: "#F6C16A",
-                      borderRadius: 999, paddingVertical: 8, alignItems: "center",
-                    }}>
+                    <TouchableOpacity
+                      onPress={() =>
+                        router.push({
+                          pathname: "/(cliente)/anfitrionas/[id]/album" as any,
+                          params: {
+                            id,
+                            anfitrionaName: profile.name,
+                            images: JSON.stringify(publicImages.map((img) => ({ id: img.id, imageUrl: img.imageUrl }))),
+                          },
+                        })
+                      }
+                      style={{
+                        marginTop: 10, borderWidth: 1, borderColor: "#F6C16A",
+                        borderRadius: 999, paddingVertical: 8, alignItems: "center",
+                      }}
+                    >
                       <Text style={{ color: "#F6C16A", fontSize: 12, fontWeight: "700" }}>Ver Álbum</Text>
                     </TouchableOpacity>
                   </View>
@@ -693,28 +548,30 @@ export default function AnfitrioneProfileScreen() {
                     </View>
                     <TouchableOpacity
                       onPress={() =>
-                        unlockImage(id!, privateImages[0].id, () =>
-                          handleImageUnlocked(privateImages[0].id)
-                        )
+                        router.push({
+                          pathname: "/(cliente)/anfitrionas/[id]/desbloquear" as any,
+                          params: {
+                            id,
+                            anfitrionaName: profile.name,
+                            images: JSON.stringify(
+                              privateImages.map((img) => ({
+                                id: img.id,
+                                imageUrl: img.imageUrl,
+                                unlockCredits: img.unlockCredits ?? null,
+                              }))
+                            ),
+                          },
+                        })
                       }
-                      disabled={unlockingImageId === privateImages[0].id}
                       style={{
                         backgroundColor: "#D11B1B", borderRadius: 999,
                         paddingVertical: 9, paddingHorizontal: 8,
                         alignItems: "center",
                       }}
                     >
-                      {unlockingImageId === privateImages[0].id ? (
-                        <ActivityIndicator size="small" color="white" />
-                      ) : (
-                        <Text
-                          numberOfLines={1}
-                          adjustsFontSizeToFit
-                          style={{ color: "white", fontSize: 11, fontWeight: "700" }}
-                        >
-                          Desbloquear ({privateCredits} cr)
-                        </Text>
-                      )}
+                      <Text style={{ color: "white", fontSize: 11, fontWeight: "700" }}>
+                        Ver Álbum Exclusivo
+                      </Text>
                     </TouchableOpacity>
                   </View>
                 )}
