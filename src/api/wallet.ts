@@ -38,6 +38,8 @@ export interface WithdrawalRequest {
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
   bankName: string;
   accountNumber: string;
+  rejectionReason: string | null;
+  receiptUrl: string | null;
   createdAt: string;
 }
 

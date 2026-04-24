@@ -313,6 +313,8 @@ function AddBankAccountModal({
 
 // ─── Withdrawal Modal ────────────────────────────────────────────────────────
 
+const MIN_WITHDRAWAL_CREDITS = 50;
+
 function WithdrawalModal({
   visible,
   balance,
@@ -337,6 +339,8 @@ function WithdrawalModal({
 
   const creditsNum = parseFloat(credits) || 0;
   const soles = (creditsNum * creditRate).toFixed(2);
+  const minSoles = (MIN_WITHDRAWAL_CREDITS * creditRate).toFixed(2);
+  const belowMinimum = creditsNum > 0 && creditsNum < MIN_WITHDRAWAL_CREDITS;
 
   const loadAccounts = async () => {
     setLoadingAccounts(true);
@@ -446,17 +450,30 @@ function WithdrawalModal({
               </View>
 
               {/* Credits input */}
-              <Text className="text-gray-400 text-xs mb-1">
-                Monto a retirar (créditos)
-              </Text>
+              <View className="flex-row items-center justify-between mb-1">
+                <Text className="text-gray-400 text-xs">Monto a retirar (créditos)</Text>
+                <Text className="text-gray-500 text-xs">Mín. {MIN_WITHDRAWAL_CREDITS} cr. · S/ {minSoles}</Text>
+              </View>
               <TextInput
                 className="bg-[#1a1a1a] text-white rounded-xl px-4 py-3 text-lg font-bold mb-3"
-                placeholder="0"
+                placeholder={`Mín. ${MIN_WITHDRAWAL_CREDITS}`}
                 placeholderTextColor="#6b7280"
                 value={credits}
                 onChangeText={(v) => setCredits(v.replace(/[^0-9.]/g, ""))}
                 keyboardType="numeric"
               />
+
+              {/* Aviso mínimo */}
+              {belowMinimum && (
+                <View
+                  className="rounded-xl px-4 py-2 mb-3 flex-row items-center gap-2"
+                  style={{ backgroundColor: "rgba(239,68,68,0.12)", borderWidth: 1, borderColor: "rgba(239,68,68,0.35)" }}
+                >
+                  <Text style={{ color: "#ef4444", fontSize: 12 }}>
+                    El mínimo de retiro es {MIN_WITHDRAWAL_CREDITS} créditos (S/ {minSoles})
+                  </Text>
+                </View>
+              )}
 
               {/* Soles conversion */}
               <View
@@ -582,9 +599,9 @@ function WithdrawalModal({
 
               <TouchableOpacity
                 className="rounded-xl py-4 items-center"
-                style={{ backgroundColor: loading ? "#8b0000" : "#D11B1B" }}
+                style={{ backgroundColor: loading || belowMinimum ? "#8b0000" : "#D11B1B", opacity: belowMinimum ? 0.5 : 1 }}
                 onPress={handleSubmit}
-                disabled={loading}
+                disabled={loading || belowMinimum}
               >
                 {loading ? (
                   <ActivityIndicator color="#fff" />
