@@ -4,10 +4,12 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { ArrowLeft, CreditCard, ChevronRight, Gem } from "lucide-react-native";
 import { apiGetPaymentMethods } from "@/src/api/paymentMethods";
 import { PaymentMethod } from "@/src/types/paymentMethods";
+import { useCurrency } from "@/src/hooks/useCurrency";
 
 export default function MetodosPagosScreen() {
     const router = useRouter();
     const { packageId, credits, price } = useLocalSearchParams();
+    const { symbol, rate } = useCurrency();
 
     const [methods, setMethods] = useState<PaymentMethod[]>([]);
     const [loading, setLoading] = useState(true);
@@ -63,7 +65,9 @@ export default function MetodosPagosScreen() {
                         <View className="items-end">
                             <View className="bg-white/15 px-4 py-2 rounded-2xl">
                                 <Text className="text-white/60 text-[10px] uppercase tracking-widest">Total</Text>
-                                <Text className="text-white text-3xl font-black">S/ {price}</Text>
+                                <Text className="text-white text-3xl font-black">
+                                    {symbol} {(Number(credits ?? 0) * rate).toFixed(2)}
+                                </Text>
                             </View>
                         </View>
                     </View>

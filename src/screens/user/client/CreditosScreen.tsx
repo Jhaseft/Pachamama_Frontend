@@ -21,34 +21,39 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Gem, X } from "lucide-react-native";
 import { WebView } from "react-native-webview";
 import { apiGetAllPackages, apiFlowCreatePayment } from "@/src/api/package";
+import { apiPaypalCreateOrder, apiPaypalCapture } from "@/src/api/paypal";
 import { PackageData } from "@/src/types/package";
-import { apiGetMyWallet, apiGetConfig, WalletResponse } from "@/src/api/userClient";
+import { apiGetMyWallet, WalletResponse } from "@/src/api/userClient";
+import { useCurrency } from "@/src/hooks/useCurrency";
 
 const FLOW_RETURN_URL = "https://app.pachamama.chat/dashboard";
+const PAYPAL_RETURN_URL = "https://app.pachamama.chat/paypal/return";
+const PAYPAL_CANCEL_URL = "https://app.pachamama.chat/paypal/cancel";
 const BADGES = ["¡OFERTA!", "MEJOR OFERTA", "+ BONO"];
 
 export default function CreditosScreen() {
+
   const [packages, setPackages] = useState<PackageData[]>([]);
   const [loading, setLoading] = useState(true);
   const [wallet, setWallet] = useState<WalletResponse | null>(null);
-  const [creditRate, setCreditRate] = useState<number>(1);
   const [loadingPackageId, setLoadingPackageId] = useState<string | null>(null);
   const [webViewUrl, setWebViewUrl] = useState<string | null>(null);
   const [webViewVisible, setWebViewVisible] = useState(false);
+  const [paypalOrderId, setPaypalOrderId] = useState<string | null>(null);
+  const [capturing, setCapturing] = useState(false);
+  const { symbol, rate, isPeru } = useCurrency();
 
   useEffect(() => { void loadData(); }, []);
 
   const loadData = async () => {
     setLoading(true);
     try {
-      const [packagesData, walletData, configData] = await Promise.all([
+      const [packagesData, walletData] = await Promise.all([
         apiGetAllPackages(),
         apiGetMyWallet(),
-        apiGetConfig(),
       ]);
       setPackages(packagesData);
       setWallet(walletData);
-      setCreditRate(configData.creditToSolesRate);
     } catch (error) {
       console.error("Error cargando créditos:", error);
     } finally {
@@ -59,9 +64,16 @@ export default function CreditosScreen() {
   const handleBuy = async (packageId: string) => {
     setLoadingPackageId(packageId);
     try {
-      const { paymentUrl } = await apiFlowCreatePayment(packageId);
-      setWebViewUrl(paymentUrl);
-      setWebViewVisible(true);
+      if (isPeru) {
+        const { paymentUrl } = await apiFlowCreatePayment(packageId);
+        setWebViewUrl(paymentUrl);
+        setWebViewVisible(true);
+      } else {
+        const { approveUrl, orderId } = await apiPaypalCreateOrder(packageId);
+        setPaypalOrderId(orderId);
+        setWebViewUrl(approveUrl);
+        setWebViewVisible(true);
+      }
     } catch (error: any) {
       Alert.alert("Error", error?.message ?? "No se pudo iniciar el pago");
     } finally {
@@ -69,8 +81,45 @@ export default function CreditosScreen() {
     }
   };
 
+  const capturePaypalOrder = async (orderId: string) => {
+    setCapturing(true);
+    try {
+      const result = await apiPaypalCapture(orderId);
+      Alert.alert("Pago exitoso", `Se acreditaron ${result.credits} créditos`);
+      await loadData();
+    } catch (error: any) {
+      Alert.alert(
+        "Error al confirmar",
+        error?.message ?? "No se pudo acreditar el pago. Contacta a soporte.",
+      );
+    } finally {
+      setCapturing(false);
+    }
+  };
+
   const handleWebViewNavigationChange = (navState: { url: string }) => {
-    if (navState.url.startsWith(FLOW_RETURN_URL)) {
+    const url = navState.url;
+
+    if (paypalOrderId) {
+      if (url.startsWith(PAYPAL_RETURN_URL)) {
+        const orderIdToCapture = paypalOrderId;
+        setWebViewVisible(false);
+        setWebViewUrl(null);
+        setPaypalOrderId(null);
+        void capturePaypalOrder(orderIdToCapture);
+        return;
+      }
+      if (url.startsWith(PAYPAL_CANCEL_URL)) {
+        setWebViewVisible(false);
+        setWebViewUrl(null);
+        setPaypalOrderId(null);
+        Alert.alert("Pago cancelado", "No se realizó ningún cobro");
+        return;
+      }
+      return;
+    }
+
+    if (url.startsWith(FLOW_RETURN_URL)) {
       setWebViewVisible(false);
       setWebViewUrl(null);
       void loadData();
@@ -80,6 +129,7 @@ export default function CreditosScreen() {
   const handleCloseWebView = () => {
     setWebViewVisible(false);
     setWebViewUrl(null);
+    setPaypalOrderId(null);
   };
 
   return (
@@ -105,7 +155,7 @@ export default function CreditosScreen() {
 
         {/* Conversion info */}
         <Text className="text-[rgba(246,193,106,0.6)] text-xs font-semibold text-center -mt-4 mb-5 tracking-widest">
-          1 crédito = {creditRate} {creditRate === 1 ? 'sol' : 'soles'}
+          1 crédito = {symbol} {rate}
         </Text>
 
         {/* Section title */}
@@ -170,8 +220,10 @@ export default function CreditosScreen() {
 
                     {/* Price */}
                     <View className="flex-row items-baseline gap-1">
-                      <Text className="text-[rgba(255,255,255,0.45)] text-xs">S/</Text>
-                      <Text className="text-white text-2xl font-extrabold">{item.price}</Text>
+                      <Text className="text-[rgba(255,255,255,0.45)] text-xs">{symbol}</Text>
+                      <Text className="text-white text-2xl font-extrabold">
+                        {(item.credits * rate).toFixed(2)}
+                      </Text>
                     </View>
                     <Text className="text-[rgba(255,255,255,0.35)] text-[10px] -mt-1">
                       pago único
@@ -233,6 +285,19 @@ export default function CreditosScreen() {
               )}
             />
           )}
+        </View>
+      </Modal>
+
+      {/* Overlay — capturando pago PayPal */}
+      <Modal visible={capturing} animationType="fade" transparent>
+        <View className="flex-1 items-center justify-center bg-black/80">
+          <View className="bg-[#1a0208] border border-[rgba(246,193,106,0.3)] rounded-3xl px-8 py-6 items-center">
+            <ActivityIndicator color="#F6C16A" size="large" />
+            <Text className="text-[#F6C16A] text-base font-bold mt-4">
+              Confirmando pago...
+            </Text>
+            <Text className="text-white/60 text-xs mt-1">No cierres la app</Text>
+          </View>
         </View>
       </Modal>
     </View>

@@ -11,6 +11,7 @@ import {
 import { apiGetPublicServicePrices, type ServicePrice } from '@/src/api/servicePrices';
 import { useSocket } from '@/hooks/useSocket';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -164,6 +165,8 @@ export default function ChatScreen() {
   const [kavKey, setKavKey] = useState(0);
   const [servicePrices, setServicePrices] = useState<ServicePrice[]>([]);
   const [showEmoji, setShowEmoji] = useState(false);
+  const [priceBannerVisible, setPriceBannerVisible] = useState(false);
+  const priceBannerAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (!otherUserId) return;
@@ -353,6 +356,45 @@ export default function ChatScreen() {
   }
 
   const msgPrice = getPrice('MESSAGE_SEND' as ServicePrice['serviceType']);
+
+  useEffect(() => {
+    if (msgPrice == null || !activeConversationId) return;
+    const key = `chat_price_shown_${activeConversationId}`;
+    let cancelled = false;
+    let hideTimer: ReturnType<typeof setTimeout> | null = null;
+    (async () => {
+      try {
+        const already = await AsyncStorage.getItem(key);
+        if (already || cancelled) return;
+        setPriceBannerVisible(true);
+        Animated.timing(priceBannerAnim, {
+          toValue: 1,
+          duration: 260,
+          useNativeDriver: true,
+        }).start();
+        hideTimer = setTimeout(() => {
+          Animated.timing(priceBannerAnim, {
+            toValue: 0,
+            duration: 220,
+            useNativeDriver: true,
+          }).start(() => setPriceBannerVisible(false));
+        }, 4000);
+        await AsyncStorage.setItem(key, '1');
+      } catch {}
+    })();
+    return () => {
+      cancelled = true;
+      if (hideTimer) clearTimeout(hideTimer);
+    };
+  }, [msgPrice, activeConversationId]);
+
+  function dismissPriceBanner() {
+    Animated.timing(priceBannerAnim, {
+      toValue: 0,
+      duration: 180,
+      useNativeDriver: true,
+    }).start(() => setPriceBannerVisible(false));
+  }
 
   const listData = useMemo<ListItem[]>(() => {
     const result: ListItem[] = [];
@@ -581,6 +623,34 @@ export default function ChatScreen() {
               );
             }}
           />
+        )}
+
+        {priceBannerVisible && msgPrice != null && (
+          <Animated.View
+            style={{
+              opacity: priceBannerAnim,
+              transform: [{
+                translateY: priceBannerAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [8, 0],
+                }),
+              }],
+              paddingHorizontal: 12,
+              paddingTop: 8,
+            }}
+          >
+            <TouchableOpacity
+              activeOpacity={0.85}
+              onPress={dismissPriceBanner}
+              className="flex-row items-center gap-2 bg-[rgba(246,193,106,0.08)] border border-[rgba(246,193,106,0.25)] rounded-xl px-3 py-2"
+            >
+              <Ionicons name="information-circle" size={16} color="#F6C16A" />
+              <Text className="flex-1 text-[#F6C16A] text-[12px]">
+                Enviar un mensaje cuesta {msgPrice} crédito{msgPrice !== 1 ? 's' : ''}
+              </Text>
+              <Ionicons name="close" size={14} color="rgba(246,193,106,0.6)" />
+            </TouchableOpacity>
+          </Animated.View>
         )}
 
         {showEmoji && (

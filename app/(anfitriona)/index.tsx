@@ -21,7 +21,7 @@ import { useAuth } from "../../src/context/AuthContext";
 import { getProfile } from "../../src/services/auth";
 import { apiGetMyEarnings, type EarningTransaction, type EarningsData } from "../../src/api/wallet";
 import { getChats } from "../../src/api/messages";
-import { useCreditRate } from "../../src/hooks/useCreditRate";
+import { useCurrency } from "../../src/hooks/useCurrency";
 import SubscriptionBanner from "../../src/components/anfitriona/SubscriptionBanner";
 
 // ─── AnimatedBorderCard ───────────────────────────────────────────────────────
@@ -189,7 +189,7 @@ function formatRelativeTime(dateStr: string): string {
 
 export default function AnfitrianaInicio() {
   const { accessToken, user, isHydrated, setSession, logout } = useAuth();
-  const { toSoles } = useCreditRate();
+  const { formatUSD } = useCurrency();
   const [earnings, setEarnings] = useState<EarningsData | null>(null);
   const [loadingEarnings, setLoadingEarnings] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -328,8 +328,11 @@ export default function AnfitrianaInicio() {
                   <Text style={{ color: "#F6C16A", fontSize: 12, marginBottom: 4 }}>
                     Hoy
                   </Text>
-                  <Text style={{ color: "#FFEE00", fontSize: 22, fontWeight: "900" }}>
-                    +S/ {toSoles(earnings?.today ?? 0)}
+                  <Text style={{ color: "#FFEE00", fontSize: 20, fontWeight: "900" }}>
+                    +{earnings?.today ?? 0} cr
+                  </Text>
+                  <Text style={{ color: "rgba(255,238,0,0.7)", fontSize: 11, fontWeight: "600", marginTop: 2 }}>
+                    ≈ {formatUSD(earnings?.today ?? 0)}
                   </Text>
                 </LinearGradient>
               </AnimatedBorderCard>
@@ -345,8 +348,11 @@ export default function AnfitrianaInicio() {
                   <Text style={{ color: "rgba(230,200,255,0.85)", fontSize: 12, marginBottom: 4 }}>
                     Esta semana
                   </Text>
-                  <Text style={{ color: "#FFEE00", fontSize: 22, fontWeight: "900" }}>
-                    +S/ {toSoles(earnings?.thisWeek ?? 0)}
+                  <Text style={{ color: "#FFEE00", fontSize: 20, fontWeight: "900" }}>
+                    +{earnings?.thisWeek ?? 0} cr
+                  </Text>
+                  <Text style={{ color: "rgba(255,238,0,0.7)", fontSize: 11, fontWeight: "600", marginTop: 2 }}>
+                    ≈ {formatUSD(earnings?.thisWeek ?? 0)}
                   </Text>
                 </LinearGradient>
               </GlowingCard>
@@ -409,7 +415,7 @@ export default function AnfitrianaInicio() {
                   </Text>
                   {earnings && (
                     <Text style={{ color: "#FFEE00", fontSize: 11, fontWeight: "800", marginTop: 4 }}>
-                      +S/ {toSoles(earnings.today)} hoy
+                      +{earnings.today} cr · ≈ {formatUSD(earnings.today)}
                     </Text>
                   )}
                 </LinearGradient>
@@ -491,20 +497,20 @@ export default function AnfitrianaInicio() {
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={{ color: "white", fontWeight: "600", fontSize: 14 }}>
-                        {tx.service}{" "}
-                        <Text style={{ color: "#FFEE00", fontWeight: "800" }}>
-                          · +S/ {toSoles(tx.amount)}
-                        </Text>
+                        {tx.service}
                       </Text>
                       <Text style={{ color: "rgba(255,255,255,0.45)", fontSize: 12, marginTop: 2 }}>
                         {formatRelativeTime(tx.createdAt)}
                       </Text>
                     </View>
-                    <Text
-                      style={{ color: "rgba(255,255,255,0.55)", fontSize: 12, fontWeight: "600" }}
-                    >
-                      +{tx.amount} créditos
-                    </Text>
+                    <View style={{ alignItems: "flex-end" }}>
+                      <Text style={{ color: "#FFEE00", fontSize: 13, fontWeight: "800" }}>
+                        +{tx.amount} créditos
+                      </Text>
+                      <Text style={{ color: "rgba(255,238,0,0.7)", fontSize: 11, fontWeight: "600", marginTop: 2 }}>
+                        ≈ {formatUSD(tx.amount)}
+                      </Text>
+                    </View>
                   </View>
                 </LinearGradient>
               </AnimatedBorderCard>
