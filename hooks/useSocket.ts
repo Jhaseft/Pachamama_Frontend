@@ -3,6 +3,12 @@ import { io, Socket } from 'socket.io-client';
 import { API_URL } from '../src/config';
 import type { Message } from '../src/api/messages';
 
+export interface UserPresenceEvent {
+  userId: string;
+  isOnline: boolean;
+  lastActiveAt: string;
+}
+
 export function useSocket(userId: string | null | undefined) {
   const socketRef = useRef<Socket | null>(null);
 
@@ -40,5 +46,12 @@ export function useSocket(userId: string | null | undefined) {
     };
   }
 
-  return { sendMessage, onNewMessage, onMessageSent };
+  function onUserPresence(callback: (event: UserPresenceEvent) => void) {
+    socketRef.current?.on('user_presence', callback);
+    return () => {
+      socketRef.current?.off('user_presence', callback);
+    };
+  }
+
+  return { sendMessage, onNewMessage, onMessageSent, onUserPresence };
 }

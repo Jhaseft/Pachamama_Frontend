@@ -8,6 +8,7 @@ import {
   sendImageHttp,
   type Message,
 } from '@/src/api/messages';
+import { formatPresence } from '@/src/utils/formatPresence';
 import { apiGetUserWallet } from '@/src/api/userClient';
 import { useSocket } from '@/hooks/useSocket';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -88,7 +89,12 @@ export default function AnfitrianaChat() {
   const [imageLocked, setImageLocked] = useState(false);
   const [imagePrice, setImagePrice] = useState('');
 
-  const { onNewMessage } = useSocket(user?.id);
+  const { onNewMessage, onUserPresence } = useSocket(user?.id);
+
+  const [otherUserPresence, setOtherUserPresence] = useState<{
+    isOnline: boolean;
+    lastActiveAt: string | null;
+  }>({ isOnline: false, lastActiveAt: null });
 
   useEffect(() => { void loadServicePrices(); }, []);
 
@@ -120,6 +126,18 @@ export default function AnfitrianaChat() {
     });
     return unsub;
   }, [activeConversationId]);
+
+  useEffect(() => {
+    const unsub = onUserPresence((event) => {
+      if (event.userId === otherUserId) {
+        setOtherUserPresence({
+          isOnline: event.isOnline,
+          lastActiveAt: event.lastActiveAt,
+        });
+      }
+    });
+    return unsub;
+  }, [otherUserId]);
 
   useEffect(() => {
     if (activeConversationId && user?.id) void markAsRead(activeConversationId, user.id);
@@ -323,6 +341,25 @@ export default function AnfitrianaChat() {
                 </View>
               )}
             </View>
+            {(() => {
+              const presenceText = formatPresence(
+                otherUserPresence.isOnline,
+                otherUserPresence.lastActiveAt,
+              );
+              if (!presenceText) return null;
+              return (
+                <Text
+                  style={{
+                    fontSize: 11,
+                    marginTop: 1,
+                    color: otherUserPresence.isOnline ? '#22c55e' : 'rgba(255,255,255,0.4)',
+                    fontWeight: otherUserPresence.isOnline ? '600' : '400',
+                  }}
+                >
+                  {presenceText}
+                </Text>
+              );
+            })()}
           </View>
         </View>
       </View>
