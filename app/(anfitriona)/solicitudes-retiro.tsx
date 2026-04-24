@@ -13,8 +13,6 @@ import {
 } from "react-native";
 import { Clock, CheckCircle, XCircle, Banknote, FileText } from "lucide-react-native";
 
-const RATE = 0.90;
-
 function statusConfig(status: WithdrawalRequest["status"]) {
   switch (status) {
     case "PENDING":
@@ -65,9 +63,26 @@ function RequestCard({ req }: { req: WithdrawalRequest }) {
         </View>
         <View className="items-end">
           <Text className="text-gray-400 text-xs mb-0.5">A recibir</Text>
-          <Text className="text-green-400 font-black text-lg">S/ {req.soles.toFixed(2)}</Text>
+          <Text className="text-green-400 font-black text-lg">
+            {req.payoutCurrency === 'USD' ? 'USD' : 'S/'} {req.payoutAmount.toFixed(2)}
+          </Text>
         </View>
       </View>
+
+      {/* Destination detail */}
+      {req.methodType === 'PAYPAL' ? (
+        <View className="mt-2 flex-row items-center gap-1">
+          <Text className="text-gray-500 text-xs">PayPal:</Text>
+          <Text className="text-gray-300 text-xs">{req.paypalEmail}</Text>
+        </View>
+      ) : (
+        <View className="mt-2 flex-row items-center gap-1">
+          <Text className="text-gray-500 text-xs">{req.bankName} ·</Text>
+          <Text className="text-gray-300 text-xs">
+            {req.methodType === 'OTHER_BANK' ? 'CCI: ' : ''}{req.accountNumber}
+          </Text>
+        </View>
+      )}
 
       {/* Motivo de rechazo */}
       {req.status === "REJECTED" && req.rejectionReason && (
