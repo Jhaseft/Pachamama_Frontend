@@ -3,7 +3,7 @@
     "name": "Pachamama",
     "slug": "Lima",
     "scheme": "pachamama",
-    "version": "8.0",
+    "version": "9.0",
     "orientation": "portrait",
     "icon": "./assets/logofull.jpeg",
     "userInterfaceStyle": "light",
@@ -57,7 +57,7 @@
       "expo-secure-store",
       "expo-video",
       "@react-native-firebase/app",
-      "@react-native-firebase/messaging",
+      "@react-native-firebase/messaging"
     ],
     "extra": {
       "router": {},
