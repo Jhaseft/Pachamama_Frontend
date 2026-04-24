@@ -22,22 +22,31 @@ export interface Bank {
   logoUrl: string;
 }
 
+export type WithdrawalMethodType = 'BCP' | 'OTHER_BANK' | 'PAYPAL';
+
 export interface BankAccount {
   id: string;
-  bankId: number;
-  bankName: string;
-  bankLogoUrl: string;
-  accountNumber: string;
-  accountHolderName?: string;
+  type: WithdrawalMethodType;
+  bankId: number | null;
+  bankName: string | null;
+  bankLogoUrl: string | null;
+  accountNumber: string | null;
+  paypalEmail: string | null;
+  accountHolderName?: string | null;
 }
 
 export interface WithdrawalRequest {
   id: string;
   credits: number;
-  soles: number;
+  payoutAmount: number;
+  payoutCurrency: string;
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
-  bankName: string;
-  accountNumber: string;
+  methodType: WithdrawalMethodType;
+  bankName: string | null;
+  accountNumber: string | null;
+  paypalEmail: string | null;
+  rejectionReason: string | null;
+  receiptUrl: string | null;
   createdAt: string;
 }
 
@@ -57,8 +66,10 @@ export const apiGetBankAccounts = async (): Promise<BankAccount[]> => {
 };
 
 export const apiAddBankAccount = async (data: {
-  bankId: number;
-  accountNumber: string;
+  type: WithdrawalMethodType;
+  bankId?: number;
+  accountNumber?: string;
+  paypalEmail?: string;
   accountHolderName?: string;
 }): Promise<BankAccount> => {
   const response = await apiClient.post('/wallet/me/bank-accounts', data);

@@ -1,5 +1,6 @@
 import ScreenHeader from "@/components/Menu/ScreenHeader";
 import { useCreditRate } from "@/src/hooks/useCreditRate";
+import { MIN_WITHDRAWAL_USD, CREDITS_PER_USD } from "@/src/config";
 import { useCurrency } from "@/src/hooks/useCurrency";
 import { LinearGradient } from "expo-linear-gradient";
 import {
@@ -150,7 +151,9 @@ function TransactionItem({ tx, formatUSD }: { tx: EarningTransaction; formatUSD:
   );
 }
 
-// ─── Add Bank Account Modal ──────────────────────────────────────────────────
+// ─── Add Payment Method Modal ────────────────────────────────────────────────
+
+type MethodType = 'BCP' | 'OTHER_BANK' | 'PAYPAL';
 
 function AddBankAccountModal({
   visible,
@@ -161,84 +164,147 @@ function AddBankAccountModal({
   onClose: () => void;
   onAdded: (account: BankAccount) => void;
 }) {
+  const [methodType, setMethodType] = useState<MethodType>('BCP');
   const [banks, setBanks] = useState<Bank[]>([]);
   const [selectedBank, setSelectedBank] = useState<Bank | null>(null);
   const [showBankPicker, setShowBankPicker] = useState(false);
   const [accountNumber, setAccountNumber] = useState("");
+  const [paypalEmail, setPaypalEmail] = useState("");
   const [holderName, setHolderName] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (visible) {
-      apiGetBanks()
-        .then(setBanks)
-        .catch(() => {});
+      apiGetBanks().then(setBanks).catch(() => {});
+      setMethodType('BCP');
       setSelectedBank(null);
       setAccountNumber("");
+      setPaypalEmail("");
       setHolderName("");
     }
   }, [visible]);
 
   const handleSave = async () => {
-    if (!selectedBank) return Alert.alert("Error", "Selecciona un banco");
-    if (!accountNumber.trim())
-      return Alert.alert("Error", "Ingresa el número de cuenta");
+    if (methodType === 'PAYPAL') {
+      if (!paypalEmail.trim()) return Alert.alert("Error", "Ingresa tu email de PayPal");
+    } else if (methodType === 'OTHER_BANK') {
+      if (!selectedBank) return Alert.alert("Error", "Selecciona un banco");
+      if (!accountNumber.trim()) return Alert.alert("Error", "Ingresa el CCI");
+    } else {
+      if (!accountNumber.trim()) return Alert.alert("Error", "Ingresa el número de cuenta BCP");
+    }
     setLoading(true);
     try {
       const account = await apiAddBankAccount({
-        bankId: selectedBank.id,
-        accountNumber: accountNumber.trim(),
+        type: methodType,
+        bankId: methodType === 'OTHER_BANK' ? selectedBank!.id : undefined,
+        accountNumber: methodType !== 'PAYPAL' ? accountNumber.trim() : undefined,
+        paypalEmail: methodType === 'PAYPAL' ? paypalEmail.trim() : undefined,
         accountHolderName: holderName.trim() || undefined,
       });
       onAdded(account);
       onClose();
     } catch {
-      Alert.alert("Error", "No se pudo agregar la cuenta");
+      Alert.alert("Error", "No se pudo agregar el método de pago");
     } finally {
       setLoading(false);
     }
   };
 
+  const methodOptions: { key: MethodType; label: string; sub: string }[] = [
+    { key: 'BCP',       label: 'BCP',          sub: 'Número de cuenta' },
+    { key: 'OTHER_BANK',label: 'Otro banco',    sub: 'CCI interbancario' },
+    { key: 'PAYPAL',    label: 'PayPal',        sub: 'Pago internacional USD' },
+  ];
+
   return (
     <Modal visible={visible} transparent animationType="slide">
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
-        style={{
-          flex: 1,
-          justifyContent: "flex-end",
-          backgroundColor: "rgba(0,0,0,0.6)",
-        }}
+        style={{ flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(0,0,0,0.6)" }}
       >
         <View className="bg-[#111] rounded-t-3xl px-6 pt-5 pb-8">
           <View className="flex-row items-center justify-between mb-5">
-            <Text className="text-white text-lg font-bold">
-              Agregar cuenta bancaria
-            </Text>
-            <TouchableOpacity onPress={onClose}>
-              <X size={22} color="#9ca3af" />
-            </TouchableOpacity>
+            <Text className="text-white text-lg font-bold">Agregar método de pago</Text>
+            <TouchableOpacity onPress={onClose}><X size={22} color="#9ca3af" /></TouchableOpacity>
           </View>
 
-          <Text className="text-gray-400 text-xs mb-1">Banco</Text>
-          <TouchableOpacity
-            className="flex-row items-center justify-between bg-[#1a1a1a] rounded-xl px-4 py-3 mb-4"
-            onPress={() => setShowBankPicker(true)}
-          >
-            <Text style={{ color: selectedBank ? "#fff" : "#6b7280" }}>
-              {selectedBank ? selectedBank.name : "Seleccionar banco"}
-            </Text>
-            <ChevronDown size={18} color="#9ca3af" />
-          </TouchableOpacity>
+          {/* Method selector */}
+          <Text className="text-gray-400 text-xs mb-2">Tipo de método</Text>
+          <View className="flex-row gap-2 mb-5">
+            {methodOptions.map((opt) => {
+              const active = methodType === opt.key;
+              return (
+                <TouchableOpacity
+                  key={opt.key}
+                  onPress={() => { setMethodType(opt.key); setSelectedBank(null); setAccountNumber(""); }}
+                  style={{ flex: 1, borderRadius: 12, padding: 10, alignItems: 'center',
+                    backgroundColor: active ? 'rgba(209,27,27,0.15)' : '#1a1a1a',
+                    borderWidth: 1, borderColor: active ? '#D11B1B' : '#2a2a2a' }}
+                >
+                  <Text style={{ color: active ? '#fff' : '#6b7280', fontWeight: '700', fontSize: 12 }}>{opt.label}</Text>
+                  <Text style={{ color: active ? 'rgba(255,255,255,0.5)' : '#444', fontSize: 10, marginTop: 2, textAlign: 'center' }}>{opt.sub}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
 
-          <Text className="text-gray-400 text-xs mb-1">Número de cuenta</Text>
-          <TextInput
-            className="bg-[#1a1a1a] text-white rounded-xl px-4 py-3 mb-4"
-            placeholder="Ej: 12345678901234"
-            placeholderTextColor="#6b7280"
-            value={accountNumber}
-            onChangeText={setAccountNumber}
-            keyboardType="numeric"
-          />
+          {/* BCP: solo número de cuenta */}
+          {methodType === 'BCP' && (
+            <>
+              <Text className="text-gray-400 text-xs mb-1">Número de cuenta BCP</Text>
+              <TextInput
+                className="bg-[#1a1a1a] text-white rounded-xl px-4 py-3 mb-4"
+                placeholder="Ej: 1234567890123"
+                placeholderTextColor="#6b7280"
+                value={accountNumber}
+                onChangeText={setAccountNumber}
+                keyboardType="numeric"
+              />
+            </>
+          )}
+
+          {/* Otro banco: selector de banco + CCI */}
+          {methodType === 'OTHER_BANK' && (
+            <>
+              <Text className="text-gray-400 text-xs mb-1">Banco</Text>
+              <TouchableOpacity
+                className="flex-row items-center justify-between bg-[#1a1a1a] rounded-xl px-4 py-3 mb-4"
+                onPress={() => setShowBankPicker(true)}
+              >
+                <Text style={{ color: selectedBank ? "#fff" : "#6b7280" }}>
+                  {selectedBank ? selectedBank.name : "Seleccionar banco"}
+                </Text>
+                <ChevronDown size={18} color="#9ca3af" />
+              </TouchableOpacity>
+
+              <Text className="text-gray-400 text-xs mb-1">CCI (código interbancario)</Text>
+              <TextInput
+                className="bg-[#1a1a1a] text-white rounded-xl px-4 py-3 mb-4"
+                placeholder="Ej: 00212312300012345678"
+                placeholderTextColor="#6b7280"
+                value={accountNumber}
+                onChangeText={setAccountNumber}
+                keyboardType="numeric"
+              />
+            </>
+          )}
+
+          {/* PayPal email */}
+          {methodType === 'PAYPAL' && (
+            <>
+              <Text className="text-gray-400 text-xs mb-1">Email de PayPal</Text>
+              <TextInput
+                className="bg-[#1a1a1a] text-white rounded-xl px-4 py-3 mb-4"
+                placeholder="tu@email.com"
+                placeholderTextColor="#6b7280"
+                value={paypalEmail}
+                onChangeText={setPaypalEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            </>
+          )}
 
           <Text className="text-gray-400 text-xs mb-1">Titular (opcional)</Text>
           <TextInput
@@ -254,12 +320,8 @@ function AddBankAccountModal({
             onPress={handleSave}
             disabled={loading}
           >
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text className="text-white font-bold text-base">
-                Guardar cuenta
-              </Text>
+            {loading ? <ActivityIndicator color="#fff" /> : (
+              <Text className="text-white font-bold text-base">Guardar método</Text>
             )}
           </TouchableOpacity>
         </View>
@@ -267,12 +329,7 @@ function AddBankAccountModal({
         {/* Bank picker */}
         <Modal visible={showBankPicker} transparent animationType="fade">
           <TouchableOpacity
-            style={{
-              flex: 1,
-              backgroundColor: "rgba(0,0,0,0.6)",
-              justifyContent: "center",
-              paddingHorizontal: 24,
-            }}
+            style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.6)", justifyContent: "center", paddingHorizontal: 24 }}
             onPress={() => setShowBankPicker(false)}
             activeOpacity={1}
           >
@@ -282,30 +339,16 @@ function AddBankAccountModal({
                 keyExtractor={(b) => b.id.toString()}
                 renderItem={({ item }) => (
                   <TouchableOpacity
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      paddingHorizontal: 20,
-                      paddingVertical: 16,
-                      borderBottomWidth: 1,
-                      borderBottomColor: "#2a2a2a",
-                    }}
-                    onPress={() => {
-                      setSelectedBank(item);
-                      setShowBankPicker(false);
-                    }}
+                    style={{ flexDirection: "row", alignItems: "center", paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: "#2a2a2a" }}
+                    onPress={() => { setSelectedBank(item); setShowBankPicker(false); }}
                   >
                     <Text className="text-white flex-1">{item.name}</Text>
-                    {selectedBank?.id === item.id && (
-                      <CheckCircle size={18} color="#D11B1B" />
-                    )}
+                    {selectedBank?.id === item.id && <CheckCircle size={18} color="#D11B1B" />}
                   </TouchableOpacity>
                 )}
                 ListEmptyComponent={
                   <View className="py-8 items-center">
-                    <Text className="text-gray-500">
-                      No hay bancos disponibles
-                    </Text>
+                    <Text className="text-gray-500">No hay bancos disponibles</Text>
                   </View>
                 }
               />
@@ -318,6 +361,8 @@ function AddBankAccountModal({
 }
 
 // ─── Withdrawal Modal ────────────────────────────────────────────────────────
+
+const MIN_WITHDRAWAL_CREDITS = MIN_WITHDRAWAL_USD * CREDITS_PER_USD;
 
 function WithdrawalModal({
   visible,
@@ -342,7 +387,12 @@ function WithdrawalModal({
   const [showAddAccount, setShowAddAccount] = useState(false);
 
   const creditsNum = parseFloat(credits) || 0;
-  const soles = (creditsNum * creditRate).toFixed(2);
+  const isPaypal = selectedAccount?.type === 'PAYPAL';
+  const solesAmount = (creditsNum * creditRate).toFixed(2);
+  const usdAmount = CREDITS_PER_USD > 0 ? (creditsNum / CREDITS_PER_USD).toFixed(2) : "0.00";
+  const minSoles = (MIN_WITHDRAWAL_CREDITS * creditRate).toFixed(2);
+  const minUsd = CREDITS_PER_USD > 0 ? (MIN_WITHDRAWAL_CREDITS / CREDITS_PER_USD).toFixed(2) : "0.00";
+  const belowMinimum = creditsNum > 0 && creditsNum < MIN_WITHDRAWAL_CREDITS;
 
   const loadAccounts = async () => {
     setLoadingAccounts(true);
@@ -398,7 +448,7 @@ function WithdrawalModal({
       });
       Alert.alert(
         "Solicitud enviada",
-        `Tu solicitud de retiro de S/ ${soles} fue enviada. El equipo la procesará en 1-3 días hábiles.`,
+        `Tu solicitud de retiro de S/ ${solesAmount} (USD ${usdAmount}) fue enviada. El equipo la procesará en 1-3 días hábiles.`,
         [
           {
             text: "OK",
@@ -452,33 +502,57 @@ function WithdrawalModal({
               </View>
 
               {/* Credits input */}
-              <Text className="text-gray-400 text-xs mb-1">
-                Monto a retirar (créditos)
-              </Text>
+              <View className="flex-row items-center justify-between mb-1">
+                <Text className="text-gray-400 text-xs">Monto a retirar (créditos)</Text>
+                <Text className="text-gray-500 text-xs">Mín. USD {MIN_WITHDRAWAL_USD} · {MIN_WITHDRAWAL_CREDITS} cr.</Text>
+              </View>
+              {isPaypal && (
+                <View className="flex-row items-center gap-1 mb-2">
+                  <Text className="text-blue-400 text-xs">💡 PayPal: 1 crédito = USD {(1 / CREDITS_PER_USD).toFixed(2)}</Text>
+                </View>
+              )}
               <TextInput
                 className="bg-[#1a1a1a] text-white rounded-xl px-4 py-3 text-lg font-bold mb-3"
-                placeholder="0"
+                placeholder={`Mín. ${MIN_WITHDRAWAL_CREDITS} créditos`}
                 placeholderTextColor="#6b7280"
                 value={credits}
                 onChangeText={(v) => setCredits(v.replace(/[^0-9.]/g, ""))}
                 keyboardType="numeric"
               />
 
-              {/* Soles conversion */}
+              {/* Aviso mínimo */}
+              {belowMinimum && (
+                <View
+                  className="rounded-xl px-4 py-2 mb-3 flex-row items-center gap-2"
+                  style={{ backgroundColor: "rgba(239,68,68,0.12)", borderWidth: 1, borderColor: "rgba(239,68,68,0.35)" }}
+                >
+                  <Text style={{ color: "#ef4444", fontSize: 12 }}>
+                    El mínimo de retiro es USD {MIN_WITHDRAWAL_USD} ({MIN_WITHDRAWAL_CREDITS} créditos · S/ {minSoles} / USD {minUsd})
+                  </Text>
+                </View>
+              )}
+
+              {/* Payout conversion */}
               <View
-                className="rounded-xl px-4 py-3 mb-6 flex-row items-center justify-between"
-                style={{
-                  backgroundColor: "rgba(209,27,27,0.1)",
-                  borderWidth: 1,
-                  borderColor: "rgba(209,27,27,0.3)",
-                }}
+                className="rounded-xl px-4 py-3 mb-6"
+                style={{ backgroundColor: "rgba(209,27,27,0.1)", borderWidth: 1, borderColor: "rgba(209,27,27,0.3)" }}
               >
-                <Text className="text-gray-300 text-sm">
-                  Recibirás en soles
-                </Text>
-                <Text className="text-[#D11B1B] font-black text-xl">
-                  S/ {soles}
-                </Text>
+                <Text className="text-gray-400 text-xs mb-2">Recibirás</Text>
+                <View className="flex-row items-center justify-between">
+                  <View className="items-center flex-1">
+                    <Text className="text-gray-400 text-[10px] uppercase tracking-widest mb-1">Soles</Text>
+                    <Text style={{ color: isPaypal ? "#9ca3af" : "#D11B1B", fontWeight: "900", fontSize: isPaypal ? 16 : 22 }}>
+                      S/ {solesAmount}
+                    </Text>
+                  </View>
+                  <View style={{ width: 1, height: 36, backgroundColor: "rgba(209,27,27,0.3)" }} />
+                  <View className="items-center flex-1">
+                    <Text className="text-gray-400 text-[10px] uppercase tracking-widest mb-1">USD</Text>
+                    <Text style={{ color: isPaypal ? "#D11B1B" : "#9ca3af", fontWeight: "900", fontSize: isPaypal ? 22 : 16 }}>
+                      USD {usdAmount}
+                    </Text>
+                  </View>
+                </View>
               </View>
 
               {/* Bank accounts */}
@@ -588,15 +662,15 @@ function WithdrawalModal({
 
               <TouchableOpacity
                 className="rounded-xl py-4 items-center"
-                style={{ backgroundColor: loading ? "#8b0000" : "#D11B1B" }}
+                style={{ backgroundColor: loading || belowMinimum ? "#8b0000" : "#D11B1B", opacity: belowMinimum ? 0.5 : 1 }}
                 onPress={handleSubmit}
-                disabled={loading}
+                disabled={loading || belowMinimum}
               >
                 {loading ? (
                   <ActivityIndicator color="#fff" />
                 ) : (
                   <Text className="text-white font-bold text-base">
-                    Solicitar S/ {soles}
+                    Solicitar S/ {solesAmount} · USD {usdAmount}
                   </Text>
                 )}
               </TouchableOpacity>

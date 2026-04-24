@@ -6,6 +6,7 @@ export interface Chat {
   otherUserId: string;
   otherUserName: string;
   otherUserAvatar: string | null;
+  otherUserLastActiveAt?: string | null;
   lastMessage: string | null;
   lastMessageAt: string;
   unreadCount: number;

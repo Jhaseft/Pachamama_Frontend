@@ -8,10 +8,10 @@ import {
   ActivityIndicator,
   Alert,
   RefreshControl,
+  Linking,
+  TouchableOpacity,
 } from "react-native";
-import { Clock, CheckCircle, XCircle, Banknote } from "lucide-react-native";
-
-const RATE = 0.90;
+import { Clock, CheckCircle, XCircle, Banknote, FileText } from "lucide-react-native";
 
 function statusConfig(status: WithdrawalRequest["status"]) {
   switch (status) {
@@ -63,9 +63,49 @@ function RequestCard({ req }: { req: WithdrawalRequest }) {
         </View>
         <View className="items-end">
           <Text className="text-gray-400 text-xs mb-0.5">A recibir</Text>
-          <Text className="text-green-400 font-black text-lg">S/ {req.soles.toFixed(2)}</Text>
+          <Text className="text-green-400 font-black text-lg">
+            {req.payoutCurrency === 'USD' ? 'USD' : 'S/'} {req.payoutAmount.toFixed(2)}
+          </Text>
         </View>
       </View>
+
+      {/* Destination detail */}
+      {req.methodType === 'PAYPAL' ? (
+        <View className="mt-2 flex-row items-center gap-1">
+          <Text className="text-gray-500 text-xs">PayPal:</Text>
+          <Text className="text-gray-300 text-xs">{req.paypalEmail}</Text>
+        </View>
+      ) : (
+        <View className="mt-2 flex-row items-center gap-1">
+          <Text className="text-gray-500 text-xs">{req.bankName} ·</Text>
+          <Text className="text-gray-300 text-xs">
+            {req.methodType === 'OTHER_BANK' ? 'CCI: ' : ''}{req.accountNumber}
+          </Text>
+        </View>
+      )}
+
+      {/* Motivo de rechazo */}
+      {req.status === "REJECTED" && req.rejectionReason && (
+        <View
+          className="mt-3 rounded-xl px-3 py-2"
+          style={{ backgroundColor: "rgba(239,68,68,0.1)", borderWidth: 1, borderColor: "rgba(239,68,68,0.3)" }}
+        >
+          <Text className="text-red-400 text-xs font-semibold mb-0.5">Motivo del rechazo</Text>
+          <Text className="text-gray-300 text-xs leading-4">{req.rejectionReason}</Text>
+        </View>
+      )}
+
+      {/* Comprobante de pago */}
+      {req.status === "APPROVED" && req.receiptUrl && (
+        <TouchableOpacity
+          className="mt-3 flex-row items-center gap-2 rounded-xl px-3 py-2"
+          style={{ backgroundColor: "rgba(34,197,94,0.1)", borderWidth: 1, borderColor: "rgba(34,197,94,0.3)" }}
+          onPress={() => Linking.openURL(req.receiptUrl!)}
+        >
+          <FileText size={14} color="#22c55e" />
+          <Text className="text-green-400 text-xs font-semibold">Ver comprobante de pago</Text>
+        </TouchableOpacity>
+      )}
 
       <Text className="text-gray-500 text-xs mt-3">{date}</Text>
     </View>
