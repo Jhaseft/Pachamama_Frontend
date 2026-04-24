@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(node scripts/createUser.js)"
+      "Bash(node scripts/createUser.js)",
+      "Bash(awk -F= '{ key=$1; val=$0; sub\\(/^[^=]+=/, \"\", val\\); print key \" -> length=\" length\\(val\\) \", first=\" substr\\(val,1,2\\) \"..., last=...\" substr\\(val, length\\(val\\)-1\\) }')",
+      "Bash(awk -F= '{ val=$0; sub\\(/^[^=]+=/, \"\", val\\); for\\(i=1;i<=length\\(val\\);i++\\){c=substr\\(val,i,1\\); printf \"%s\\(%d\\) \", c, ord[c]?ord[c]:0}; print \"\" }')",
+      "Bash(xxd)"
     ]
   }
 }

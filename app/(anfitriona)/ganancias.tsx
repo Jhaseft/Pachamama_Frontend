@@ -1,5 +1,6 @@
 import ScreenHeader from "@/components/Menu/ScreenHeader";
 import { useCreditRate } from "@/src/hooks/useCreditRate";
+import { useCurrency } from "@/src/hooks/useCurrency";
 import { LinearGradient } from "expo-linear-gradient";
 import {
   apiGetMyEarnings,
@@ -114,7 +115,7 @@ function AnimatedBorderCard({
   );
 }
 
-function TransactionItem({ tx, toSoles }: { tx: EarningTransaction; toSoles: (n: number) => string }) {
+function TransactionItem({ tx, formatUSD }: { tx: EarningTransaction; formatUSD: (n: number) => string }) {
   return (
     <AnimatedBorderCard style={{ marginBottom: 16 }}>
       <LinearGradient
@@ -135,9 +136,14 @@ function TransactionItem({ tx, toSoles }: { tx: EarningTransaction; toSoles: (n:
               <Text className="text-red-200 text-xs mt-0.5">{tx.clientName}</Text>
             ) : null}
           </View>
-          <Text style={{ color: "#FFEE00", fontWeight: "800", fontSize: 15 }}>
-            + S/ {toSoles(tx.amount)}
-          </Text>
+          <View style={{ alignItems: "flex-end" }}>
+            <Text style={{ color: "#FFEE00", fontWeight: "800", fontSize: 15 }}>
+              +{tx.amount} créditos
+            </Text>
+            <Text style={{ color: "rgba(255,238,0,0.7)", fontWeight: "600", fontSize: 12, marginTop: 2 }}>
+              ≈ {formatUSD(tx.amount)}
+            </Text>
+          </View>
         </View>
       </LinearGradient>
     </AnimatedBorderCard>
@@ -632,7 +638,8 @@ function WithdrawalModal({
 
 export default function AnfitrianaGanancias() {
   const router = useRouter();
-  const { toSoles, creditRate } = useCreditRate();
+  const { creditRate } = useCreditRate();
+  const { formatUSD } = useCurrency();
   const [data, setData] = useState<EarningsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -687,35 +694,46 @@ export default function AnfitrianaGanancias() {
                 color: "#FFEE00",
                 fontSize: 36,
                 fontWeight: "900",
-                marginBottom: 16,
               }}
             >
-              S/ {toSoles(data?.total ?? 0)}
+              {data?.total ?? 0} créditos
+            </Text>
+            <Text style={{ color: "rgba(255,238,0,0.75)", fontSize: 14, fontWeight: "600", marginBottom: 16 }}>
+              ≈ {formatUSD(data?.total ?? 0)}
             </Text>
             <View className="flex-row justify-between">
               <View className="items-center">
                 <Text
-                  style={{ color: "#FFEE00", fontSize: 20, fontWeight: "700" }}
+                  style={{ color: "#FFEE00", fontSize: 18, fontWeight: "700" }}
                 >
-                  S/ {toSoles(data?.today ?? 0)}
+                  {data?.today ?? 0} cr
+                </Text>
+                <Text style={{ color: "rgba(255,238,0,0.7)", fontSize: 11 }}>
+                  ≈ {formatUSD(data?.today ?? 0)}
                 </Text>
                 <Text className="text-red-200 text-xs mt-0.5">Hoy</Text>
               </View>
               <View className="w-px bg-red-400 mx-2" />
               <View className="items-center">
                 <Text
-                  style={{ color: "#FFEE00", fontSize: 20, fontWeight: "700" }}
+                  style={{ color: "#FFEE00", fontSize: 18, fontWeight: "700" }}
                 >
-                  S/ {toSoles(data?.thisWeek ?? 0)}
+                  {data?.thisWeek ?? 0} cr
+                </Text>
+                <Text style={{ color: "rgba(255,238,0,0.7)", fontSize: 11 }}>
+                  ≈ {formatUSD(data?.thisWeek ?? 0)}
                 </Text>
                 <Text className="text-red-200 text-xs mt-0.5">Esta semana</Text>
               </View>
               <View className="w-px bg-red-400 mx-2" />
               <View className="items-center">
                 <Text
-                  style={{ color: "#FFEE00", fontSize: 20, fontWeight: "700" }}
+                  style={{ color: "#FFEE00", fontSize: 18, fontWeight: "700" }}
                 >
-                  S/ {toSoles(data?.total ?? 0)}
+                  {data?.total ?? 0} cr
+                </Text>
+                <Text style={{ color: "rgba(255,238,0,0.7)", fontSize: 11 }}>
+                  ≈ {formatUSD(data?.total ?? 0)}
                 </Text>
                 <Text className="text-red-200 text-xs mt-0.5">Total</Text>
               </View>
@@ -762,7 +780,7 @@ export default function AnfitrianaGanancias() {
             </View>
           ) : (
             data?.transactions.map((tx) => (
-              <TransactionItem key={tx.id} tx={tx} toSoles={toSoles} />
+              <TransactionItem key={tx.id} tx={tx} formatUSD={formatUSD} />
             ))
           )}
         </ScrollView>

@@ -19,7 +19,7 @@ import { apiGetMyGallery, apiDeleteGalleryImage, apiSetFeaturedGalleryImage } fr
 import type { HistoryItem } from '@/src/types/anfitrionaHistory';
 import type { GalleryItem } from '@/src/types/gallery';
 import { useGalleryPublish } from '@/src/hooks/useGalleryPublish';
-import { useCreditRate } from '@/src/hooks/useCreditRate';
+import { useCurrency } from '@/src/hooks/useCurrency';
 import GalleryGrid from '@/src/components/anfitriona/gallery/GalleryGrid';
 import PublishGalleryModal from '@/src/components/anfitriona/gallery/PublishGalleryModal';
 import GalleryItemViewer from '@/src/components/anfitriona/gallery/GalleryItemViewer';
@@ -74,7 +74,7 @@ function AnimatedBorderCard({
 export default function AnfitrionaDashboard() {
   const { logout } = useAuth();
   const router = useRouter();
-  const { toSoles } = useCreditRate();
+  const { formatUSD } = useCurrency();
   const [stories, setStories] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -313,13 +313,25 @@ export default function AnfitrionaDashboard() {
               colors={['#1a0208', '#2d0510']}
               style={{ borderRadius: 12, paddingVertical: 14, paddingHorizontal: 18, flexDirection: 'row', alignItems: 'center' }}
             >
-              <Text className='text-center' style={{ color: '#F6C16A', fontSize: 15, fontWeight: '700', flex: 1 }}>
-                🔥 Ganaste hoy: {'\n'} <Text style={{ color: '#FFEE00' }}>S/{toSoles(earnings?.today ?? 0)}</Text>
-              </Text>
-              <View style={{ width: 1, height: 20, backgroundColor: 'rgba(255,255,255,0.15)', marginHorizontal: 12 }} />
-              <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 14, fontWeight: '600' }}>
-                Esta semana: <Text style={{ color: '#FFEE00', fontWeight: '800' }}>S/{toSoles(earnings?.thisWeek ?? 0)}</Text>
-              </Text>
+              <View style={{ flex: 1, alignItems: 'center' }}>
+                <Text style={{ color: '#F6C16A', fontSize: 14, fontWeight: '700' }}>🔥 Ganaste hoy</Text>
+                <Text style={{ color: '#FFEE00', fontSize: 16, fontWeight: '800', marginTop: 2 }}>
+                  {earnings?.today ?? 0} créditos
+                </Text>
+                <Text style={{ color: 'rgba(255,238,0,0.7)', fontSize: 11, fontWeight: '600' }}>
+                  ≈ {formatUSD(earnings?.today ?? 0)}
+                </Text>
+              </View>
+              <View style={{ width: 1, height: 40, backgroundColor: 'rgba(255,255,255,0.15)', marginHorizontal: 12 }} />
+              <View style={{ flex: 1, alignItems: 'center' }}>
+                <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 14, fontWeight: '600' }}>Esta semana</Text>
+                <Text style={{ color: '#FFEE00', fontSize: 16, fontWeight: '800', marginTop: 2 }}>
+                  {earnings?.thisWeek ?? 0} créditos
+                </Text>
+                <Text style={{ color: 'rgba(255,238,0,0.7)', fontSize: 11, fontWeight: '600' }}>
+                  ≈ {formatUSD(earnings?.thisWeek ?? 0)}
+                </Text>
+              </View>
             </LinearGradient>
           </AnimatedBorderCard>
 
