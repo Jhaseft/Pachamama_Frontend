@@ -22,7 +22,7 @@ export interface Bank {
   logoUrl: string;
 }
 
-export type WithdrawalMethodType = 'BCP' | 'OTHER_BANK' | 'PAYPAL';
+export type WithdrawalMethodType = 'BCP' | 'OTHER_BANK' | 'PAYPAL' | 'BYBIT' | 'BINANCE';
 
 export interface BankAccount {
   id: string;

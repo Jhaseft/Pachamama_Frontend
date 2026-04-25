@@ -70,12 +70,19 @@ function RequestCard({ req }: { req: WithdrawalRequest }) {
       </View>
 
       {/* Destination detail */}
-      {req.methodType === 'PAYPAL' ? (
+      {req.methodType === 'PAYPAL' && (
         <View className="mt-2 flex-row items-center gap-1">
           <Text className="text-gray-500 text-xs">PayPal:</Text>
           <Text className="text-gray-300 text-xs">{req.paypalEmail}</Text>
         </View>
-      ) : (
+      )}
+      {(req.methodType === 'BYBIT' || req.methodType === 'BINANCE') && (
+        <View className="mt-2 flex-row items-center gap-1">
+          <Text className="text-gray-500 text-xs">{req.methodType === 'BYBIT' ? 'Bybit' : 'Binance'} ID:</Text>
+          <Text className="text-gray-300 text-xs">{req.accountNumber}</Text>
+        </View>
+      )}
+      {(req.methodType === 'BCP' || req.methodType === 'OTHER_BANK') && (
         <View className="mt-2 flex-row items-center gap-1">
           <Text className="text-gray-500 text-xs">{req.bankName} ·</Text>
           <Text className="text-gray-300 text-xs">

@@ -153,7 +153,7 @@ function TransactionItem({ tx, formatUSD }: { tx: EarningTransaction; formatUSD:
 
 // ─── Add Payment Method Modal ────────────────────────────────────────────────
 
-type MethodType = 'BCP' | 'OTHER_BANK' | 'PAYPAL';
+type MethodType = 'BCP' | 'OTHER_BANK' | 'PAYPAL' | 'BYBIT' | 'BINANCE';
 
 function AddBankAccountModal({
   visible,
@@ -190,6 +190,8 @@ function AddBankAccountModal({
     } else if (methodType === 'OTHER_BANK') {
       if (!selectedBank) return Alert.alert("Error", "Selecciona un banco");
       if (!accountNumber.trim()) return Alert.alert("Error", "Ingresa el CCI");
+    } else if (methodType === 'BYBIT' || methodType === 'BINANCE') {
+      if (!accountNumber.trim()) return Alert.alert("Error", `Ingresa tu ID de ${methodType === 'BYBIT' ? 'Bybit' : 'Binance'}`);
     } else {
       if (!accountNumber.trim()) return Alert.alert("Error", "Ingresa el número de cuenta BCP");
     }
@@ -212,9 +214,11 @@ function AddBankAccountModal({
   };
 
   const methodOptions: { key: MethodType; label: string; sub: string }[] = [
-    { key: 'BCP',       label: 'BCP',          sub: 'Número de cuenta' },
-    { key: 'OTHER_BANK',label: 'Otro banco',    sub: 'CCI interbancario' },
-    { key: 'PAYPAL',    label: 'PayPal',        sub: 'Pago internacional USD' },
+    { key: 'BCP',       label: 'BCP',     sub: 'N° de cuenta' },
+    { key: 'OTHER_BANK',label: 'Otro banco', sub: 'CCI' },
+    { key: 'PAYPAL',    label: 'PayPal',  sub: 'USD' },
+    { key: 'BYBIT',     label: 'Bybit',   sub: 'ID cuenta' },
+    { key: 'BINANCE',   label: 'Binance', sub: 'ID cuenta' },
   ];
 
   return (
@@ -231,18 +235,18 @@ function AddBankAccountModal({
 
           {/* Method selector */}
           <Text className="text-gray-400 text-xs mb-2">Tipo de método</Text>
-          <View className="flex-row gap-2 mb-5">
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
             {methodOptions.map((opt) => {
               const active = methodType === opt.key;
               return (
                 <TouchableOpacity
                   key={opt.key}
                   onPress={() => { setMethodType(opt.key); setSelectedBank(null); setAccountNumber(""); }}
-                  style={{ flex: 1, borderRadius: 12, padding: 10, alignItems: 'center',
+                  style={{ width: '47%', borderRadius: 12, padding: 12, alignItems: 'center',
                     backgroundColor: active ? 'rgba(209,27,27,0.15)' : '#1a1a1a',
                     borderWidth: 1, borderColor: active ? '#D11B1B' : '#2a2a2a' }}
                 >
-                  <Text style={{ color: active ? '#fff' : '#6b7280', fontWeight: '700', fontSize: 12 }}>{opt.label}</Text>
+                  <Text style={{ color: active ? '#fff' : '#6b7280', fontWeight: '700', fontSize: 13 }}>{opt.label}</Text>
                   <Text style={{ color: active ? 'rgba(255,255,255,0.5)' : '#444', fontSize: 10, marginTop: 2, textAlign: 'center' }}>{opt.sub}</Text>
                 </TouchableOpacity>
               );
@@ -306,6 +310,23 @@ function AddBankAccountModal({
             </>
           )}
 
+          {/* Bybit / Binance UID */}
+          {(methodType === 'BYBIT' || methodType === 'BINANCE') && (
+            <>
+              <Text className="text-gray-400 text-xs mb-1">
+                ID de {methodType === 'BYBIT' ? 'Bybit' : 'Binance'}
+              </Text>
+              <TextInput
+                className="bg-[#1a1a1a] text-white rounded-xl px-4 py-3 mb-4"
+                placeholder="Ej: 123456789"
+                placeholderTextColor="#6b7280"
+                value={accountNumber}
+                onChangeText={setAccountNumber}
+                keyboardType="numeric"
+              />
+            </>
+          )}
+
           <Text className="text-gray-400 text-xs mb-1">Titular (opcional)</Text>
           <TextInput
             className="bg-[#1a1a1a] text-white rounded-xl px-4 py-3 mb-6"
@@ -360,6 +381,20 @@ function AddBankAccountModal({
   );
 }
 
+function accountLabel(acc: BankAccount): string {
+  if (acc.type === 'BYBIT') return 'Bybit';
+  if (acc.type === 'BINANCE') return 'Binance';
+  if (acc.type === 'PAYPAL') return 'PayPal';
+  return acc.bankName ?? acc.type;
+}
+
+function accountDetail(acc: BankAccount): string {
+  if (acc.type === 'PAYPAL') return acc.paypalEmail ?? '';
+  if (acc.type === 'BYBIT' || acc.type === 'BINANCE') return `ID: ${acc.accountNumber ?? ''}`;
+  if (acc.type === 'OTHER_BANK') return `CCI: ${acc.accountNumber ?? ''}`;
+  return acc.accountNumber ?? '';
+}
+
 // ─── Withdrawal Modal ────────────────────────────────────────────────────────
 
 const MIN_WITHDRAWAL_CREDITS = MIN_WITHDRAWAL_USD * CREDITS_PER_USD;
@@ -388,6 +423,7 @@ function WithdrawalModal({
 
   const creditsNum = parseFloat(credits) || 0;
   const isPaypal = selectedAccount?.type === 'PAYPAL';
+  const isUsd = selectedAccount ? ['PAYPAL', 'BYBIT', 'BINANCE'].includes(selectedAccount.type) : false;
   const solesAmount = (creditsNum * creditRate).toFixed(2);
   const usdAmount = CREDITS_PER_USD > 0 ? (creditsNum / CREDITS_PER_USD).toFixed(2) : "0.00";
   const minSoles = (MIN_WITHDRAWAL_CREDITS * creditRate).toFixed(2);
@@ -541,14 +577,14 @@ function WithdrawalModal({
                 <View className="flex-row items-center justify-between">
                   <View className="items-center flex-1">
                     <Text className="text-gray-400 text-[10px] uppercase tracking-widest mb-1">Soles</Text>
-                    <Text style={{ color: isPaypal ? "#9ca3af" : "#D11B1B", fontWeight: "900", fontSize: isPaypal ? 16 : 22 }}>
+                    <Text style={{ color: isUsd ? "#9ca3af" : "#D11B1B", fontWeight: "900", fontSize: isUsd ? 16 : 22 }}>
                       S/ {solesAmount}
                     </Text>
                   </View>
                   <View style={{ width: 1, height: 36, backgroundColor: "rgba(209,27,27,0.3)" }} />
                   <View className="items-center flex-1">
                     <Text className="text-gray-400 text-[10px] uppercase tracking-widest mb-1">USD</Text>
-                    <Text style={{ color: isPaypal ? "#D11B1B" : "#9ca3af", fontWeight: "900", fontSize: isPaypal ? 22 : 16 }}>
+                    <Text style={{ color: isUsd ? "#D11B1B" : "#9ca3af", fontWeight: "900", fontSize: isUsd ? 22 : 16 }}>
                       USD {usdAmount}
                     </Text>
                   </View>
@@ -633,10 +669,10 @@ function WithdrawalModal({
                         </View>
                         <View style={{ flex: 1 }}>
                           <Text className="text-white font-semibold text-sm">
-                            {acc.bankName}
+                            {accountLabel(acc)}
                           </Text>
                           <Text className="text-gray-400 text-xs">
-                            {acc.accountNumber}
+                            {accountDetail(acc)}
                           </Text>
                           {acc.accountHolderName ? (
                             <Text className="text-gray-500 text-xs">
