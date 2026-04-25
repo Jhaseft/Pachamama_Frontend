@@ -302,16 +302,32 @@ export default function AnfitrianaChats() {
     });
   }
 
+  // Lista unificada: convierte chats en ClientForAnfitriana y los mezcla con
+  // clients del API sin duplicar. Necesaria porque presenceMap solo recibe
+  // WS events de socios de conversación — si esperamos solo a `clients` del
+  // API, los usuarios que ya están en `chats` podrían no pasar el filtro
+  // cuando el evento WS llegó antes del cambio de tab.
+  function buildUnified(): ClientForAnfitriana[] {
+    const fromChats: ClientForAnfitriana[] = chats.map((c) => ({
+      id: c.otherUserId,
+      name: c.otherUserName,
+      avatar: c.otherUserAvatar,
+      lastActiveAt: c.otherUserLastActiveAt ?? null,
+      hasConversation: true,
+      conversationId: c.conversationId,
+    }));
+    const chatIds = new Set(chats.map((c) => c.otherUserId));
+    const clientsOnly = clients.filter((c) => !chatIds.has(c.id));
+    return [...fromChats, ...clientsOnly];
+  }
+
   function getFilteredClients(): ClientForAnfitriana[] {
     if (activeFilter === 'online') {
-      return clients.filter((c) => {
-        const p = presenceMap[c.id];
-        return p?.isOnline === true;
-      });
+      return buildUnified().filter((c) => presenceMap[c.id]?.isOnline === true);
     }
     if (activeFilter === 'recent') {
       const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
-      return clients.filter((c) => {
+      return buildUnified().filter((c) => {
         const p = presenceMap[c.id];
         const ts = p?.lastActiveAt ?? c.lastActiveAt;
         return ts ? new Date(ts).getTime() > cutoff : false;
@@ -393,7 +409,7 @@ export default function AnfitrianaChats() {
           />
         )
       ) : (
-        clientsLoading ? (
+        clientsLoading && filteredClients.length === 0 ? (
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
             <ActivityIndicator size="large" color="#F6C16A" />
           </View>
