@@ -139,7 +139,7 @@ function TransactionItem({ tx, formatUSD }: { tx: EarningTransaction; formatUSD:
           </View>
           <View style={{ alignItems: "flex-end" }}>
             <Text style={{ color: "#FFEE00", fontWeight: "800", fontSize: 15 }}>
-              +{tx.amount} créditos
+              +{Number.isInteger(tx.amount) ? tx.amount : tx.amount.toFixed(2)} créditos
             </Text>
             <Text style={{ color: "rgba(255,238,0,0.7)", fontWeight: "600", fontSize: 12, marginTop: 2 }}>
               ≈ {formatUSD(tx.amount)}

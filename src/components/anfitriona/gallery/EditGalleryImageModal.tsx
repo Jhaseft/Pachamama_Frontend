@@ -36,7 +36,7 @@ export default function EditGalleryImageModal({ item, visible, onClose, onSaved 
 
   const handleSave = async () => {
     if (isPremium) {
-      const credits = parseInt(unlockCredits);
+      const credits = parseFloat(unlockCredits);
       if (!unlockCredits || isNaN(credits) || credits <= 0) {
         Alert.alert('Error', 'Las fotos premium requieren un precio en créditos mayor a 0.');
         return;
@@ -50,7 +50,7 @@ export default function EditGalleryImageModal({ item, visible, onClose, onSaved 
         isVisible,
       };
       if (isPremium) {
-        payload.unlockCredits = parseInt(unlockCredits);
+        payload.unlockCredits = parseFloat(unlockCredits);
       }
       const updated = await apiUpdateGalleryImage(item.id, payload);
       onSaved(updated);
@@ -129,7 +129,7 @@ export default function EditGalleryImageModal({ item, visible, onClose, onSaved 
                 style={styles.input}
                 value={unlockCredits}
                 onChangeText={setUnlockCredits}
-                keyboardType="numeric"
+                keyboardType="decimal-pad"
                 placeholder="Ej: 30"
                 placeholderTextColor="#52525b"
               />

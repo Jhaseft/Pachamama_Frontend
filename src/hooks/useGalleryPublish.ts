@@ -37,7 +37,7 @@ export function useGalleryPublish({ onSuccess }: Options) {
   const validate = (): string | null => {
     if (!selectedMedia) return 'Selecciona una imagen.';
     if (form.isPremium) {
-      const credits = parseInt(form.unlockCredits, 10);
+      const credits = parseFloat(form.unlockCredits);
       if (!form.unlockCredits || isNaN(credits) || credits <= 0) {
         return 'Las fotos exclusivas necesitan un precio en créditos mayor a 0.';
       }
@@ -63,7 +63,7 @@ export function useGalleryPublish({ onSuccess }: Options) {
       await apiCreateGalleryImage(
         {
           isPremium: form.isPremium,
-          unlockCredits: form.isPremium ? parseInt(form.unlockCredits, 10) : undefined,
+          unlockCredits: form.isPremium ? parseFloat(form.unlockCredits) : undefined,
         },
         file,
       );

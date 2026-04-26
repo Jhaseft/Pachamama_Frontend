@@ -39,7 +39,20 @@ export default function Historial() {
   const renderItem = ({ item }: { item: ExpenseHistoryItem }) => {
     const isDeposit = item.tipo === 'DEPOSIT';
     const rawMonto = item.monto as any;
-    const monto = typeof rawMonto === 'object' && rawMonto?.d ? rawMonto.d[0] : parseFloat(String(rawMonto ?? 0));
+    console.log('[historial] rawMonto:', JSON.stringify(rawMonto), '| type:', typeof rawMonto);
+    let monto: number;
+    if (typeof rawMonto === 'number') {
+      monto = rawMonto;
+    } else if (typeof rawMonto === 'object' && rawMonto?.d) {
+      const str = String(rawMonto.d[0]);
+      const intLen = rawMonto.e + 1;
+      const abs = str.length <= intLen
+        ? Number(str) * 10 ** (intLen - str.length)
+        : parseFloat(str.slice(0, intLen) + '.' + str.slice(intLen));
+      monto = rawMonto.s * abs;
+    } else {
+      monto = parseFloat(String(rawMonto ?? 0));
+    }
     const config = tipoConfig[item.tipo] ?? { icon: 'swap-horizontal', bg: 'bg-zinc-800', color: '#a1a1aa' };
 
     return (

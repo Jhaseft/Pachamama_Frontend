@@ -12,7 +12,7 @@ export default function SubscriptionPriceForm({ initialPrice, saving, onSave }: 
     const [price, setPrice] = useState(initialPrice ? String(initialPrice) : '');
 
     const handleSubmit = () => {
-        const parsed = parseInt(price);
+        const parsed = parseFloat(price);
         if (!parsed || parsed < 1) return;
         onSave(parsed);
     };
@@ -43,7 +43,7 @@ export default function SubscriptionPriceForm({ initialPrice, saving, onSave }: 
                 <TextInput
                     value={price}
                     onChangeText={setPrice}
-                    keyboardType="numeric"
+                    keyboardType="decimal-pad"
                     placeholder="Ej: 50"
                     placeholderTextColor="#3f3f46"
                     style={{ flex: 1, color: 'white', fontSize: 18, fontWeight: '700', paddingVertical: 14, paddingHorizontal: 10 }}

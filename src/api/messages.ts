@@ -87,7 +87,10 @@ export async function sendImageHttp(
   form.append('file', file as any);
   form.append('receiverId', receiverId);
   form.append('isLocked', String(isLocked));
-  if (price != null) form.append('price', String(price));
+  if (price != null) {
+    console.log('[sendImageHttp] price number:', price, '| String(price):', String(price));
+    form.append('price', String(price));
+  }
   const res = await apiClient.post('/messages/image', form, {
     headers: { 'Content-Type': 'multipart/form-data' },
   });

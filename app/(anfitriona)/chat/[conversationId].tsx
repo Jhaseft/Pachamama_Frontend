@@ -239,7 +239,8 @@ export default function AnfitrianaChat() {
 
   function handleConfirmSendImage() {
     if (!pendingImage) return;
-    const price = imageLocked ? parseInt(imagePrice) : undefined;
+    const price = imageLocked ? parseFloat(imagePrice) : undefined;
+    console.log('[sendImage] imagePrice string:', imagePrice, '| parseFloat:', price, '| type:', typeof price);
     if (imageLocked && (!price || price < 1)) {
       Alert.alert('Precio inválido', 'Ingresa un precio mayor a 0.');
       return;
@@ -595,7 +596,7 @@ export default function AnfitrianaChat() {
                 <TextInput
                   value={imagePrice}
                   onChangeText={setImagePrice}
-                  keyboardType="numeric"
+                  keyboardType="decimal-pad"
                   placeholder="Precio en créditos"
                   placeholderTextColor="rgba(246,193,106,0.35)"
                   style={{ flex: 1, color: 'white', fontSize: 16, fontWeight: '700', paddingVertical: 12 }}
