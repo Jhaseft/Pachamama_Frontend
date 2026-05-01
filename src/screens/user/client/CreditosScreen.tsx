@@ -22,7 +22,7 @@ const GRID_GAP = 12;
 const CARD_WIDTH = (SCREEN_WIDTH - GRID_PADDING * 2 - GRID_GAP * (GRID_COLS - 1)) / GRID_COLS;
 
 import { LinearGradient } from "expo-linear-gradient";
-import { Gem, X, Copy, CheckCircle2, AlertCircle, Clock } from "lucide-react-native";
+import { Gem, X, Copy, CheckCircle2, AlertCircle, Clock, RotateCcw } from "lucide-react-native";
 import { WebView } from "react-native-webview";
 import { apiGetAllPackages, apiFlowCreatePayment } from "@/src/api/package";
 import {
@@ -31,12 +31,17 @@ import {
   apiBinanceGetIntent,
   BinanceIntent,
 } from "@/src/api/binance";
+import { apiPaypalCreateOrder, apiPaypalCapture } from "@/src/api/paypal";
 import { PackageData } from "@/src/types/package";
 import { apiGetMyWallet, WalletResponse } from "@/src/api/userClient";
 import { useCurrency } from "@/src/hooks/useCurrency";
 
 const FLOW_RETURN_URL = "https://app.pachamama.chat/dashboard";
+const PAYPAL_RETURN_URL = "https://app.pachamama.chat/paypal/return";
+const PAYPAL_CANCEL_URL = "https://app.pachamama.chat/paypal/cancel";
 const BADGES = ["¡OFERTA!", "MEJOR OFERTA", "+ BONO"];
+
+type PaymentMethod = "flow" | "paypal" | "binance";
 
 export default function CreditosScreen() {
   const [packages, setPackages] = useState<PackageData[]>([]);
@@ -45,6 +50,13 @@ export default function CreditosScreen() {
   const [loadingPackageId, setLoadingPackageId] = useState<string | null>(null);
   const [webViewUrl, setWebViewUrl] = useState<string | null>(null);
   const [webViewVisible, setWebViewVisible] = useState(false);
+  const [activeWebViewMethod, setActiveWebViewMethod] = useState<"flow" | "paypal" | null>(null);
+  const [paypalOrderId, setPaypalOrderId] = useState<string | null>(null);
+  const [capturingPaypal, setCapturingPaypal] = useState(false);
+  const paypalCapturedRef = useRef(false);
+
+  const [methodPickerVisible, setMethodPickerVisible] = useState(false);
+  const [pendingPackageId, setPendingPackageId] = useState<string | null>(null);
 
   const [binanceIntent, setBinanceIntent] = useState<BinanceIntent | null>(null);
   const [binanceVisible, setBinanceVisible] = useState(false);
@@ -55,6 +67,7 @@ export default function CreditosScreen() {
   const [selectedNetwork, setSelectedNetwork] = useState<string | null>(null);
   const intentPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const binanceScrollRef = useRef<ScrollView>(null);
+  const webViewRef = useRef<WebView>(null);
 
   const { symbol, rate, isPeru } = useCurrency();
 
@@ -127,12 +140,28 @@ export default function CreditosScreen() {
     }
   };
 
-  const handleBuy = async (packageId: string) => {
+  const handleBuy = (packageId: string) => {
+    setPendingPackageId(packageId);
+    setMethodPickerVisible(true);
+  };
+
+  const handlePickMethod = async (method: PaymentMethod) => {
+    if (!pendingPackageId) return;
+    const packageId = pendingPackageId;
+    setMethodPickerVisible(false);
     setLoadingPackageId(packageId);
-    try {
-      if (isPeru) {
+    try { 
+      if (method === "flow") {
         const { paymentUrl } = await apiFlowCreatePayment(packageId);
+        setActiveWebViewMethod("flow");
         setWebViewUrl(paymentUrl);
+        setWebViewVisible(true);
+      } else if (method === "paypal") {
+        const { approveUrl, orderId } = await apiPaypalCreateOrder(packageId);
+        paypalCapturedRef.current = false;
+        setPaypalOrderId(orderId);
+        setActiveWebViewMethod("paypal");
+        setWebViewUrl(approveUrl);
         setWebViewVisible(true);
       } else {
         const intent = await apiBinanceCreateIntent(packageId);
@@ -145,6 +174,22 @@ export default function CreditosScreen() {
       Alert.alert("Error", error?.message ?? "No se pudo iniciar el pago");
     } finally {
       setLoadingPackageId(null);
+      setPendingPackageId(null);
+    }
+  };
+
+  const capturePaypalOrder = async (orderId: string) => {
+    if (paypalCapturedRef.current) return;
+    paypalCapturedRef.current = true;
+    setCapturingPaypal(true);
+    try {
+      const result = await apiPaypalCapture(orderId);
+      Alert.alert("¡Pago confirmado!", `Se acreditaron ${result.credits} créditos.`);
+      await loadData();
+    } catch (error: any) {
+      Alert.alert("No se pudo confirmar", error?.message ?? "Intenta de nuevo en unos minutos.");
+    } finally {
+      setCapturingPaypal(false);
     }
   };
 
@@ -179,9 +224,37 @@ export default function CreditosScreen() {
   };
 
   const handleWebViewNavigationChange = (navState: { url: string }) => {
-    if (navState.url.startsWith(FLOW_RETURN_URL)) {
+    const url = navState.url;
+    if (activeWebViewMethod === "paypal") {
+      if (url.startsWith(PAYPAL_CANCEL_URL)) {
+        setWebViewVisible(false);
+        setWebViewUrl(null);
+        setActiveWebViewMethod(null);
+        setPaypalOrderId(null);
+        return;
+      }
+      if (url.startsWith(PAYPAL_RETURN_URL)) {
+        let token: string | null = null;
+        try {
+          const parsed = new URL(url);
+          token = parsed.searchParams.get("token");
+        } catch {
+          const match = url.match(/[?&]token=([^&]+)/);
+          token = match ? decodeURIComponent(match[1]) : null;
+        }
+        const orderToCapture = token ?? paypalOrderId;
+        setWebViewVisible(false);
+        setWebViewUrl(null);
+        setActiveWebViewMethod(null);
+        setPaypalOrderId(null);
+        if (orderToCapture) void capturePaypalOrder(orderToCapture);
+        return;
+      }
+    }
+    if (activeWebViewMethod === "flow" && url.startsWith(FLOW_RETURN_URL)) {
       setWebViewVisible(false);
       setWebViewUrl(null);
+      setActiveWebViewMethod(null);
       void loadData();
     }
   };
@@ -189,6 +262,13 @@ export default function CreditosScreen() {
   const handleCloseWebView = () => {
     setWebViewVisible(false);
     setWebViewUrl(null);
+    setActiveWebViewMethod(null);
+    setPaypalOrderId(null);
+  };
+
+  const handleCloseMethodPicker = () => {
+    setMethodPickerVisible(false);
+    setPendingPackageId(null);
   };
 
   const handleCloseBinance = () => {
@@ -310,6 +390,81 @@ export default function CreditosScreen() {
         <View className="h-24" />
       </ScrollView>
 
+      {/* Modal selector de método de pago */}
+      <Modal
+        visible={methodPickerVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={handleCloseMethodPicker}
+      >
+        <Pressable
+          onPress={handleCloseMethodPicker}
+          className="flex-1 items-center justify-center bg-black/70 px-6"
+        >
+          <Pressable
+            onPress={() => {}}
+            className="w-full bg-[#1a0208] border border-[rgba(246,193,106,0.3)] rounded-3xl p-5"
+          >
+            <View className="flex-row items-center justify-between mb-4">
+              <Text className="text-[#F6C16A] text-lg font-extrabold">
+                Elige cómo pagar
+              </Text>
+              <Pressable
+                onPress={handleCloseMethodPicker}
+                className="w-8 h-8 items-center justify-center"
+              >
+                <X color="#F6C16A" size={22} />
+              </Pressable>
+            </View>
+
+            {isPeru && (
+              <Pressable
+                onPress={() => void handlePickMethod("flow")}
+                className="bg-[#200a10] border border-[rgba(246,193,106,0.4)] rounded-2xl px-4 py-4 mb-3"
+              >
+                <Text className="text-white text-base font-extrabold">Flow</Text>
+                <Text className="text-white/50 text-xs mt-1">
+                  Tarjeta, transferencia o billetera (Perú/Chile)
+                </Text>
+              </Pressable>
+            )}
+
+            <Pressable
+              onPress={() => void handlePickMethod("paypal")}
+              className="bg-[#001a33] border border-[#0070ba] rounded-2xl px-4 py-4 mb-3"
+            >
+              <Text className="text-white text-base font-extrabold">PayPal</Text>
+              <Text className="text-white/50 text-xs mt-1">
+                Paga con tu cuenta PayPal o tarjeta (USD)
+              </Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => void handlePickMethod("binance")}
+              className="bg-[#1a1400] border border-[#F0B90B] rounded-2xl px-4 py-4"
+            >
+              <Text className="text-white text-base font-extrabold">Binance</Text>
+              <Text className="text-white/50 text-xs mt-1">
+                Cripto (USDT) — TRC20 / BEP20 / etc.
+              </Text>
+            </Pressable>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Overlay capturando PayPal */}
+      {capturingPaypal && (
+        <View
+          className="absolute inset-0 items-center justify-center bg-black/70"
+          style={StyleSheet.absoluteFillObject}
+        >
+          <ActivityIndicator color="#F6C16A" size="large" />
+          <Text className="text-[#F6C16A] text-sm font-bold mt-3">
+            Confirmando pago con PayPal…
+          </Text>
+        </View>
+      )}
+
       {/* WebView — Flow (Perú) */}
       <Modal
         visible={webViewVisible}
@@ -318,24 +473,62 @@ export default function CreditosScreen() {
       >
         <View className="flex-1 bg-[#0a0000]">
           <View className="flex-row items-center justify-between pt-14 pb-3 px-5 bg-[#1a0208] border-b border-[rgba(246,193,106,0.2)]">
-            <View className="w-8" />
-            <Text className="text-[#F6C16A] text-2xl font-extrabold">Pago seguro</Text>
-            <Pressable onPress={handleCloseWebView} className="w-8 h-8 items-center justify-center">
+            <Pressable
+              onPress={() => webViewRef.current?.reload()}
+              className="w-10 h-10 items-center justify-center"
+              hitSlop={8}
+            >
+              <RotateCcw color="#F6C16A" size={22} />
+            </Pressable>
+            <Text className="text-[#F6C16A] text-2xl font-extrabold">
+              {activeWebViewMethod === "paypal" ? "PayPal" : "Pago seguro"}
+            </Text>
+            <Pressable onPress={handleCloseWebView} className="w-10 h-10 items-center justify-center" hitSlop={8}>
               <X color="#F6C16A" size={30} />
             </Pressable>
           </View>
 
           {webViewUrl && (
             <WebView
+              ref={webViewRef}
               source={{ uri: webViewUrl }}
               onNavigationStateChange={handleWebViewNavigationChange}
               startInLoadingState
+              incognito
+              cacheEnabled={false}
+              thirdPartyCookiesEnabled={false}
+              sharedCookiesEnabled={false}
               renderLoading={() => (
                 <View
                   className="absolute inset-0 items-center justify-center bg-[#0a0000]"
                   style={StyleSheet.absoluteFillObject}
                 >
                   <ActivityIndicator color="#F6C16A" size="large" />
+                </View>
+              )}
+              renderError={(errorName) => (
+                <View className="flex-1 items-center justify-center bg-[#0a0000] px-8">
+                  <AlertCircle color="#ef4444" size={48} />
+                  <Text className="text-white text-base font-extrabold mt-4 text-center">
+                    No se pudo cargar la página de pago
+                  </Text>
+                  <Text className="text-white/50 text-xs mt-2 text-center">
+                    {errorName ?? "Error de red"}. Revisa tu conexión e inténtalo de nuevo.
+                  </Text>
+                  <View className="flex-row gap-3 mt-6">
+                    <Pressable
+                      onPress={() => webViewRef.current?.reload()}
+                      className="bg-[#F6C16A] rounded-2xl px-5 py-3"
+                    >
+                      <Text className="text-[#0a0000] font-extrabold">Reintentar</Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={handleCloseWebView}
+                      className="bg-[#1a0208] border border-[rgba(246,193,106,0.4)] rounded-2xl px-5 py-3"
+                    >
+                      <Text className="text-[#F6C16A] font-extrabold">Cerrar</Text>
+                    </Pressable>
+                  </View>
                 </View>
               )}
             />

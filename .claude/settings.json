@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -X POST https://api-m.paypal.com/v1/oauth2/token -u ARquFNOyn1jW5_cJZUUxcRceqRbtIq-dpSoKdxWRvetp04mu2h0G410mze9oDPpZDbqU5pKXCEa31j-S:EPuTIAAzs-IiwpF6bg0lpUxEq21AkczRSPXfth5Ne8RgkUzJjBPct2L64f2HE3bG6-ELjwig-vf3rnr1 -H 'Content-Type: application/x-www-form-urlencoded' -d grant_type=client_credentials -w '\\\\nHTTP_STATUS:%{http_code}\\\\n')",
+      "Bash(curl -s -X POST https://api-m.paypal.com/v2/checkout/orders -H 'Authorization: Bearer A21AAMbz7QIvpiYzruyxrraXFmtFBC4pWGN3Hp4qRZXvbFhQqqod1QvwHdCERgqyV15T9NNIYsf3-vvf3X-hpX02E2quSOesQ' -H 'Content-Type: application/json' -d '{ *)",
+      "Bash(curl -s -u \"ARquFNOyn1jW5_cJZUUxcRceqRbtIq-dpSoKdxWRvetp04mu2h0G410mze9oDPpZDbqU5pKXCEa31j-S:EPuTIAAzs-IiwpF6bg0lpUxEq21AkczRSPXfth5Ne8RgkUzJjBPct2L64f2HE3bG6-ELjwig-vf3rnr1\" -H \"Accept: application/json\" -H \"Content-Type: application/x-www-form-urlencoded\" -d \"grant_type=client_credentials\" \"https://api-m.paypal.com/v1/oauth2/token\")"
+    ]
+  }
+}

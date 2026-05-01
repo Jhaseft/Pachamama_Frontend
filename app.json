@@ -3,7 +3,7 @@
     "name": "Pachamama",
     "slug": "Lima",
     "scheme": "pachamama",
-    "version": "10.0",
+    "version": "11.0",
     "orientation": "portrait",
     "icon": "./assets/logofull.jpeg",
     "userInterfaceStyle": "light",
