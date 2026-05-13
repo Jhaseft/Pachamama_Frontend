@@ -217,15 +217,19 @@ export default function AnfitrianaChats() {
     try {
       const data = await getChats(user.id);
       setChats(data);
-      // Seed presenceMap from HTTP data on first load
-      const seed: Record<string, { isOnline: boolean; lastActiveAt: string | null }> = {};
-      for (const c of data) {
-        seed[c.otherUserId] = {
-          isOnline: false,
-          lastActiveAt: c.otherUserLastActiveAt ?? null,
-        };
-      }
-      setPresenceMap((prev) => ({ ...seed, ...prev }));
+      // Merge only lastActiveAt from HTTP and preserve real-time isOnline.
+      // HTTP payload does not provide reliable online state for clients.
+      setPresenceMap((prev) => {
+        const next = { ...prev };
+        for (const c of data) {
+          const prevEntry = prev[c.otherUserId];
+          next[c.otherUserId] = {
+            isOnline: prevEntry?.isOnline ?? false,
+            lastActiveAt: prevEntry?.lastActiveAt ?? c.otherUserLastActiveAt ?? null,
+          };
+        }
+        return next;
+      });
     } catch {
       // silencioso
     } finally {
@@ -275,8 +279,7 @@ export default function AnfitrianaChats() {
       }));
     });
     return unsub;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [socket]);
 
   function openChat(chat: Chat) {
     router.push({
