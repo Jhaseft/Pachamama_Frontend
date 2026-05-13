@@ -94,8 +94,12 @@ export default function Precios() {
       const val = prices[service.type];
       if (val === '') continue;
       const num = Number(val);
-      if (isNaN(num) || num <= 0) {
-        Alert.alert('Error', `El precio de "${service.label}" debe ser un número mayor a 0.`);
+      const minVal = service.type === 'MESSAGE_SEND' ? 0 : 1;
+      if (isNaN(num) || num < minVal) {
+        const msg = service.type === 'MESSAGE_SEND'
+          ? `El precio de "${service.label}" debe ser un número mayor o igual a 0.`
+          : `El precio de "${service.label}" debe ser un número mayor a 0.`;
+        Alert.alert('Error', msg);
         return;
       }
     }
@@ -107,10 +111,16 @@ export default function Precios() {
           apiUpsertServicePrice(s.type, Number(prices[s.type])),
         ),
       );
+
       Alert.alert('¡Listo!', 'Precios guardados correctamente.');
       router.back();
-    } catch {
-      Alert.alert('Error', 'No se pudieron guardar los precios.');
+    } catch (error) {
+      console.error('Error guardando precios:', error);
+
+      Alert.alert(
+        'Error',
+        'No se pudieron guardar los precios.',
+      );
     } finally {
       setSaving(false);
     }
@@ -132,21 +142,21 @@ export default function Precios() {
           <AntDesign name="arrow-left" size={22} color="white" />
           <Text className="text-white text-xl font-black">Configurar Precios</Text>
         </TouchableOpacity>
-    
+
       </View>
 
       <ScrollView className="flex-1 px-4" showsVerticalScrollIndicator={false}>
         <View className="gap-3 mt-2">
           {SERVICES.map((service) => (
             <View key={service.type} className="bg-red-600 rounded-2xl px-4 py-4">
-              
+
               <View className="flex-row items-center gap-2 mb-1">
                 {service.icon}
                 <Text className="text-white text-base font-bold">{service.label}</Text>
               </View>
               <Text className="text-white/80 text-xs mb-3">{service.description}</Text>
 
-             
+
               <View className="flex-row items-center gap-2">
                 <Text className="text-white font-semibold text-sm">S/</Text>
                 <TextInput
@@ -168,7 +178,7 @@ export default function Precios() {
         <View style={{ height: 30 }} />
       </ScrollView>
 
-    
+
       <View className="px-4 pb-6" style={{ paddingBottom: insets.bottom + 16 }}>
         <TouchableOpacity
           onPress={handleSave}
