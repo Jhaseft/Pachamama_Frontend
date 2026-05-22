@@ -14,6 +14,7 @@ export default function ProfileAnfitriona() {
     firstName, setFirstName,
     lastName, setLastName,
     email, setEmail,
+    referralCode, setReferralCode,
     password, setPassword,
     confirm, setConfirm,
     username, setUsername,
@@ -179,6 +180,16 @@ export default function ProfileAnfitriona() {
         </View>
 
         <TextField label="Email" placeholder="camila@gmail.com" value={email} onChangeText={setEmail} keyboardType="email-address" textContentType="emailAddress" />
+        <TextField
+          label="Código de referido"
+          placeholder="Ingresa el código si una creadora te refirió"
+          value={referralCode}
+          onChangeText={setReferralCode}
+          autoCapitalize="characters"
+        />
+        <Text className="text-white/60 text-sm -mt-2 mb-4">
+          Opcional. El administrador revisará y activará el contrato de referido.
+        </Text>
         <TextField label="Contraseña" placeholder="********" value={password} onChangeText={setPassword} secureTextEntry textContentType="newPassword" />
         <TextField label="Confirmar contraseña" placeholder="********" value={confirm} onChangeText={setConfirm} secureTextEntry textContentType="newPassword" />
 

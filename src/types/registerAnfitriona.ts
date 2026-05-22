@@ -17,6 +17,7 @@ export interface CompleteAnfitrioneRegistrationRequest {
   firstName: string;
   lastName: string;
   email?: string;
+  referralCode?: string;
   password: string;
   confirmPassword: string;
   username: string;

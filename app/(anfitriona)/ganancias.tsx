@@ -2,6 +2,7 @@ import ScreenHeader from "@/components/Menu/ScreenHeader";
 import { useCreditRate } from "@/src/hooks/useCreditRate";
 import { MIN_WITHDRAWAL_USD, CREDITS_PER_USD } from "@/src/config";
 import { useCurrency } from "@/src/hooks/useCurrency";
+import * as Clipboard from "expo-clipboard";
 import { LinearGradient } from "expo-linear-gradient";
 import {
   apiGetMyEarnings,
@@ -15,6 +16,7 @@ import {
   Bank,
   BankAccount,
 } from "@/src/api/wallet";
+import { apiGetMyReferrals, MyReferralsResponse } from "@/src/api/referrals";
 import { useEffect, useRef, useState } from "react";
 import {
   View,
@@ -45,6 +47,7 @@ import {
   Trash2,
   CheckCircle,
   ClipboardList,
+  Copy,
 } from "lucide-react-native";
 
 
@@ -734,6 +737,8 @@ export default function AnfitrianaGanancias() {
   const { creditRate } = useCreditRate();
   const { formatUSD } = useCurrency();
   const [data, setData] = useState<EarningsData | null>(null);
+  const [referrals, setReferrals] = useState<MyReferralsResponse | null>(null);
+  const [referralsError, setReferralsError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [showWithdrawal, setShowWithdrawal] = useState(false);
@@ -741,8 +746,28 @@ export default function AnfitrianaGanancias() {
   const load = async (isRefresh = false) => {
     try {
       if (isRefresh) setRefreshing(true);
-      const result = await apiGetMyEarnings();
-      setData(result);
+      const [earningsResult, referralsResult] = await Promise.allSettled([
+        apiGetMyEarnings(),
+        apiGetMyReferrals(),
+      ]);
+
+      if (earningsResult.status === "fulfilled") {
+        setData(earningsResult.value);
+      } else {
+        throw earningsResult.reason;
+      }
+
+      if (referralsResult.status === "fulfilled") {
+        setReferrals(referralsResult.value);
+        setReferralsError(null);
+      } else {
+        setReferrals(null);
+        setReferralsError(
+          referralsResult.reason instanceof Error
+            ? referralsResult.reason.message
+            : "No se pudo cargar la información de referidos",
+        );
+      }
     } catch {
       Alert.alert("Error", "No se pudieron cargar las ganancias");
     } finally {
@@ -754,6 +779,19 @@ export default function AnfitrianaGanancias() {
   useEffect(() => {
     load();
   }, []);
+
+  const handleCopyReferralCode = async () => {
+    if (!referrals?.referralCode) return;
+    await Clipboard.setStringAsync(referrals.referralCode);
+    Alert.alert("Código copiado", "Tu código de referido fue copiado al portapapeles.");
+  };
+
+  const agreedPercent = (() => {
+    const contracts = referrals?.referrals ?? [];
+    if (!contracts.length) return 0;
+    const active = contracts.find((item) => item.status === "ACTIVE");
+    return Number((active ?? contracts[0]).percent ?? 0);
+  })();
 
   return (
     <View style={{ flex: 1, backgroundColor: "#25060E" }}>
@@ -834,6 +872,89 @@ export default function AnfitrianaGanancias() {
           </View>
           </AnimatedBorderCard>
 
+          {/* Referral Card */}
+          <AnimatedBorderCard borderRadius={16} style={{ marginBottom: 20 }}>
+            <View style={{ backgroundColor: "#3D0A14", borderRadius: 14, paddingHorizontal: 18, paddingVertical: 16 }}>
+              <Text className="text-red-200 text-xs font-semibold uppercase tracking-widest mb-1">
+                Código de referido
+              </Text>
+              <Text className="text-white text-[13px] mb-3">
+                Como creador de contenido, comparte tu código con otros creadores. Si el administrador activa un contrato de referido, ganarás un porcentaje sobre sus ganancias reales.
+              </Text>
+
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  borderWidth: 1,
+                  borderColor: "rgba(246,193,106,0.35)",
+                  borderRadius: 12,
+                  paddingHorizontal: 12,
+                  paddingVertical: 10,
+                  backgroundColor: "rgba(0,0,0,0.25)",
+                  marginBottom: 12,
+                }}
+              >
+                <View style={{ flex: 1, marginRight: 10 }}>
+                  <Text className="text-red-200 text-[11px]">Código de referido</Text>
+                  <Text style={{ color: "#FFEE00", fontSize: 20, fontWeight: "900", letterSpacing: 1 }}>
+                    {referrals?.referralCode || "—"}
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  onPress={handleCopyReferralCode}
+                  disabled={!referrals?.referralCode}
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 6,
+                    backgroundColor: referrals?.referralCode ? "#D11B1B" : "#6b7280",
+                    borderRadius: 10,
+                    paddingHorizontal: 12,
+                    paddingVertical: 8,
+                  }}
+                >
+                  <Copy size={14} color="#fff" />
+                  <Text className="text-white font-bold text-xs">Copiar</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View className="flex-row justify-between">
+                <View className="flex-1">
+                  <Text className="text-red-200 text-xs text-center">
+                    {"Porcentaje\nacordado"}
+                  </Text>
+                  <Text style={{ color: "#FFEE00", fontSize: 16, fontWeight: "800", textAlign: "center" }}>
+                    {agreedPercent}%
+                  </Text>
+                </View>
+                <View className="flex-1">
+                  <Text className="text-red-200 text-xs text-center">
+                    {"Creadores\nreferidos"}
+                  </Text>
+                  <Text style={{ color: "#FFEE00", fontSize: 16, fontWeight: "800", textAlign: "center" }}>
+                    {referrals?.totalReferrals ?? 0}
+                  </Text>
+                </View>
+                <View className="flex-1">
+                  <Text className="text-red-200 text-xs text-center">
+                    {"Ganancias por\nreferidos"}
+                  </Text>
+                  <Text style={{ color: "#FFEE00", fontSize: 16, fontWeight: "800", textAlign: "center" }}>
+                    {Number(referrals?.totalRewardAmount ?? 0).toFixed(2)} cr
+                  </Text>
+                </View>
+              </View>
+
+              {!!referralsError && (
+                <Text style={{ color: "#fca5a5", fontSize: 11, marginTop: 10 }}>
+                  {referralsError}
+                </Text>
+              )}
+            </View>
+          </AnimatedBorderCard>
+
           {/* Action buttons */}
           <View className="mb-3">
             <AnimatedBorderCard borderRadius={12} style={{ marginBottom: 12 }}>
@@ -889,3 +1010,4 @@ export default function AnfitrianaGanancias() {
     </View>
   );
 }
+

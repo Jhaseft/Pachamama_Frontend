@@ -14,6 +14,7 @@ export function useAnfitrioneRegister() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
+  const [referralCode, setReferralCode] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [username, setUsername] = useState("");
@@ -76,6 +77,7 @@ export function useAnfitrioneRegister() {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         email: email.trim().toLowerCase(),
+        ...(referralCode.trim() ? { referralCode: referralCode.trim() } : {}),
         password,
         confirmPassword: confirm,
         username: username.trim(),
@@ -87,7 +89,13 @@ export function useAnfitrioneRegister() {
       await removeTempToken();
       router.replace("/(anfitriona)");
     } catch (err: any) {
-      setError(typeof err === "string" ? err : "No se pudo completar el registro.");
+      const message = typeof err === "string" ? err : "No se pudo completar el registro.";
+      const normalized = message.toLowerCase();
+      const isReferralCodeInvalid =
+        (normalized.includes("codigo de referido") || normalized.includes("código de referido")) &&
+        normalized.includes("inval");
+
+      setError(isReferralCodeInvalid ? "El código de referido no es válido." : message);
     } finally {
       setLoading(false);
     }
@@ -100,6 +108,7 @@ export function useAnfitrioneRegister() {
     firstName, setFirstName,
     lastName, setLastName,
     email, setEmail,
+    referralCode, setReferralCode,
     password, setPassword,
     confirm, setConfirm,
     username, setUsername,
