@@ -19,18 +19,12 @@ import { useAuth } from "../../src/context/AuthContext";
 import { removeTempToken, setTempToken } from "../../src/storage/authStorage";
 
 export default function Otp() {
-  const { role, phone, dialCode, localPhone } = useLocalSearchParams<{
+  const { role, email } = useLocalSearchParams<{
     role?: string;
-    phone?: string;
-    dialCode?: string;
-    localPhone?: string;
+    email?: string;
   }>();
   const roleValue = Array.isArray(role) ? role[0] : role || "client";
-  const phoneValue = Array.isArray(phone) ? phone[0] : phone || "999999999";
-  const dialValue = Array.isArray(dialCode) ? dialCode[0] : dialCode || "";
-  const localValue = Array.isArray(localPhone) ? localPhone[0] : localPhone || "";
-  const hasLocal = Boolean(localValue) && Boolean(dialValue);
-  const displayPhone = hasLocal ? `+${dialValue} ${localValue}` : `+${phoneValue}`;
+  const emailValue = Array.isArray(email) ? email[0] : email || "";
 
   const { setSession } = useAuth();
 
@@ -65,13 +59,16 @@ export default function Otp() {
       try {
         setLoading(true);
         setError("");
-        const result = await apiVerifyOtp({ phoneNumber: phoneValue, code });
+        const result = await apiVerifyOtp({ email: emailValue, code });
         if (!result.needsProfile) {
-          setError("Este número ya tiene una cuenta registrada.");
+          setError("Este correo ya tiene una cuenta registrada.");
           return;
         }
         await setTempToken(result.tempToken);
-        router.replace("/(auth)/profile-anfitriona");
+        router.replace({
+          pathname: "/(auth)/profile-anfitriona",
+          params: { email: emailValue },
+        });
       } catch (err: any) {
         setError(typeof err === "string" ? err : "No se pudo verificar el código.");
       } finally {
@@ -83,7 +80,7 @@ export default function Otp() {
     try {
       setLoading(true);
       setError("");
-      const result = await verifyOtp(phoneValue, code);
+      const result = await verifyOtp(emailValue, code);
       if ("access_token" in result) {
         await setSession(result.access_token, result.user);
         await removeTempToken();
@@ -94,7 +91,7 @@ export default function Otp() {
       await setTempToken(result.tempToken);
       router.replace({
         pathname: "/(auth)/profile",
-        params: { phone: phoneValue },
+        params: { email: emailValue },
       });
     } catch (err) {
       const message =
@@ -109,7 +106,7 @@ export default function Otp() {
     if (roleValue === "anfitriona") {
       try {
         setResending(true);
-        await apiSendOtp({ phoneNumber: phoneValue });
+        await apiSendOtp({ email: emailValue });
         Alert.alert("Reenviar", "Código reenviado");
       } catch (err: any) {
         setError(typeof err === "string" ? err : "No se pudo reenviar el código.");
@@ -126,7 +123,7 @@ export default function Otp() {
 
     try {
       setResending(true);
-      await sendOtp(phoneValue);
+      await sendOtp(emailValue);
       Alert.alert("Reenviar", "Codigo reenviado");
     } catch (err) {
       const message =
@@ -157,7 +154,7 @@ export default function Otp() {
 
           <Text className="text-white text-3xl font-bold">Codigo OTP</Text>
           <Text className="text-white/70 text-lg mt-8 mb-10">
-            Enviado al {displayPhone}
+            Enviado a {emailValue}
           </Text>
 
           <Pressable

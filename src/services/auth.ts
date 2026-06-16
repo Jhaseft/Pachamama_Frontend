@@ -2,7 +2,7 @@ import { apiFetch } from "./api";
 
 export type User = {
   id: string;
-  phoneNumber: string;
+  phoneNumber: string | null;
   email: string | null;
   firstName: string | null;
   lastName: string | null;
@@ -23,7 +23,6 @@ export type CompleteRegistrationInput = {
   tempToken: string;
   firstName: string;
   lastName: string;
-  email: string;
   password: string;
   confirmPassword: string;
 };
@@ -31,17 +30,17 @@ export type CompleteRegistrationInput = {
 export type CompleteRegistrationResponse = { access_token: string; user: User };
 export type LoginResponse = { access_token: string; user: User };
 
-export async function sendOtp(phoneNumber: string) {
+export async function sendOtp(email: string) {
   return apiFetch<SendOtpResponse>("/auth/send-otp", {
     method: "POST",
-    body: JSON.stringify({ phoneNumber }),
+    body: JSON.stringify({ email }),
   });
 }
 
-export async function verifyOtp(phoneNumber: string, code: string) {
+export async function verifyOtp(email: string, code: string) {
   return apiFetch<VerifyOtpResponse>("/auth/verify-otp", {
     method: "POST",
-    body: JSON.stringify({ phoneNumber, code }),
+    body: JSON.stringify({ email, code }),
   });
 }
 

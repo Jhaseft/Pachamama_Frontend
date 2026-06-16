@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import {
   Text,
   Pressable,
@@ -13,46 +13,32 @@ import { router } from "expo-router";
 import Screen from "../../components/Screen";
 import PrimaryButton from "../../components/PrimaryButton";
 import { sendOtp } from "../../src/services/auth";
-import { COUNTRIES_LATAM, type CountryLatam } from "../../src/constants/countriesLatam";
-import CountryPickerModal from "../../components/auth/CountryPickerModal";
 
 export default function LoginClient() {
-  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [countryOpen, setCountryOpen] = useState(false);
-
-  const defaultCountry = useMemo(
-    () => COUNTRIES_LATAM.find((item) => item.code === "PE") ?? COUNTRIES_LATAM[0],
-    [],
-  );
-  const [country, setCountry] = useState<CountryLatam>(defaultCountry);
-
-  const handlePhoneChange = (value: string) => {
-    const onlyNumbers = value.replace(/\D/g, "");
-    setPhone(onlyNumbers);
-  };
 
   const handleSend = async () => {
-    const localNumber = phone.trim().replace(/\D/g, "");
-    if (!localNumber) {
-      setError("Ingresa tu número de celular.");
+    const trimmedEmail = email.trim().toLowerCase();
+    if (!trimmedEmail) {
+      setError("Ingresa tu correo Gmail.");
       return;
     }
-
-    const fullNumber = `${country.dialCode}${localNumber}`;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      setError("Ingresa un correo válido.");
+      return;
+    }
 
     try {
       setLoading(true);
       setError("");
-      await sendOtp(fullNumber);
+      await sendOtp(trimmedEmail);
       router.push({
         pathname: "/(auth)/otp",
         params: {
           role: "client",
-          phone: fullNumber,
-          dialCode: country.dialCode,
-          localPhone: localNumber,
+          email: trimmedEmail,
         },
       });
     } catch (err) {
@@ -84,34 +70,22 @@ export default function LoginClient() {
 
           <Text className="text-white text-3xl font-bold">Crear cuenta</Text>
           <Text className="text-white/70 text-lg mt-2 mb-6">
-            Te enviaremos un codigo de verificacion para validar tu numero. {"\n"} {"\n"}
+            Te enviaremos un codigo de verificacion a tu correo Gmail. {"\n"} {"\n"}
             Completa tu registro para crear tu cuenta.
           </Text>
 
-          <CountryPickerModal
-            visible={countryOpen}
-            onClose={() => setCountryOpen(false)}
-            onSelect={(item) => setCountry(item)}
-          />
-
           <View className="mt-1">
-            <Text className="text-white text-base mb-2">Número de celular</Text>
+            <Text className="text-white text-base mb-2">Correo Gmail</Text>
             <View className="h-14 rounded-2xl border border-white/20 bg-white/5 px-3 flex-row items-center">
-              <Pressable
-                onPress={() => setCountryOpen(true)}
-                className="h-full justify-center pr-3 mr-3 border-r border-white/20"
-              >
-                <Text className="text-white text-lg font-semibold">+{country.dialCode}</Text>
-              </Pressable>
               <TextInput
                 className="flex-1 text-white text-lg"
-                placeholder="999 999 999"
+                placeholder="tucorreo@gmail.com"
                 placeholderTextColor="rgba(255,255,255,0.45)"
-                keyboardType="phone-pad"
-                value={phone}
-                onChangeText={handlePhoneChange}
-                textContentType="telephoneNumber"
-                maxLength={15}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                value={email}
+                onChangeText={setEmail}
+                textContentType="emailAddress"
               />
             </View>
           </View>

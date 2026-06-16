@@ -14,6 +14,7 @@ type TextFieldProps = {
   prefix?: string;
   textContentType?: TextInputProps["textContentType"];
   maxLength?: number;
+  editable?: boolean;
 };
 
 export default function TextField({
@@ -27,6 +28,7 @@ export default function TextField({
   prefix,
   textContentType,
   maxLength,
+  editable = true,
 }: TextFieldProps) {
   const [hidden, setHidden] = useState(true);
 
@@ -35,7 +37,11 @@ export default function TextField({
       {label ? (
         <Text className="text-white text-xl font-bold mb-2">{label}</Text>
       ) : null}
-      <View className="flex-row items-center bg-neutral-900 border border-white rounded-xl px-4 py-3">
+      <View
+        className={`flex-row items-center border rounded-xl px-4 py-3 ${
+          editable ? "bg-neutral-900 border-white" : "bg-neutral-800 border-white/20"
+        }`}
+      >
         {prefix ? (
           <Text className="text-white/70 mr-3">{prefix}</Text>
         ) : null}
@@ -49,8 +55,12 @@ export default function TextField({
           autoCapitalize={autoCapitalize}
           textContentType={textContentType}
           maxLength={maxLength}
-          className="flex-1 text-white"
+          editable={editable}
+          className={`flex-1 ${editable ? "text-white" : "text-white/50"}`}
         />
+        {!editable ? (
+          <Ionicons name="lock-closed" size={16} color="#666" style={{ marginLeft: 8 }} />
+        ) : null}
         {secureTextEntry ? (
           <TouchableOpacity onPress={() => setHidden((h) => !h)} className="ml-2">
             <Ionicons

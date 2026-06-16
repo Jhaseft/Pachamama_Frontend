@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import * as ImagePicker from "expo-image-picker";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { apiCompleteAnfitrioneRegistration } from "../api/registerAnfitriona";
 import { useAuth } from "../context/AuthContext";
 import { getTempToken, removeTempToken } from "../storage/authStorage";
@@ -8,12 +8,14 @@ import { getTempToken, removeTempToken } from "../storage/authStorage";
 export type IdDoc = { uri: string; name: string; type: string };
 
 export function useAnfitrioneRegister() {
+  const { email: emailParam } = useLocalSearchParams<{ email?: string }>();
+  const email = Array.isArray(emailParam) ? emailParam[0] : emailParam || "";
+
   const [tempToken, setTempTokenState] = useState<string | null>(null);
   const [checkingToken, setCheckingToken] = useState(true);
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
   const [referralCode, setReferralCode] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -58,8 +60,6 @@ export function useAnfitrioneRegister() {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(dateOfBirth.trim())) return "Formato de fecha inválido. Usa YYYY-MM-DD.";
     if (!password || password.length < 6) return "La contraseña debe tener al menos 6 caracteres.";
     if (password !== confirm) return "Las contraseñas no coinciden.";
-    if (!email.trim()) return "Ingresa tu correo electrónico.";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return "Ingresa un correo válido.";
     if (!idDoc) return "Debes subir una imagen de tu documento de identidad.";
     return null;
   };
@@ -76,7 +76,6 @@ export function useAnfitrioneRegister() {
         tempToken,
         firstName: firstName.trim(),
         lastName: lastName.trim(),
-        email: email.trim().toLowerCase(),
         ...(referralCode.trim() ? { referralCode: referralCode.trim() } : {}),
         password,
         confirmPassword: confirm,
@@ -107,7 +106,7 @@ export function useAnfitrioneRegister() {
     // fields
     firstName, setFirstName,
     lastName, setLastName,
-    email, setEmail,
+    email,
     referralCode, setReferralCode,
     password, setPassword,
     confirm, setConfirm,

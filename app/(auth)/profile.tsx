@@ -7,7 +7,7 @@ import {
   ScrollView,
   Pressable,
 } from "react-native";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import TextField from "../../components/TextField";
 import PrimaryButton from "../../components/PrimaryButton";
 import { completeRegistration } from "../../src/services/auth";
@@ -15,8 +15,10 @@ import { useAuth } from "../../src/context/AuthContext";
 import { getTempToken, removeTempToken } from "../../src/storage/authStorage";
 
 export default function Profile() {
+  const { email: emailParam } = useLocalSearchParams<{ email?: string }>();
+  const email = Array.isArray(emailParam) ? emailParam[0] : emailParam || "";
+
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [accepted, setAccepted] = useState(false);
@@ -48,18 +50,6 @@ export default function Profile() {
       return;
     }
 
-    const trimmedEmail = email.trim().toLowerCase();
-    if (!trimmedEmail) {
-      setError("Ingresa tu correo electronico.");
-      return;
-    }
-
-    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail);
-    if (!isEmail) {
-      setError("Ingresa un correo válido.");
-      return;
-    }
-
     if (!password || password.length < 6) {
       setError("La contraseña debe tener al menos 6 caracteres.");
       return;
@@ -80,7 +70,6 @@ export default function Profile() {
         tempToken,
         firstName,
         lastName,
-        email: trimmedEmail,
         password,
         confirmPassword: confirm,
       });
@@ -139,11 +128,10 @@ export default function Profile() {
 
         <TextField
           label="Email"
-          placeholder="correo@ejemplo.com"
           value={email}
-          onChangeText={setEmail}
           keyboardType="email-address"
           textContentType="emailAddress"
+          editable={false}
         />
 
         <TextField

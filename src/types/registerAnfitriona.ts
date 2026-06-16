@@ -1,9 +1,9 @@
 export interface SendOtpRequest {
-  phoneNumber: string;
+  email: string;
 }
 
 export interface VerifyOtpRequest {
-  phoneNumber: string;
+  email: string;
   code: string;
 }
 
@@ -16,7 +16,6 @@ export interface CompleteAnfitrioneRegistrationRequest {
   tempToken: string;
   firstName: string;
   lastName: string;
-  email?: string;
   referralCode?: string;
   password: string;
   confirmPassword: string;
@@ -42,7 +41,7 @@ export interface RegisterAnfitrioneResponse {
     id: string;
     firstName: string;
     lastName: string;
-    phoneNumber: string;
+    phoneNumber: string | null;
     email: string | null;
     role: 'ANFITRIONA';
   };

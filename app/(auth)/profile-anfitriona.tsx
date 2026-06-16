@@ -13,7 +13,7 @@ export default function ProfileAnfitriona() {
     tempToken, checkingToken,
     firstName, setFirstName,
     lastName, setLastName,
-    email, setEmail,
+    email,
     referralCode, setReferralCode,
     password, setPassword,
     confirm, setConfirm,
@@ -179,7 +179,7 @@ export default function ProfileAnfitriona() {
           </View>
         </View>
 
-        <TextField label="Email" placeholder="camila@gmail.com" value={email} onChangeText={setEmail} keyboardType="email-address" textContentType="emailAddress" />
+        <TextField label="Email" value={email} keyboardType="email-address" textContentType="emailAddress" editable={false} />
         <TextField
           label="Código de referido"
           placeholder="Ingresa el código si una creadora te refirió"
