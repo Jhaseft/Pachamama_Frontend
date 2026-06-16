@@ -57,7 +57,8 @@
       "expo-secure-store",
       "expo-video",
       "@react-native-firebase/app",
-      "@react-native-firebase/messaging"
+      "@react-native-firebase/messaging",
+      "@react-native-google-signin/google-signin"
     ],
     "extra": {
       "router": {},
