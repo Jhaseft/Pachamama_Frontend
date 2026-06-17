@@ -7,6 +7,8 @@ import { useCallSocket, type IncomingCallData } from "@/hooks/useCallSocket";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { onCallKeepAnswer, onCallKeepEnd, removeCallKeepListeners, endCallKeep } from "@/src/services/callkeep";
+import CompleteProfileModal from "@/components/anfitriona/CompleteProfileModal";
+import SetPasswordModal from "@/components/anfitriona/SetPasswordModal";
 
 function PulseRing({ size, delay }: { size: number; delay: number }) {
   const anim = useRef(new Animated.Value(0)).current;
@@ -41,7 +43,15 @@ function PulseRing({ size, delay }: { size: number; delay: number }) {
 export default function AnfitrianaLayout() {
   const pathname = usePathname();
   const router   = useRouter();
-  const { user } = useAuth();
+  const { user, setSession } = useAuth();
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+
+  useEffect(() => {
+    if (user && !user.isProfileComplete) {
+      setShowProfileModal(true);
+    }
+  }, [user?.isProfileComplete]);
 
   const hideNav =
     pathname.includes("/chat/") ||
@@ -138,6 +148,20 @@ export default function AnfitrianaLayout() {
     <View style={{ flex: 1 }}>
       <Stack screenOptions={{ headerShown: false }} />
       {!hideNav && <BottomNav role="anfitriona" />}
+
+      {/* ── Modales Google registro ── */}
+      <CompleteProfileModal
+        visible={showProfileModal}
+        onCompleted={(newToken, newUser) => {
+          setSession(newToken, newUser);
+          setShowProfileModal(false);
+          setShowPasswordModal(true);
+        }}
+      />
+      <SetPasswordModal
+        visible={showPasswordModal}
+        onDone={() => setShowPasswordModal(false)}
+      />
 
       {/* ── Modal llamada entrante ── */}
       <Modal

@@ -12,8 +12,11 @@ import { Link, router } from "expo-router";
 import Screen from "../../components/Screen";
 import TextField from "../../components/TextField";
 import PrimaryButton from "../../components/PrimaryButton";
+import GoogleButton from "../../components/GoogleButton";
 import { loginWithEmail } from "../../src/services/auth";
 import { useAuth } from "../../src/context/AuthContext";
+import { useGoogleSignIn } from "../../src/hooks/useGoogleSignIn";
+import { apiGoogleLoginAnfitriona } from "../../src/api/googleAuth";
 
 export default function LoginHostess() {
   const [email, setEmail] = useState("");
@@ -21,6 +24,21 @@ export default function LoginHostess() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const { setSession } = useAuth();
+  const { getIdToken, loading: googleLoading, error: googleError, setError: setGoogleError } = useGoogleSignIn();
+
+  const handleGoogleSignIn = async () => {
+    setError("");
+    setGoogleError("");
+    const idToken = await getIdToken();
+    if (!idToken) return;
+    try {
+      const result = await apiGoogleLoginAnfitriona(idToken);
+      await setSession(result.access_token, result.user);
+      router.replace("/(anfitriona)");
+    } catch (err: any) {
+      setError(err?.response?.data?.message ?? "Error al iniciar sesión con Google.");
+    }
+  };
 
   const handleSend = async () => {
     const trimmedEmail = email.trim().toLowerCase();
@@ -111,16 +129,6 @@ export default function LoginHostess() {
             disabled={loading}
           />
 
-          <Link
-            asChild
-            href={'(auth)/register-anfitriona'}
-          >
-            <Text className="text-white/60 text-lg mt-3 text-center">
-              ¿No tienes cuenta?{" "}
-              <Text className="underline font-semibold">Regístrate aquí</Text>
-            </Text>
-          </Link>
-
           <Pressable
             onPress={() => router.push({ pathname: "/(auth)/forgot-password", params: { role: "anfitriona" } })}
             className="mt-4"
@@ -129,6 +137,25 @@ export default function LoginHostess() {
               ¿Olvidaste tu contraseña?
             </Text>
           </Pressable>
+
+          {googleError ? (
+            <Text className="text-red-400 text-sm mt-2 text-center">{googleError}</Text>
+          ) : null}
+
+          <View className="flex-row items-center my-6">
+            <View className="flex-1 h-px bg-white/20" />
+            <Text className="text-white/40 mx-4">o</Text>
+            <View className="flex-1 h-px bg-white/20" />
+          </View>
+
+          <GoogleButton onPress={handleGoogleSignIn} loading={googleLoading} />
+
+          <Link asChild href={'(auth)/register-anfitriona'}>
+            <Text className="text-white/60 text-lg mt-4 text-center">
+              ¿No tienes cuenta?{" "}
+              <Text className="underline font-semibold">Regístrate aquí</Text>
+            </Text>
+          </Link>
 
         </ScrollView>
       </KeyboardAvoidingView>

@@ -20,10 +20,12 @@ import {
   apiUpdateMyProfile,
   type MyProfileData,
 } from '@/src/api/anfitrionaProfile';
+import { useAuth } from '@/src/context/AuthContext';
 
 export default function EditarPerfil() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { user } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -258,6 +260,33 @@ export default function EditarPerfil() {
           multiline
           numberOfLines={4}
         />
+
+        {/* Email — solo lectura */}
+        <View style={{ marginBottom: 18 }}>
+          <Text style={{ color: '#e4e4e7', fontSize: 13, fontWeight: '600', marginBottom: 6 }}>
+            Correo electrónico
+          </Text>
+          <View style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: '#18181b',
+            borderWidth: 1,
+            borderColor: '#3f3f46',
+            borderRadius: 10,
+            paddingHorizontal: 14,
+            paddingVertical: 12,
+          }}>
+            <MaterialCommunityIcons name="email-outline" size={16} color="#52525b" style={{ marginRight: 8 }} />
+            <Text style={{ color: '#71717a', fontSize: 15, flex: 1 }}>
+              {user?.email ?? '—'}
+            </Text>
+            <MaterialCommunityIcons name="lock-outline" size={14} color="#3f3f46" />
+          </View>
+          <Text style={{ color: '#52525b', fontSize: 12, marginTop: 5 }}>
+            No es posible cambiar el correo desde aquí.
+          </Text>
+        </View>
+
         {/* Info sobre campos no editables */}
         <View
           style={{

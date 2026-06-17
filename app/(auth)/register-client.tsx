@@ -12,12 +12,32 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import Screen from "../../components/Screen";
 import PrimaryButton from "../../components/PrimaryButton";
+import GoogleButton from "../../components/GoogleButton";
 import { sendOtp } from "../../src/services/auth";
+import { useGoogleSignIn } from "../../src/hooks/useGoogleSignIn";
+import { apiGoogleLoginCliente } from "../../src/api/googleAuth";
+import { useAuth } from "../../src/context/AuthContext";
 
 export default function LoginClient() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const { setSession } = useAuth();
+  const { getIdToken, loading: googleLoading, error: googleError, setError: setGoogleError } = useGoogleSignIn();
+
+  const handleGoogleSignIn = async () => {
+    setError("");
+    setGoogleError("");
+    const idToken = await getIdToken();
+    if (!idToken) return;
+    try {
+      const result = await apiGoogleLoginCliente(idToken);
+      await setSession(result.access_token, result.user);
+      router.replace("/(cliente)");
+    } catch (err: any) {
+      setError(err?.response?.data?.message ?? "Error al iniciar sesión con Google.");
+    }
+  };
 
   const handleSend = async () => {
     const trimmedEmail = email.trim().toLowerCase();
@@ -101,6 +121,18 @@ export default function LoginClient() {
               disabled={loading}
             />
           </View>
+
+          {(error || googleError) ? (
+            <Text className="text-red-400 text-sm mt-2 text-center">{error || googleError}</Text>
+          ) : null}
+
+          <View className="flex-row items-center my-6">
+            <View className="flex-1 h-px bg-white/20" />
+            <Text className="text-white/40 mx-4">o</Text>
+            <View className="flex-1 h-px bg-white/20" />
+          </View>
+
+          <GoogleButton onPress={handleGoogleSignIn} loading={googleLoading} />
 
           <Pressable
             onPress={() => router.push("/(auth)/code-help")}

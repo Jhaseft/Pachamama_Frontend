@@ -5,14 +5,18 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  View,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import Screen from "../../components/Screen";
 import TextField from "../../components/TextField";
 import PrimaryButton from "../../components/PrimaryButton";
+import GoogleButton from "../../components/GoogleButton";
 import { loginWithEmail } from "../../src/services/auth";
 import { useAuth } from "../../src/context/AuthContext";
+import { useGoogleSignIn } from "../../src/hooks/useGoogleSignIn";
+import { apiGoogleLoginCliente } from "../../src/api/googleAuth";
 
 export default function LoginClientEmail() {
   const [email, setEmail] = useState("");
@@ -20,6 +24,21 @@ export default function LoginClientEmail() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const { setSession } = useAuth();
+  const { getIdToken, loading: googleLoading, error: googleError, setError: setGoogleError } = useGoogleSignIn();
+
+  const handleGoogleSignIn = async () => {
+    setError("");
+    setGoogleError("");
+    const idToken = await getIdToken();
+    if (!idToken) return;
+    try {
+      const result = await apiGoogleLoginCliente(idToken);
+      await setSession(result.access_token, result.user);
+      router.replace("/(cliente)");
+    } catch (err: any) {
+      setError(err?.response?.data?.message ?? "Error al iniciar sesión con Google.");
+    }
+  };
 
   const handleLogin = async () => {
     const trimmedEmail = email.trim().toLowerCase();
@@ -117,6 +136,18 @@ export default function LoginClientEmail() {
               ¿Olvidaste tu contraseña?
             </Text>
           </Pressable>
+
+          {googleError ? (
+            <Text className="text-red-400 text-sm mt-2 text-center">{googleError}</Text>
+          ) : null}
+
+          <View className="flex-row items-center my-6">
+            <View className="flex-1 h-px bg-white/20" />
+            <Text className="text-white/40 mx-4">o</Text>
+            <View className="flex-1 h-px bg-white/20" />
+          </View>
+
+          <GoogleButton onPress={handleGoogleSignIn} loading={googleLoading} />
 
           <Pressable
             onPress={() => router.replace("/(auth)/register-client")}
