@@ -7,6 +7,7 @@ import { useCallSocket, type IncomingCallData } from "@/hooks/useCallSocket";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { onCallKeepAnswer, onCallKeepEnd, removeCallKeepListeners, endCallKeep } from "@/src/services/callkeep";
+import { pendingCallFromNotifRef } from "@/src/services/notifications";
 import CompleteProfileModal from "@/components/anfitriona/CompleteProfileModal";
 import SetPasswordModal from "@/components/anfitriona/SetPasswordModal";
 
@@ -69,6 +70,14 @@ export default function AnfitrianaLayout() {
 
   useEffect(() => {
     if (!user?.id) return;
+
+    // Si la app se abrió tocando una notificación de llamada, mostrar el modal
+    if (pendingCallFromNotifRef.current) {
+      setIncomingCall(pendingCallFromNotifRef.current);
+      pendingCallRef.current = pendingCallFromNotifRef.current;
+      pendingCallFromNotifRef.current = null;
+    }
+
     const unsub = callSocket.onIncomingCall((data) => {
       setIncomingCall(data);
       pendingCallRef.current = data; // guardamos los datos para CallKeep

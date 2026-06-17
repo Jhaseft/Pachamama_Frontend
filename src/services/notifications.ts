@@ -4,10 +4,15 @@ import { apiUpdateFcmToken } from '../api/userProfile';
 import Toast from 'react-native-toast-message';
 import { displayIncomingCall } from './callkeep';
 import notifee, { AndroidImportance } from '@notifee/react-native';
+import type { IncomingCallData } from '../../hooks/useCallSocket';
 
 // Ref global para saber si la app está en foreground
 // Se actualiza desde AuthContext
 export const appActiveRef = { current: true };
+
+// Datos de llamada entrante que llegaron por notificación (background/quit)
+// El layout de anfitriona los lee al montar para mostrar el modal
+export const pendingCallFromNotifRef = { current: null as IncomingCallData | null };
 // Se actualiza desde ChatScreen al entrar/salir
 export const activeChatRef = { current: null as string | null };
 
@@ -148,18 +153,37 @@ export const setupForegroundNotificationHandler = (): (() => void) => {
 // MANEJAR NOTIFICACIONES EN BACKGROUND/QUIT
 // Se activa cuando el usuario toca la notificación para abrir la app
 export const setupBackgroundNotificationHandler = (): void => {
-    // Cuando la app está CERRADA y el usuario toca la notificación
+    // Cuando la app estaba CERRADA y el usuario toca la notificación
     messaging()
         .getInitialNotification()
         .then((remoteMessage) => {
-            if (remoteMessage) {
-                console.log('App abierta desde notificación (quit):', remoteMessage.data);
+            if (!remoteMessage) return;
+            if (remoteMessage.data?.type === 'INCOMING_CALL') {
+                pendingCallFromNotifRef.current = {
+                    callId:         remoteMessage.data.callId         as string,
+                    callerId:       remoteMessage.data.callerId        as string,
+                    receiverId:     remoteMessage.data.receiverId      as string ?? '',
+                    callType:       (remoteMessage.data.callType       as any) ?? 'CALL',
+                    callerName:     remoteMessage.data.callerName      as string ?? 'Cliente',
+                    callerAvatar:   remoteMessage.data.callerAvatar    as string ?? null,
+                    pricePerMinute: Number(remoteMessage.data.pricePerMinute ?? 0),
+                };
             }
         });
 
-    // Cuando la app está en BACKGROUND y el usuario toca la notificación
+    // Cuando la app estaba en BACKGROUND y el usuario toca la notificación
     messaging().onNotificationOpenedApp((remoteMessage) => {
-        console.log('App abierta desde notificación (background):', remoteMessage.data);
+        if (remoteMessage.data?.type === 'INCOMING_CALL') {
+            pendingCallFromNotifRef.current = {
+                callId:         remoteMessage.data.callId         as string,
+                callerId:       remoteMessage.data.callerId        as string,
+                receiverId:     remoteMessage.data.receiverId      as string ?? '',
+                callType:       (remoteMessage.data.callType       as any) ?? 'CALL',
+                callerName:     remoteMessage.data.callerName      as string ?? 'Cliente',
+                callerAvatar:   remoteMessage.data.callerAvatar    as string ?? null,
+                pricePerMinute: Number(remoteMessage.data.pricePerMinute ?? 0),
+            };
+        }
     });
 };
 
