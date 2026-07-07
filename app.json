@@ -61,7 +61,10 @@
       "@react-native-google-signin/google-signin"
     ],
     "extra": {
-      "router": {}
+      "router": {},
+      "eas": {
+        "projectId": "bcc1d0f3-e302-43b6-a649-4a70db602a36"
+      }
     },
     "owner": "luigi777"
   }
