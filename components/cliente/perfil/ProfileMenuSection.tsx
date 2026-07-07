@@ -1,5 +1,6 @@
 import { View, StyleSheet } from "react-native";
 import ProfileMenuItem from "./ProfileMenuItem";
+import colors from "@/constants/colors";
 
 export type MenuItemConfig = {
   label: string;
@@ -27,12 +28,12 @@ export default function ProfileMenuSection({ items }: Props) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#1a0208",
+    backgroundColor: colors.surface.card,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "rgba(246,193,106,0.25)",
+    borderColor: "rgba(240,62,179,0.25)",
     overflow: "hidden",
-    shadowColor: "#F6C16A",
+    shadowColor: colors.secondary.DEFAULT,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.08,
     shadowRadius: 6,

@@ -1,4 +1,5 @@
 import { Image, Text, TouchableOpacity, View } from "react-native";
+import colors from "@/constants/colors";
 
 export type Story = {
   id: string;
@@ -13,7 +14,7 @@ export default function StoryItem({ story, onPress }: { story: Story; onPress: (
       <View style={{ position: "relative" }}>
         <View
           className="w-16 h-16 rounded-full"
-          style={{ borderWidth: 2, borderColor: "#ec4899" }}
+          style={{ borderWidth: 2, borderColor: colors.secondary.DEFAULT }}
         >
           <Image
             source={{ uri: story.avatar }}

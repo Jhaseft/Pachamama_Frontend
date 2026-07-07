@@ -13,7 +13,7 @@ export default function Dots({ count = 3, activeIndex = 0 }: DotsProps) {
         return (
           <View
             key={`dot-${index}`}
-            className={`${isActive ? "w-6" : "w-2"} h-2 rounded-full bg-white ${
+            className={`${isActive ? "w-6 bg-secondary" : "w-2 bg-white/30"} h-2 rounded-full ${
               index === count - 1 ? "" : "mr-2"
             }`}
           />

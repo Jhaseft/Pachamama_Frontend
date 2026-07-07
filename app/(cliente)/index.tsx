@@ -26,6 +26,7 @@ import {
 import { useAuth } from "@/src/context/AuthContext";
 import { apiGetStoriesFeed } from "@/src/api/anfitrionaHistory";
 import { HistoryFeedItem } from "@/src/types/historyViewClient";
+import colors from "@/constants/colors";
 
 type AnfitrionaListItem = Anfitriona & { _listKey: string };
 
@@ -239,7 +240,7 @@ export default function ClienteInicio() {
 
       {loading && (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#ec4899" />
+          <ActivityIndicator size="large" color={colors.secondary.DEFAULT} />
         </View>
       )}
 
@@ -249,7 +250,7 @@ export default function ClienteInicio() {
           <TouchableOpacity
             onPress={loadAnfitrionas}
             style={{
-              backgroundColor: "#ec4899",
+              backgroundColor: colors.secondary.DEFAULT,
               paddingHorizontal: 24,
               paddingVertical: 12,
               borderRadius: 999,
@@ -307,7 +308,7 @@ export default function ClienteInicio() {
                     alignItems: "center",
                   }}
                 >
-                  <ActivityIndicator size="large" color="#ec4899" />
+                  <ActivityIndicator size="large" color={colors.secondary.DEFAULT} />
                 </View>
               ) : null
             }

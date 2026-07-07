@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import type { User } from "@/src/services/auth";
+import colors from "@/constants/colors";
 
 type Props = {
   user: User;
@@ -16,7 +17,7 @@ export default function ProfileSummary({ user }: Props) {
       {/* Avatar */}
       <View style={styles.avatarRing}>
         <View style={styles.avatarInner}>
-          <MaterialCommunityIcons name="account" size={34} color="#F6C16A" />
+          <MaterialCommunityIcons name="account" size={34} color={colors.secondary.DEFAULT} />
         </View>
       </View>
 
@@ -39,13 +40,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 16,
-    backgroundColor: "#1a0208",
+    backgroundColor: colors.surface.card,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "rgba(246,193,106,0.3)",
+    borderColor: "rgba(240,62,179,0.3)",
     paddingHorizontal: 20,
     paddingVertical: 18,
-    shadowColor: "#F6C16A",
+    shadowColor: colors.secondary.DEFAULT,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
@@ -56,7 +57,7 @@ const styles = StyleSheet.create({
     height: 58,
     borderRadius: 29,
     borderWidth: 1.5,
-    borderColor: "#F6C16A",
+    borderColor: colors.secondary.DEFAULT,
     alignItems: "center",
     justifyContent: "center",
     padding: 3,
@@ -65,7 +66,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
     borderRadius: 24,
-    backgroundColor: "#2a0810",
+    backgroundColor: colors.surface.card,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -75,7 +76,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   name: {
-    color: "rgba(246,193,106,0.8)",
+    color: "rgba(240,62,179,0.8)",
     fontSize: 13,
     marginTop: 2,
   },

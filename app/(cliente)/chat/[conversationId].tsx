@@ -437,11 +437,11 @@ export default function ChatScreen() {
 
   return (
     <>
-    <View className="flex-1 bg-[#0a0000]">
+    <View className="flex-1 bg-[#0a0613]">
       <Stack.Screen options={{ headerShown: false }} />
 
       <View
-        className="flex-row items-center bg-[#140008] border-b border-[rgba(246,193,106,0.12)] pb-4 px-[14px] gap-[10px]"
+        className="flex-row items-center bg-[#0a0613] border-b border-[rgba(240,62,179,0.12)] pb-4 px-[14px] gap-[10px]"
         style={{ paddingTop: insets.top + 10 }}
       >
         <TouchableOpacity onPress={() => router.back()} className="p-1">
@@ -449,12 +449,12 @@ export default function ChatScreen() {
         </TouchableOpacity>
 
         <TouchableOpacity onPress={goToProfile} className="flex-1 flex-row items-center gap-3" activeOpacity={0.75}>
-          <View className="w-12 h-12 rounded-full border-2 border-[#F6C16A] overflow-hidden">
+          <View className="w-12 h-12 rounded-full border-2 border-[#f03eb3] overflow-hidden">
             {otherUserAvatar ? (
               <Image source={{ uri: otherUserAvatar }} className="w-full h-full" />
             ) : (
-              <View className="flex-1 bg-[#2a0810] items-center justify-center">
-                <Text className="text-[#F6C16A] font-bold text-lg">
+              <View className="flex-1 bg-[#150a24] items-center justify-center">
+                <Text className="text-[#f03eb3] font-bold text-lg">
                   {(otherUserName ?? 'U')[0].toUpperCase()}
                 </Text>
               </View>
@@ -462,7 +462,7 @@ export default function ChatScreen() {
           </View>
           <View className="flex-1">
             <Text className="text-white text-base font-bold" numberOfLines={1}>{otherUserName ?? 'Chat'}</Text>
-            <Text className="text-[rgba(246,193,106,0.6)] text-xs mt-0.5">Ver perfil</Text>
+            <Text className="text-[rgba(240,62,179,0.6)] text-xs mt-0.5">Ver perfil</Text>
           </View>
         </TouchableOpacity>
 
@@ -491,7 +491,7 @@ export default function ChatScreen() {
       <KeyboardAvoidingView key={kavKey} className="flex-1" behavior="padding" keyboardVerticalOffset={0}>
         {loading ? (
           <View className="flex-1 items-center justify-center">
-            <ActivityIndicator size="large" color="#F6C16A" />
+            <ActivityIndicator size="large" color="#f03eb3" />
           </View>
         ) : (
           <FlatList
@@ -531,12 +531,12 @@ export default function ChatScreen() {
                 <View className={`mb-1 ${isOwn ? 'items-end' : 'items-start'}`}>
                   {lockedImage ? (
                     <View
-                      className="rounded-[18px] rounded-bl-[4px] overflow-hidden border border-[rgba(209,27,27,0.5)]"
-                      style={{ width: 220, shadowColor: '#D11B1B', shadowOpacity: 0.5, shadowRadius: 12, elevation: 6 }}
+                      className="rounded-[18px] rounded-bl-[4px] overflow-hidden border border-[rgba(168,68,242,0.5)]"
+                      style={{ width: 220, shadowColor: '#a844f2', shadowOpacity: 0.5, shadowRadius: 12, elevation: 6 }}
                     >
-                      <View className="flex-row items-center gap-2 bg-[#1a0208] px-3 py-2">
-                        <Ionicons name="images" size={14} color="#F6C16A" />
-                        <Text className="text-[#F6C16A] text-[12px] font-bold tracking-wide">Imagen exclusiva</Text>
+                      <View className="flex-row items-center gap-2 bg-[#150a24] px-3 py-2">
+                        <Ionicons name="images" size={14} color="#f03eb3" />
+                        <Text className="text-[#f03eb3] text-[12px] font-bold tracking-wide">Imagen exclusiva</Text>
                       </View>
                       <View style={{ position: 'relative' }}>
                         <Image
@@ -545,14 +545,14 @@ export default function ChatScreen() {
                           resizeMode="cover"
                         />
                         <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.25)' }}>
-                          <Ionicons name="lock-closed" size={36} color="rgba(246,193,106,0.85)" />
+                          <Ionicons name="lock-closed" size={36} color="rgba(240,62,179,0.85)" />
                         </View>
                       </View>
-                      <View className="bg-[#0f0005] px-3 py-3 items-center gap-1">
+                      <View className="bg-[#0a0613] px-3 py-3 items-center gap-1">
                         <TouchableOpacity
                           onPress={() => handleUnlockImage(msg.id, msg.price!)}
                           disabled={unlocking === msg.id}
-                          className="bg-[#D11B1B] rounded-xl py-2 px-5 items-center w-full"
+                          className="bg-[#a844f2] rounded-xl py-2 px-5 items-center w-full"
                         >
                           {unlocking === msg.id ? (
                             <ActivityIndicator size="small" color="white" />
@@ -568,12 +568,12 @@ export default function ChatScreen() {
                   ) : isImageMsg ? (
                     <View className={`rounded-[18px] overflow-hidden ${isOwn ? 'rounded-br-[4px]' : 'rounded-bl-[4px]'}`}>
                       {msg.isUnlocked && !isOwn && (
-                        <View className="bg-[#1a0208] px-3 py-1">
-                          <Text className="text-[#F6C16A] text-[10px]">🔓 Imagen desbloqueada</Text>
+                        <View className="bg-[#150a24] px-3 py-1">
+                          <Text className="text-[#f03eb3] text-[10px]">🔓 Imagen desbloqueada</Text>
                         </View>
                       )}
                       <ChatImage key={msg.imageUrl} uri={msg.imageUrl!} msgId={msg.id} onPress={() => setSelectedImageUri(msg.imageUrl!)} />
-                      <View className={`px-2 py-1 ${isOwn ? 'bg-[#8B1030]' : 'bg-[#1e1010]'}`}>
+                      <View className={`px-2 py-1 ${isOwn ? 'bg-[#a844f2]' : 'bg-[#150a24]'}`}>
                         <Text className={`text-[10px] text-right ${isOwn ? 'text-[rgba(255,200,200,0.6)]' : 'text-[rgba(255,255,255,0.35)]'}`}>
                           {formatTime(msg.createdAt)}
                         </Text>
@@ -581,12 +581,12 @@ export default function ChatScreen() {
                     </View>
                   ) : lockedText ? (
                     <View
-                      className="max-w-[78%] bg-[#1a0208] rounded-[18px] rounded-bl-[4px] border border-[rgba(209,27,27,0.6)] px-[14px] py-3"
-                      style={{ shadowColor: '#D11B1B', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.4, shadowRadius: 10, elevation: 4 }}
+                      className="max-w-[78%] bg-[#150a24] rounded-[18px] rounded-bl-[4px] border border-[rgba(168,68,242,0.6)] px-[14px] py-3"
+                      style={{ shadowColor: '#a844f2', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.4, shadowRadius: 10, elevation: 4 }}
                     >
                       <View className="flex-row items-center gap-[6px] mb-[6px]">
                         <Text className="text-lg">🎁</Text>
-                        <Text className="text-[rgba(246,193,106,0.9)] text-[13px] font-bold">Regalo exclusivo</Text>
+                        <Text className="text-[rgba(240,62,179,0.9)] text-[13px] font-bold">Regalo exclusivo</Text>
                       </View>
                       <Text className="text-[rgba(255,255,255,0.45)] text-xs mb-[10px] leading-4">
                         Abre este regalo para ver el mensaje
@@ -594,7 +594,7 @@ export default function ChatScreen() {
                       <TouchableOpacity
                         onPress={() => handleUnlock(msg.id, msg.price!)}
                         disabled={unlocking === msg.id}
-                        className="bg-[#D11B1B] rounded-xl py-2 px-[14px] items-center"
+                        className="bg-[#a844f2] rounded-xl py-2 px-[14px] items-center"
                       >
                         {unlocking === msg.id ? (
                           <ActivityIndicator size="small" color="white" />
@@ -609,11 +609,11 @@ export default function ChatScreen() {
                   ) : (
                     <View
                       className={`max-w-[78%] rounded-[18px] px-[14px] py-2 ${
-                        isOwn ? 'bg-[#8B1030] rounded-br-[4px]' : 'bg-[#1e1010] rounded-bl-[4px]'
+                        isOwn ? 'bg-[#a844f2] rounded-br-[4px]' : 'bg-[#150a24] rounded-bl-[4px]'
                       }`}
                     >
                       {msg.isUnlocked && (
-                        <Text className="text-[#F6C16A] text-[10px] mb-[3px]">🎁 Regalo abierto</Text>
+                        <Text className="text-[#f03eb3] text-[10px] mb-[3px]">🎁 Regalo abierto</Text>
                       )}
                       <Text className="text-white text-[15px] leading-[21px]">{msg.text}</Text>
                       {isOwn ? (
@@ -657,19 +657,19 @@ export default function ChatScreen() {
             <TouchableOpacity
               activeOpacity={0.85}
               onPress={dismissPriceBanner}
-              className="flex-row items-center gap-2 bg-[rgba(246,193,106,0.08)] border border-[rgba(246,193,106,0.25)] rounded-xl px-3 py-2"
+              className="flex-row items-center gap-2 bg-[rgba(240,62,179,0.08)] border border-[rgba(240,62,179,0.25)] rounded-xl px-3 py-2"
             >
-              <Ionicons name="information-circle" size={16} color="#F6C16A" />
-              <Text className="flex-1 text-[#F6C16A] text-[12px]">
+              <Ionicons name="information-circle" size={16} color="#f03eb3" />
+              <Text className="flex-1 text-[#f03eb3] text-[12px]">
                 Enviar un mensaje cuesta {msgPrice} crédito{msgPrice !== 1 ? 's' : ''}
               </Text>
-              <Ionicons name="close" size={14} color="rgba(246,193,106,0.6)" />
+              <Ionicons name="close" size={14} color="rgba(240,62,179,0.6)" />
             </TouchableOpacity>
           </Animated.View>
         )}
 
         {showEmoji && (
-          <View className="bg-[#140008] border-t border-[rgba(246,193,106,0.1)] py-2 px-[6px]">
+          <View className="bg-[#0a0613] border-t border-[rgba(240,62,179,0.1)] py-2 px-[6px]">
             <ScrollView horizontal={false} showsVerticalScrollIndicator={false} style={{ maxHeight: 140 }}>
               <View className="flex-row flex-wrap gap-[2px]">
                 {EMOJIS.map((e) => (
@@ -686,19 +686,19 @@ export default function ChatScreen() {
           <View
             style={{
               flexDirection: 'row', alignItems: 'center', gap: 8,
-              backgroundColor: 'rgba(209,27,27,0.12)',
-              borderTopWidth: 1, borderTopColor: 'rgba(209,27,27,0.3)',
+              backgroundColor: 'rgba(168,68,242,0.12)',
+              borderTopWidth: 1, borderTopColor: 'rgba(168,68,242,0.3)',
               paddingHorizontal: 16, paddingVertical: 10,
             }}
           >
-            <Ionicons name="lock-closed" size={15} color="#D11B1B" />
+            <Ionicons name="lock-closed" size={15} color="#a844f2" />
             <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, flex: 1, lineHeight: 17 }}>
               Enviaste {SPAM_LIMIT} mensajes sin respuesta. Espera a que la anfitriona te conteste.
             </Text>
           </View>
         )}
         <View
-          className="flex-row items-center bg-[#140008] border-t border-[rgba(246,193,106,0.1)] px-[10px] pt-[10px] gap-[6px]"
+          className="flex-row items-center bg-[#0a0613] border-t border-[rgba(240,62,179,0.1)] px-[10px] pt-[10px] gap-[6px]"
           style={{ paddingBottom: insets.bottom + 10 }}
         >
           <TextInput
@@ -714,16 +714,16 @@ export default function ChatScreen() {
                 ? `Enviar mensaje – ${msgPrice} cr.`
                 : 'Escribe un mensaje...'
             }
-            placeholderTextColor={isSpamBlocked ? 'rgba(209,27,27,0.5)' : 'rgba(246,193,106,0.5)'}
+            placeholderTextColor={isSpamBlocked ? 'rgba(168,68,242,0.5)' : 'rgba(240,62,179,0.5)'}
             multiline
-            className="flex-1 bg-[#1a0208] text-white rounded-[22px] px-[14px] py-[10px] text-sm border border-[rgba(246,193,106,0.18)]"
-            style={[{ maxHeight: 100 }, isSpamBlocked && { opacity: 0.45, borderColor: 'rgba(209,27,27,0.3)' }]}
+            className="flex-1 bg-[#150a24] text-white rounded-[22px] px-[14px] py-[10px] text-sm border border-[rgba(240,62,179,0.18)]"
+            style={[{ maxHeight: 100 }, isSpamBlocked && { opacity: 0.45, borderColor: 'rgba(168,68,242,0.3)' }]}
           />
           <TouchableOpacity className="p-1" onPress={toggleEmoji} disabled={isSpamBlocked}>
             <Ionicons
               name={showEmoji ? 'happy' : 'happy-outline'}
               size={22}
-              color={isSpamBlocked ? 'rgba(255,255,255,0.2)' : showEmoji ? '#F6C16A' : 'rgba(255,255,255,0.45)'}
+              color={isSpamBlocked ? 'rgba(255,255,255,0.2)' : showEmoji ? '#f03eb3' : 'rgba(255,255,255,0.45)'}
             />
           </TouchableOpacity>
           <TouchableOpacity
@@ -731,7 +731,7 @@ export default function ChatScreen() {
             disabled={!text.trim() || isSpamBlocked}
             style={{
               width: 40, height: 40, borderRadius: 20,
-              backgroundColor: text.trim() && !isSpamBlocked ? '#D11B1B' : 'rgba(209,27,27,0.3)',
+              backgroundColor: text.trim() && !isSpamBlocked ? '#a844f2' : 'rgba(168,68,242,0.3)',
               alignItems: 'center', justifyContent: 'center',
             }}
           >

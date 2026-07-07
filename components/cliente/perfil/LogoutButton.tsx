@@ -21,10 +21,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "transparent",
     borderWidth: 1,
-    borderColor: "rgba(209,27,27,0.5)",
+    borderColor: "rgba(168,68,242,0.5)",
   },
   text: {
-    color: "rgba(209,27,27,0.85)",
+    color: "rgba(168,68,242,0.9)",
     fontSize: 15,
     fontWeight: "600",
   },

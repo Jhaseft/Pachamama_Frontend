@@ -1,6 +1,6 @@
 import { Pressable, Text, View } from "react-native";
 import HostessPreviewItem from "./HostessPreviewItem";
-
+import PrimaryButton from "@/components/PrimaryButton";
 type PromoAccessCardProps = {
   onPrimaryPress: () => void;
 };
@@ -40,18 +40,14 @@ export default function PromoAccessCard({ onPrimaryPress }: PromoAccessCardProps
           />
         ))}
       </View>
-
+ 
       <View className="px-4 pt-4 pb-5">
-        <Pressable
+        <PrimaryButton
+          title="Chatear ahora 🔥"
           onPress={onPrimaryPress}
-          className="bg-[#ef2f2f] rounded-full py-5 items-center active:opacity-80"
-        >
-          <Text className="text-white text-[18px] font-semibold">
-            Ver amigas disponibles 🔥
-          </Text>
-        </Pressable>
+        />
         <Text className="text-white/70 text-center mt-4 text-[14px]">
-          +12 anfitrionas conectadas ahora
+          +12 creadores de contenido conectados ahora
         </Text>
       </View>
     </View>

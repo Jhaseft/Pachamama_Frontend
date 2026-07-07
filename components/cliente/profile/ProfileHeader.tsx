@@ -10,6 +10,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import ProfileStatsBar from "./ProfileStatsBar";
+import colors from "@/constants/colors";
 
 type Props = {
   name: string;
@@ -74,8 +75,8 @@ export default function ProfileHeader({ name, avatar, coverImage, isOnline, like
             height: AVATAR_SIZE,
             borderRadius: AVATAR_SIZE / 2,
             borderWidth: 3,
-            borderColor: "#ec4899",
-            backgroundColor: "#7c3aed",
+            borderColor: colors.secondary.DEFAULT,
+            backgroundColor: colors.primary.purple,
             overflow: "hidden",
           }}
         >

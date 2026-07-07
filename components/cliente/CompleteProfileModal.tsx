@@ -6,12 +6,12 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Pressable,
-  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import TextField from "../TextField";
+import PrimaryButton from "../PrimaryButton";
+import colors from "@/constants/colors";
 import { apiCompleteGoogleClientProfile } from "../../src/api/googleAuth";
 import { useAuth } from "../../src/context/AuthContext";
 
@@ -59,16 +59,16 @@ export default function CompleteProfileModal({ visible, onCompleted }: Props) {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1, justifyContent: "center", backgroundColor: "rgba(0,0,0,0.8)", paddingHorizontal: 20 }}
       >
-        <View style={{ backgroundColor: "#0f0f0f", borderRadius: 28, maxHeight: "90%", overflow: "hidden", borderWidth: 1, borderColor: "rgba(196,24,24,0.2)" }}>
+        <View style={{ backgroundColor: colors.surface.DEFAULT, borderRadius: 28, maxHeight: "90%", overflow: "hidden", borderWidth: 1, borderColor: "rgba(168,68,242,0.2)" }}>
 
           {/* Header */}
           <LinearGradient
-            colors={["#1a0208", "#6B0A0A", "#0f0f0f"]}
+            colors={[colors.surface.card, colors.surface.border, colors.surface.DEFAULT]}
             style={{ paddingHorizontal: 24, paddingTop: 28, paddingBottom: 20 }}
           >
             <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: "rgba(196,24,24,0.25)", alignItems: "center", justifyContent: "center", marginRight: 12 }}>
-                <Ionicons name="person-circle-outline" size={20} color="#C41818" />
+              <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: "rgba(168,68,242,0.25)", alignItems: "center", justifyContent: "center", marginRight: 12 }}>
+                <Ionicons name="person-circle-outline" size={20} color={colors.primary.purple} />
               </View>
               <View>
                 <Text style={{ color: "white", fontSize: 20, fontWeight: "700", letterSpacing: 0.3 }}>
@@ -87,14 +87,14 @@ export default function CompleteProfileModal({ visible, onCompleted }: Props) {
             showsVerticalScrollIndicator={false}
           >
             {/* Info box */}
-            <View style={{ flexDirection: "row", alignItems: "flex-start", backgroundColor: "rgba(196,24,24,0.07)", borderRadius: 12, padding: 14, marginBottom: 22, borderWidth: 1, borderColor: "rgba(196,24,24,0.15)" }}>
-              <Ionicons name="information-circle-outline" size={16} color="rgba(196,24,24,0.8)" style={{ marginRight: 10, marginTop: 1 }} />
+            <View style={{ flexDirection: "row", alignItems: "flex-start", backgroundColor: "rgba(168,68,242,0.07)", borderRadius: 12, padding: 14, marginBottom: 22, borderWidth: 1, borderColor: "rgba(168,68,242,0.15)" }}>
+              <Ionicons name="information-circle-outline" size={16} color="rgba(168,68,242,0.8)" style={{ marginRight: 10, marginTop: 1 }} />
               <Text style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, flex: 1, lineHeight: 19 }}>
                 Agrega tu nombre y una contraseña para poder iniciar sesión sin Google en el futuro.
               </Text>
             </View>
 
-            <Text style={{ color: "rgba(196,24,24,0.9)", fontSize: 11, fontWeight: "700", letterSpacing: 1.5, marginBottom: 12, textTransform: "uppercase" }}>
+            <Text style={{ color: "rgba(168,68,242,0.9)", fontSize: 11, fontWeight: "700", letterSpacing: 1.5, marginBottom: 12, textTransform: "uppercase" }}>
               Tus datos
             </Text>
 
@@ -107,7 +107,7 @@ export default function CompleteProfileModal({ visible, onCompleted }: Props) {
               textContentType="name"
             />
 
-            <Text style={{ color: "rgba(196,24,24,0.9)", fontSize: 11, fontWeight: "700", letterSpacing: 1.5, marginBottom: 12, marginTop: 8, textTransform: "uppercase" }}>
+            <Text style={{ color: "rgba(168,68,242,0.9)", fontSize: 11, fontWeight: "700", letterSpacing: 1.5, marginBottom: 12, marginTop: 8, textTransform: "uppercase" }}>
               Contraseña
             </Text>
 
@@ -135,29 +135,11 @@ export default function CompleteProfileModal({ visible, onCompleted }: Props) {
               </View>
             ) : null}
 
-            <Pressable
+            <PrimaryButton
+              title={loading ? "Guardando…" : "Continuar"}
               onPress={handleSave}
               disabled={loading}
-              style={({ pressed }) => ({ opacity: pressed || loading ? 0.8 : 1, marginTop: 4 })}
-            >
-              <LinearGradient
-                colors={["#1a0208", "#6B0A0A", "#C41818"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={{ borderRadius: 14, paddingVertical: 16, alignItems: "center", flexDirection: "row", justifyContent: "center", gap: 8 }}
-              >
-                {loading ? (
-                  <ActivityIndicator color="white" size="small" />
-                ) : (
-                  <>
-                    <Text style={{ color: "white", fontSize: 16, fontWeight: "700", letterSpacing: 0.3 }}>
-                      Continuar
-                    </Text>
-                    <Ionicons name="arrow-forward" size={18} color="white" />
-                  </>
-                )}
-              </LinearGradient>
-            </Pressable>
+            />
           </ScrollView>
         </View>
       </KeyboardAvoidingView>

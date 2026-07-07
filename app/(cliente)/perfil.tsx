@@ -9,6 +9,7 @@ import { useAuth } from "@/src/context/AuthContext";
 import { useEffect, useState } from "react";
 import { Linking, AppState } from "react-native";
 import notifee from "@notifee/react-native";
+import colors from "@/constants/colors";
 
 export default function ClientePerfil() {
   const { user, logout } = useAuth();
@@ -88,8 +89,8 @@ export default function ClientePerfil() {
       label: notificationsEnabled === null
         ? "Notificaciones"
         : notificationsEnabled
-          ? "Notificaciones ✅"
-          : "Notificaciones ❌",
+          ? "Notificaciones "
+          : "Notificaciones ",
       onPress: handleNotificationsPress,
     },
   ];
@@ -106,7 +107,7 @@ export default function ClientePerfil() {
   ];
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#0d0000" }}>
+    <View style={{ flex: 1, backgroundColor: colors.surface.DEFAULT }}>
       <ScreenHeader title="Perfil" role="cliente" />
 
       <ScrollView

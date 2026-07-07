@@ -1,5 +1,6 @@
 import type { HighlightStory } from "@/src/types/anfitrionaProfile";
 import { FlatList, Text, TouchableOpacity, View } from "react-native";
+import colors from "@/constants/colors";
 
 type Props = {
   stories: HighlightStory[];
@@ -15,7 +16,7 @@ function HighlightItem({ item }: { item: HighlightStory }) {
           borderRadius: 35,
           backgroundColor: "#1f1f2e",
           borderWidth: 2,
-          borderColor: item.locked ? "#4b5563" : "#ec4899",
+          borderColor: item.locked ? "#4b5563" : colors.secondary.DEFAULT,
           alignItems: "center",
           justifyContent: "center",
           position: "relative",
@@ -32,7 +33,7 @@ function HighlightItem({ item }: { item: HighlightStory }) {
               width: 22,
               height: 22,
               borderRadius: 11,
-              backgroundColor: "#D11B1B",
+              backgroundColor: colors.primary.purple,
               alignItems: "center",
               justifyContent: "center",
               borderWidth: 2,

@@ -57,7 +57,7 @@ export default function Historial() {
 
     return (
       <View
-        style={{ backgroundColor: '#1A0A0A', shadowColor: '#A11B1B', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.35, shadowRadius: 10, elevation: 8, borderWidth: 1, borderColor: 'rgba(161,27,27,0.4)' }}
+        style={{ backgroundColor: '#0a0613', shadowColor: '#a844f2', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.35, shadowRadius: 10, elevation: 8, borderWidth: 1, borderColor: 'rgba(168,68,242,0.4)' }}
         className="flex-row items-center justify-between p-5 mb-3 rounded-[22px]"
       >
         <View className="flex-row items-center flex-1">

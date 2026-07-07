@@ -6,6 +6,7 @@ import { useRouter } from "expo-router";
 import { Bookmark, Diamond, Flame, Heart, MessageCircle } from "lucide-react-native";
 import { useRef, useState } from "react";
 import { Image, Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
+import colors from "@/constants/colors";
 
 type Props = {
   anfitriona: Anfitriona;
@@ -94,7 +95,7 @@ export default function PostCard({ anfitriona, height }: Props) {
             resizeMode="cover"
           />
         ) : (
-          <View style={{ position: "absolute", width: "100%", height: "100%", backgroundColor: "#1a0505" }} />
+          <View style={{ position: "absolute", width: "100%", height: "100%", backgroundColor: colors.surface.card }} />
         )}
       </TouchableOpacity>
 
@@ -141,8 +142,8 @@ export default function PostCard({ anfitriona, height }: Props) {
         <TouchableOpacity onPress={() => { void handleLike(); }} style={{ alignItems: "center", marginBottom: 22 }}>
           <Heart
             size={34}
-            color={liked ? "#ec4899" : "white"}
-            fill={liked ? "#ec4899" : "transparent"}
+            color={liked ? colors.secondary.DEFAULT : "white"}
+            fill={liked ? colors.secondary.DEFAULT : "transparent"}
           />
           <Text style={{ color: "white", fontSize: 12, marginTop: 3 }}>{likes}</Text>
         </TouchableOpacity>
@@ -195,24 +196,33 @@ export default function PostCard({ anfitriona, height }: Props) {
           bottom: 20,
           left: 12,
           right: 12,
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: "#D11B1B",
           borderRadius: 999,
-          paddingVertical: 12,
-          gap: 7,
-          shadowColor: "#D11B1B",
+          shadowColor: colors.secondary.DEFAULT,
           shadowOffset: { width: 0, height: 4 },
           shadowOpacity: 0.45,
           shadowRadius: 8,
           elevation: 6,
         }}
       >
-        <MessageCircle size={17} color="white" fill="white" />
-        <Text style={{ color: "white", fontWeight: "800", fontSize: 15, letterSpacing: 0.3 }}>
-          Chatear ahora
-        </Text>
+        <View collapsable={false} style={{ borderRadius: 999, overflow: "hidden" }}>
+          <LinearGradient
+            colors={[colors.secondary.pink, colors.primary.purple]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+              paddingVertical: 12,
+              gap: 7,
+            }}
+          >
+            <MessageCircle size={17} color="white" fill="white" />
+            <Text style={{ color: "white", fontWeight: "800", fontSize: 15, letterSpacing: 0.3 }}>
+              Chatear ahora
+            </Text>
+          </LinearGradient>
+        </View>
       </TouchableOpacity>
     </View>
   );

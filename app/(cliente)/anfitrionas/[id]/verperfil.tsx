@@ -28,6 +28,8 @@ import {
 
 import { ZoomableImage } from "@/components/cliente/profile/ZoomableImage";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import colors from "@/constants/colors";
+import PrimaryButton from "@/components/PrimaryButton";
 
 const COVER_HEIGHT = 270;
 const AVATAR_SIZE = 90;
@@ -181,7 +183,7 @@ export default function AnfitrioneProfileScreen() {
     (img) => img.isPremium && !img.isUnlockedByViewer
   ) ?? [];
   return (
-    <View style={{ flex: 1, backgroundColor: "#0a0000" }}>
+    <View style={{ flex: 1, backgroundColor: colors.surface.DEFAULT }}>
       <Stack.Screen options={{ headerShown: false }} />
 
       {/* Botón volver */}
@@ -203,7 +205,7 @@ export default function AnfitrioneProfileScreen() {
       {/* Loading */}
       {loading && (
         <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-          <ActivityIndicator size="large" color="#D11B1B" />
+          <ActivityIndicator size="large" color={colors.primary.purple} />
         </View>
       )}
 
@@ -214,7 +216,7 @@ export default function AnfitrioneProfileScreen() {
           <Text style={{ color: "white", textAlign: "center", fontSize: 16, marginBottom: 16 }}>{error}</Text>
           <TouchableOpacity
             onPress={loadProfile}
-            style={{ backgroundColor: "#D11B1B", paddingHorizontal: 24, paddingVertical: 12, borderRadius: 999 }}
+            style={{ backgroundColor: colors.primary.purple, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 999 }}
           >
             <Text style={{ color: "white", fontWeight: "600" }}>Reintentar</Text>
           </TouchableOpacity>
@@ -244,7 +246,7 @@ export default function AnfitrioneProfileScreen() {
               resizeMode="cover"
             />
             <LinearGradient
-              colors={["transparent", "rgba(10,0,0,0.9)"]}
+              colors={["transparent", "rgba(10,6,19,0.9)"]}
               style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 140 }}
             />
           </TouchableOpacity>
@@ -265,8 +267,8 @@ export default function AnfitrioneProfileScreen() {
               <View style={{
                 width: AVATAR_SIZE, height: AVATAR_SIZE,
                 borderRadius: AVATAR_SIZE / 2,
-                borderWidth: 3, borderColor: "#F6C16A",
-                backgroundColor: "#1a0208", overflow: "hidden",
+                borderWidth: 3, borderColor: colors.secondary.DEFAULT,
+                backgroundColor: colors.surface.card, overflow: "hidden",
               }}>
                 <Image
                   source={profile.avatar ? { uri: profile.avatar } : require("../../../../assets/no_image.jpg")}
@@ -278,7 +280,7 @@ export default function AnfitrioneProfileScreen() {
                 position: "absolute", bottom: 4, right: 4,
                 width: 18, height: 18, borderRadius: 9,
                 backgroundColor: profile.isOnline ? "#22c55e" : "#6b7280",
-                borderWidth: 2, borderColor: "#0a0000",
+                borderWidth: 2, borderColor: colors.surface.DEFAULT,
               }} />
             </TouchableOpacity>
 
@@ -288,7 +290,7 @@ export default function AnfitrioneProfileScreen() {
                 <Text style={{ color: "white", fontSize: 24, fontWeight: "800" }}>{profile.name}</Text>
               </View>
               <Text style={{
-                color: profile.isOnline ? "#F6C16A" : "#6b7280",
+                color: profile.isOnline ? colors.secondary.DEFAULT : "#6b7280",
                 fontSize: 13, fontWeight: "600", marginTop: 2,
               }}>
                 {profile.isOnline ? "En línea ahora" : "Desconectada"}
@@ -308,7 +310,7 @@ export default function AnfitrioneProfileScreen() {
               {profile.highlightedStories.length > 0 && (
                 <View style={{
                   flexDirection: "row", alignItems: "center", gap: 6,
-                  backgroundColor: "#D11B1B", borderRadius: 999,
+                  backgroundColor: colors.primary.purple, borderRadius: 999,
                   paddingVertical: 10, paddingHorizontal: 16,
                 }}>
                   <Text style={{ fontSize: 14 }}>▶</Text>
@@ -356,7 +358,7 @@ export default function AnfitrioneProfileScreen() {
                   activeOpacity={0.8}
                   style={{
                     flexDirection: "row", alignItems: "center", gap: 6,
-                    backgroundColor: "#D11B1B", borderRadius: 999,
+                    backgroundColor: colors.primary.purple, borderRadius: 999,
                     paddingVertical: 10, paddingHorizontal: 16,
                   }}
                 >
@@ -369,8 +371,8 @@ export default function AnfitrioneProfileScreen() {
 
               <View style={{
                 flexDirection: "row", alignItems: "center", gap: 6,
-                backgroundColor: "#1a0208", borderRadius: 999,
-                borderWidth: 1, borderColor: "#3f0010",
+                backgroundColor: colors.surface.card, borderRadius: 999,
+                borderWidth: 1, borderColor: colors.surface.border,
                 paddingVertical: 10, paddingHorizontal: 16,
               }}>
                 <Text style={{ fontSize: 15 }}>❤️</Text>
@@ -389,28 +391,28 @@ export default function AnfitrioneProfileScreen() {
                   borderRadius: 16,
                   overflow: 'hidden',
                   borderWidth: 1,
-                  borderColor: isSubscribed ? '#22c55e40' : '#F6C16A40',
+                  borderColor: isSubscribed ? '#22c55e40' : 'rgba(240,62,179,0.25)',
                 }}
               >
                 <LinearGradient
-                  colors={isSubscribed ? ['#0d1a00', '#0f2200'] : ['#1a1000', '#2a1a00']}
+                  colors={isSubscribed ? ['#0d1a00', '#0f2200'] : [colors.surface.card, colors.surface.border]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
                   style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14, gap: 12 }}
                 >
                   <View style={{
                     width: 42, height: 42, borderRadius: 12,
-                    backgroundColor: isSubscribed ? '#0d2200' : '#2a1a00',
+                    backgroundColor: isSubscribed ? '#0d2200' : colors.surface.card,
                     alignItems: 'center', justifyContent: 'center',
                   }}>
                     <MaterialCommunityIcons
                       name={isSubscribed ? 'check-decagram' : 'crown'}
                       size={22}
-                      color={isSubscribed ? '#22c55e' : '#F6C16A'}
+                      color={isSubscribed ? '#22c55e' : colors.secondary.DEFAULT}
                     />
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Text style={{ color: isSubscribed ? '#22c55e' : '#F6C16A', fontWeight: '800', fontSize: 14 }}>
+                    <Text style={{ color: isSubscribed ? '#22c55e' : colors.secondary.DEFAULT, fontWeight: '800', fontSize: 14 }}>
                       {isSubscribed ? '✦ Suscrito' : 'Suscribirse al plan'}
                     </Text>
                     <Text style={{ color: 'rgba(255,255,255,0.45)', fontSize: 12, marginTop: 2 }}>
@@ -421,10 +423,10 @@ export default function AnfitrioneProfileScreen() {
                   </View>
                   {!isSubscribed && (
                     <View style={{
-                      backgroundColor: '#F6C16A', borderRadius: 999,
+                      backgroundColor: colors.secondary.DEFAULT, borderRadius: 999,
                       paddingHorizontal: 12, paddingVertical: 6,
                     }}>
-                      <Text style={{ color: '#1a1000', fontWeight: '800', fontSize: 12 }}>Unirse</Text>
+                      <Text style={{ color: '#ffffff', fontWeight: '800', fontSize: 12 }}>Unirse</Text>
                     </View>
                   )}
                 </LinearGradient>
@@ -432,21 +434,10 @@ export default function AnfitrioneProfileScreen() {
             ) : null}
 
             {/* ── CTA principal ── */}
-            <TouchableOpacity
+            <PrimaryButton
               onPress={handleChat}
-              activeOpacity={0.85}
-              style={{
-                backgroundColor: "#D11B1B",
-                borderRadius: 999,
-                paddingVertical: 17,
-                alignItems: "center",
-              }}
-            >
-              <Text style={{ color: "white", fontWeight: "800", fontSize: 17 }}>
-                Enviar mensaje
-                {chatPrice ? ` (${chatPrice} crédito${chatPrice !== 1 ? "s" : ""})` : ""}
-              </Text>
-            </TouchableOpacity>
+              title={`Enviar mensaje${chatPrice ? ` (${chatPrice} crédito${chatPrice !== 1 ? "s" : ""})` : ""}`}
+            />
 
             {/* ── Historias destacadas ── */}
             {profile.highlightedStories.length > 0 && (
@@ -460,8 +451,8 @@ export default function AnfitrioneProfileScreen() {
                 {/* Pública */}
                 {publicImages.length > 0 && (
                   <View style={{
-                    flex: 1, backgroundColor: "#0f0000",
-                    borderRadius: 16, borderWidth: 1, borderColor: "#2a0010",
+                    flex: 1, backgroundColor: colors.surface.DEFAULT,
+                    borderRadius: 16, borderWidth: 1, borderColor: colors.surface.border,
                     overflow: "hidden", padding: 12,
                     justifyContent: "space-between",
                   }}>
@@ -501,11 +492,11 @@ export default function AnfitrioneProfileScreen() {
                         })
                       }
                       style={{
-                        marginTop: 10, borderWidth: 1, borderColor: "#F6C16A",
+                        marginTop: 10, borderWidth: 1, borderColor: colors.secondary.DEFAULT,
                         borderRadius: 999, paddingVertical: 8, alignItems: "center",
                       }}
                     >
-                      <Text style={{ color: "#F6C16A", fontSize: 12, fontWeight: "700" }}>Ver Álbum</Text>
+                      <Text style={{ color: colors.secondary.DEFAULT, fontSize: 12, fontWeight: "700" }}>Ver Álbum</Text>
                     </TouchableOpacity>
                   </View>
                 )}
@@ -513,8 +504,8 @@ export default function AnfitrioneProfileScreen() {
                 {/* Exclusiva */}
                 {privateImages.length > 0 && (
                   <View style={{
-                    flex: 1, backgroundColor: "#0f0000",
-                    borderRadius: 16, borderWidth: 1, borderColor: "#2a0010",
+                    flex: 1, backgroundColor: colors.surface.DEFAULT,
+                    borderRadius: 16, borderWidth: 1, borderColor: colors.surface.border,
                     overflow: "hidden", padding: 12,
                     justifyContent: "space-between",
                   }}>
@@ -564,7 +555,7 @@ export default function AnfitrioneProfileScreen() {
                         })
                       }
                       style={{
-                        backgroundColor: "#D11B1B", borderRadius: 999,
+                        backgroundColor: colors.secondary.DEFAULT, borderRadius: 999,
                         paddingVertical: 9, paddingHorizontal: 8,
                         alignItems: "center",
                       }}
@@ -589,12 +580,12 @@ export default function AnfitrioneProfileScreen() {
       {/* Modal suscripción */}
       <Modal visible={showSubModal} transparent animationType="slide" onRequestClose={() => setShowSubModal(false)}>
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end', paddingBottom: 40 }}>
-          <View style={{ backgroundColor: '#141414', borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, gap: 20 }}>
+          <View style={{ backgroundColor: colors.surface.card, borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, gap: 20 }}>
 
             {/* Header */}
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <View style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: '#2a1a00', alignItems: 'center', justifyContent: 'center' }}>
-                <MaterialCommunityIcons name="crown" size={26} color="#F6C16A" />
+              <View style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: colors.surface.DEFAULT, alignItems: 'center', justifyContent: 'center' }}>
+                <MaterialCommunityIcons name="crown" size={26} color={colors.secondary.DEFAULT} />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={{ color: 'white', fontWeight: '800', fontSize: 17 }}>Plan de suscripción</Text>
@@ -606,7 +597,7 @@ export default function AnfitrioneProfileScreen() {
             </View>
 
             {/* Info precio */}
-            <View style={{ backgroundColor: '#0f0f0f', borderRadius: 16, padding: 16, gap: 10 }}>
+            <View style={{ backgroundColor: colors.surface.DEFAULT, borderRadius: 16, padding: 16, gap: 10 }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Text style={{ color: '#9ca3af', fontSize: 13 }}>Anfitriona</Text>
                 <Text style={{ color: 'white', fontWeight: '700', fontSize: 13 }}>{profile?.name}</Text>
@@ -614,7 +605,7 @@ export default function AnfitrioneProfileScreen() {
               <View style={{ height: 1, backgroundColor: '#1f1f1f' }} />
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Text style={{ color: '#9ca3af', fontSize: 13 }}>Precio</Text>
-                <Text style={{ color: '#F6C16A', fontWeight: '800', fontSize: 16 }}>{subPlan?.price} créditos / mes</Text>
+                <Text style={{ color: colors.secondary.DEFAULT, fontWeight: '800', fontSize: 16 }}>{subPlan?.price} créditos / mes</Text>
               </View>
               <View style={{ height: 1, backgroundColor: '#1f1f1f' }} />
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -643,17 +634,17 @@ export default function AnfitrioneProfileScreen() {
                 style={{ flex: 2, borderRadius: 14, overflow: 'hidden' }}
               >
                 <LinearGradient
-                  colors={['#b45309', '#F6C16A', '#b45309']}
+                  colors={[colors.secondary.pink, colors.primary.purple, colors.secondary.pink]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                   style={{ paddingVertical: 15, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 }}
                 >
                   {buying ? (
-                    <ActivityIndicator size={18} color="#1a1000" />
+                    <ActivityIndicator size={18} color="#ffffff" />
                   ) : (
                     <>
-                      <MaterialCommunityIcons name="crown" size={18} color="#1a1000" />
-                      <Text style={{ color: '#1a1000', fontWeight: '800', fontSize: 15 }}>Suscribirme</Text>
+                      <MaterialCommunityIcons name="crown" size={18} color="#ffffff" />
+                      <Text style={{ color: '#ffffff', fontWeight: '800', fontSize: 15 }}>Suscribirme</Text>
                     </>
                   )}
                 </LinearGradient>

@@ -73,7 +73,7 @@ export default function Terminos() {
                 }}
             >
                 {/* TÍTULO PRINCIPAL */}
-                <View style={{ marginBottom: 24, borderLeftWidth: 3, borderLeftColor: "#A11B1B", paddingLeft: 12 }}>
+                <View style={{ marginBottom: 24, borderLeftWidth: 3, borderLeftColor: "#a844f2", paddingLeft: 12 }}>
                     <Text style={{ color: "white", fontSize: 20, fontWeight: "900", letterSpacing: 1, textTransform: "uppercase" }}>
                         Términos y Condiciones
                     </Text>
@@ -94,7 +94,7 @@ export default function Terminos() {
                         }}
                     >
                         <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 10 }}>
-                            <View style={{ backgroundColor: "#A11B1B", borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3 }}>
+                            <View style={{ backgroundColor: "#a844f2", borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3 }}>
                                 <Text style={{ color: "white", fontSize: 10, fontWeight: "800", letterSpacing: 1 }}>
                                     {String(i + 1).padStart(2, "0")}
                                 </Text>

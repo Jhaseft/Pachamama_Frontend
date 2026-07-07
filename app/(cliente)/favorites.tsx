@@ -61,13 +61,13 @@ export default function Favorites() {
             onPress={() => router.push(`/(cliente)/anfitrionas/${item.id}/verperfil` as any)}
             activeOpacity={0.8}
             className="flex-row items-center bg-[#141414] rounded-[22px] border border-zinc-800/60 p-3 mb-3 gap-4"
-            style={{ shadowColor: "#9d174d", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 5 }}
+            style={{ shadowColor: "#f03eb3", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 5 }}
         >
             <View className="relative">
                 <Image
                     source={{ uri: item.avatar ?? undefined }}
                     className="w-16 h-16 rounded-full"
-                    style={{ borderWidth: 2, borderColor: item.isOnline ? "#9d174d" : "#A11B1B" }}
+                    style={{ borderWidth: 2, borderColor: item.isOnline ? "#f03eb3" : "#a844f2" }}
                 />
                 {item.isOnline && (
                     <View className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-green-500"
@@ -102,7 +102,7 @@ export default function Favorites() {
 
             {loading ? (
                 <View className="flex-1 items-center justify-center">
-                    <ActivityIndicator size="large" color="#A11B1B" />
+                    <ActivityIndicator size="large" color="#a844f2" />
                 </View>
             ) : (
                 <FlatList
@@ -113,7 +113,7 @@ export default function Favorites() {
                     onEndReached={onEndReached}
                     onEndReachedThreshold={0.4}
                     showsVerticalScrollIndicator={false}
-                    refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#A11B1B" />}
+                    refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#a844f2" />}
                     ListHeaderComponent={
                         <View className="mb-5">
                             <Text className="text-white text-[20px] font-black tracking-wide">Tus favoritas</Text>

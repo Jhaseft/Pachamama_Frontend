@@ -5,6 +5,7 @@ import {
   View,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import colors from "@/constants/colors";
 
 type Props = {
   unlockCredits: number | null;
@@ -44,7 +45,7 @@ export default function PremiumOverlay({
           justifyContent: "center",
         }}
       >
-        <MaterialCommunityIcons name="lock" size={44} color="#ef4444" />
+        <MaterialCommunityIcons name="lock" size={44} color={colors.secondary.DEFAULT} />
       </View>
 
       <View style={{ alignItems: "center", gap: 8 }}>
@@ -68,9 +69,9 @@ export default function PremiumOverlay({
             <MaterialCommunityIcons
               name="diamond-stone"
               size={13}
-              color="#ef4444"
+              color={colors.secondary.DEFAULT}
             />
-            <Text style={{ color: "#ef4444", fontSize: 13, fontWeight: "700" }}>
+            <Text style={{ color: colors.secondary.DEFAULT, fontSize: 13, fontWeight: "700" }}>
               {unlockCredits} créditos
             </Text>
           </View>
@@ -84,7 +85,7 @@ export default function PremiumOverlay({
             activeOpacity={0.8}
             style={{
               marginTop: 4,
-              backgroundColor: isUnlocking ? "#7f1d1d" : "#ef4444",
+              backgroundColor: isUnlocking ? colors.primary.purple : colors.secondary.DEFAULT,
               paddingHorizontal: 18,
               paddingVertical: 9,
               borderRadius: 999,

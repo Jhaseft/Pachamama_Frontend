@@ -25,15 +25,15 @@ export const AnfitrionaItem = ({ item, onStatusChange, onEdit }: AnfitrionaItemP
     }, [item.id]);
 
     return (
-        <View className="bg-[#1a0505] border border-red-900/30 rounded-[22px] mb-3 overflow-hidden">
+        <View className="bg-[#150a24] border border-red-900/30 rounded-[22px] mb-3 overflow-hidden">
             <View className="flex-row items-center p-3 gap-3">
                 <View>
-                    <View style={{ width: 52, height: 52, borderRadius: 26, borderWidth: 2, borderColor: '#A11B1B', overflow: 'hidden', backgroundColor: '#2d0a0a' }}>
+                    <View style={{ width: 52, height: 52, borderRadius: 26, borderWidth: 2, borderColor: '#a844f2', overflow: 'hidden', backgroundColor: '#2d0a0a' }}>
                         {avatarUrl ? (
                             <Image source={{ uri: avatarUrl }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
                         ) : (
                             <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                                <Text style={{ color: '#A11B1B', fontSize: 20, fontWeight: 'bold' }}>
+                                <Text style={{ color: '#a844f2', fontSize: 20, fontWeight: 'bold' }}>
                                     {(item.firstName ?? '?')[0].toUpperCase()}
                                 </Text>
                             </View>
@@ -43,7 +43,7 @@ export const AnfitrionaItem = ({ item, onStatusChange, onEdit }: AnfitrionaItemP
                         position: 'absolute', bottom: 0, right: 0,
                         width: 13, height: 13, borderRadius: 7,
                         backgroundColor: isOnline ? '#22c55e' : '#6b7280',
-                        borderWidth: 2, borderColor: '#1a0505',
+                        borderWidth: 2, borderColor: '#150a24',
                     }} />
                 </View>
 
@@ -76,10 +76,10 @@ export const AnfitrionaItem = ({ item, onStatusChange, onEdit }: AnfitrionaItemP
             </View>
 
             <View className="flex-row items-center gap-2 bg-[#0f0f0f] px-4 py-2 border-t border-red-900/20">
-                <MaterialCommunityIcons name="wallet-outline" size={13} color="#A11B1B" />
+                <MaterialCommunityIcons name="wallet-outline" size={13} color="#a844f2" />
                 <Text className="text-zinc-500 text-[11px]">Saldo:</Text>
                 {balance === null ? (
-                    <ActivityIndicator size={10} color="#A11B1B" />
+                    <ActivityIndicator size={10} color="#a844f2" />
                 ) : (
                     <>
                         <Text className="text-white text-[12px] font-bold">Soles/ {balance.soles}</Text>

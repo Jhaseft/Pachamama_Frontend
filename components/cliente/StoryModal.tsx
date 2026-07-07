@@ -1,5 +1,6 @@
 import { Dimensions, Image, Modal, Text, TouchableOpacity, View } from "react-native";
 import { Story } from "./StoryItem";
+import colors from "@/constants/colors";
 
 const { width: W, height: H } = Dimensions.get("window");
 
@@ -46,7 +47,7 @@ export default function StoryModal({ story, onClose }: Props) {
             <View style={{ flexDirection: "row", alignItems: "center", marginTop: 14, gap: 10 }}>
               <Image
                 source={{ uri: story.avatar }}
-                style={{ width: 36, height: 36, borderRadius: 18, borderWidth: 2, borderColor: "#ec4899" }}
+                style={{ width: 36, height: 36, borderRadius: 18, borderWidth: 2, borderColor: colors.secondary.DEFAULT }}
               />
               <Text style={{ color: "white", fontWeight: "bold", fontSize: 16 }}>
                 {story.name}

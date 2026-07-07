@@ -35,6 +35,8 @@ import { apiPaypalCreateOrder, apiPaypalCapture } from "@/src/api/paypal";
 import { PackageData } from "@/src/types/package";
 import { apiGetMyWallet, WalletResponse } from "@/src/api/userClient";
 import { useCurrency } from "@/src/hooks/useCurrency";
+import colors from "@/constants/colors";
+import PrimaryButton from "@/components/PrimaryButton";
 
 const FLOW_RETURN_URL = "https://app.pachamama.chat/dashboard";
 const PAYPAL_RETURN_URL = "https://app.pachamama.chat/paypal/return";
@@ -150,7 +152,7 @@ export default function CreditosScreen() {
     const packageId = pendingPackageId;
     setMethodPickerVisible(false);
     setLoadingPackageId(packageId);
-    try { 
+    try {
       if (method === "flow") {
         const { paymentUrl } = await apiFlowCreatePayment(packageId);
         setActiveWebViewMethod("flow");
@@ -284,9 +286,9 @@ export default function CreditosScreen() {
   };
 
   return (
-    <View className="flex-1 bg-[#0a0000]">
+    <View className="flex-1 bg-surface">
       <LinearGradient
-        colors={["#1a0000", "#0a0000", "#0d0000"]}
+        colors={[colors.surface.card, colors.surface.DEFAULT, colors.dark]}
         style={StyleSheet.absoluteFill}
         pointerEvents="none"
       />
@@ -296,25 +298,25 @@ export default function CreditosScreen() {
         contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 20 }}
         showsVerticalScrollIndicator={false}
       >
-        <View className="flex-row items-center justify-center self-center border-2 border-[#F6C16A] rounded-[32px] py-3 px-9 gap-3 mb-6 bg-[rgba(246,193,106,0.05)]">
+        <View className="flex-row items-center justify-center self-center border-2 border-secondary rounded-[32px] py-3 px-9 gap-3 mb-6 bg-secondary/5">
           <Gem color="#60d4f7" size={30} strokeWidth={1.5} fill="#a8edfb" />
           <Text className="text-white text-[40px] font-extrabold">
             {wallet?.balance ?? 0}
           </Text>
         </View>
 
-        <Text className="text-[rgba(246,193,106,0.6)] text-xs font-semibold text-center -mt-4 mb-5 tracking-widest">
+        <Text className="text-secondary/60 text-xs font-semibold text-center -mt-4 mb-5 tracking-widest">
           1 crédito = {symbol} {rate}
         </Text>
 
         <View className="flex-row items-center mb-5 gap-2">
-          <View className="flex-1 h-px bg-[rgba(246,193,106,0.3)]" />
-          <Text className="text-[#F6C16A] text-[17px] font-extrabold">¡Compra Créditos!</Text>
-          <View className="flex-1 h-px bg-[rgba(246,193,106,0.3)]" />
+          <View className="flex-1 h-px bg-secondary/30" />
+          <Text className="text-secondary text-[17px] font-extrabold">¡Compra Créditos!</Text>
+          <View className="flex-1 h-px bg-secondary/30" />
         </View>
 
         {loading ? (
-          <ActivityIndicator color="#F6C16A" size="large" style={{ marginTop: 32 }} />
+          <ActivityIndicator color={colors.secondary.DEFAULT} size="large" style={{ marginTop: 32 }} />
         ) : (
           <View className="flex-row flex-wrap items-center justify-center gap-5 mb-7 ">
             {packages.map((item, index) => {
@@ -330,24 +332,24 @@ export default function CreditosScreen() {
                   className={[
                     "rounded-3xl  w-[150px]",
                     isHighlight
-                      ? "bg-[#200a10] border-2 border-[#F6C16A]"
-                      : "bg-[#1a0208] border border-[rgba(246,193,106,0.4)]",
+                      ? "bg-surface-card border-2 border-secondary"
+                      : "bg-surface-card border border-secondary/40",
                   ].join(" ")}
                   onPress={() => item.id && void handleBuy(item.id)}
                   disabled={!!loadingPackageId}
                 >
                   <View className={[
                     "items-center py-2",
-                    isHighlight ? "bg-[rgba(246,193,106,0.2)]" : "bg-[rgba(246,193,106,0.08)]",
+                    isHighlight ? "bg-secondary/20" : "bg-secondary/10",
                   ].join(" ")}>
-                    <Text className="text-[#F6C16A] text-[11px] font-extrabold tracking-widest">
+                    <Text className="text-secondary text-[11px] font-extrabold tracking-widest">
                       {badge}
                     </Text>
                   </View>
 
                   <View className="items-center px-2x pt-2 pb-2 gap-2">
                     <Text
-                      className="text-[#F6C16A] font-black text-center"
+                      className="text-secondary font-black text-center"
                       style={{ fontSize: 27, lineHeight: 46 }}
                       numberOfLines={1}
                       adjustsFontSizeToFit
@@ -355,11 +357,11 @@ export default function CreditosScreen() {
                     >
                       {item.credits.toLocaleString()}
                     </Text>
-                    <Text className="text-[rgba(246,193,106,0.55)] text-xs font-semibold tracking-widest uppercase">
+                    <Text className="text-secondary/55 text-xs font-semibold tracking-widest uppercase">
                       créditos
                     </Text>
 
-                    <View className="h-px self-stretch bg-[rgba(246,193,106,0.15)] my-2" />
+                    <View className="h-px self-stretch bg-secondary/15 my-2" />
 
                     <View className="flex-row items-baseline gap-1">
                       <Text className="text-[rgba(255,255,255,0.45)] text-xs">{symbol}</Text>
@@ -375,7 +377,7 @@ export default function CreditosScreen() {
                       {isLoadingThis ? (
                         <ActivityIndicator color="white" size="small" />
                       ) : (
-                        <Text className="text-[#F6C16A] text-lg font-extrabold tracking-wider">
+                        <Text className="text-secondary text-lg font-extrabold tracking-wider">
                           Comprar
                         </Text>
                       )}
@@ -403,24 +405,24 @@ export default function CreditosScreen() {
         >
           <Pressable
             onPress={() => {}}
-            className="w-full bg-[#1a0208] border border-[rgba(246,193,106,0.3)] rounded-3xl p-5"
+            className="w-full bg-surface-card border border-secondary/30 rounded-3xl p-5"
           >
             <View className="flex-row items-center justify-between mb-4">
-              <Text className="text-[#F6C16A] text-lg font-extrabold">
+              <Text className="text-secondary text-lg font-extrabold">
                 Elige cómo pagar
               </Text>
               <Pressable
                 onPress={handleCloseMethodPicker}
                 className="w-8 h-8 items-center justify-center"
               >
-                <X color="#F6C16A" size={22} />
+                <X color={colors.secondary.DEFAULT} size={22} />
               </Pressable>
             </View>
 
             {isPeru && (
               <Pressable
                 onPress={() => void handlePickMethod("flow")}
-                className="bg-[#200a10] border border-[rgba(246,193,106,0.4)] rounded-2xl px-4 py-4 mb-3"
+                className="bg-surface-card border border-secondary/40 rounded-2xl px-4 py-4 mb-3"
               >
                 <Text className="text-white text-base font-extrabold">Flow</Text>
                 <Text className="text-white/50 text-xs mt-1">
@@ -458,8 +460,8 @@ export default function CreditosScreen() {
           className="absolute inset-0 items-center justify-center bg-black/70"
           style={StyleSheet.absoluteFillObject}
         >
-          <ActivityIndicator color="#F6C16A" size="large" />
-          <Text className="text-[#F6C16A] text-sm font-bold mt-3">
+          <ActivityIndicator color={colors.secondary.DEFAULT} size="large" />
+          <Text className="text-secondary text-sm font-bold mt-3">
             Confirmando pago con PayPal…
           </Text>
         </View>
@@ -471,20 +473,20 @@ export default function CreditosScreen() {
         animationType="slide"
         onRequestClose={handleCloseWebView}
       >
-        <View className="flex-1 bg-[#0a0000]">
-          <View className="flex-row items-center justify-between pt-14 pb-3 px-5 bg-[#1a0208] border-b border-[rgba(246,193,106,0.2)]">
+        <View className="flex-1 bg-surface">
+          <View className="flex-row items-center justify-between pt-14 pb-3 px-5 bg-surface-card border-b border-secondary/20">
             <Pressable
               onPress={() => webViewRef.current?.reload()}
               className="w-10 h-10 items-center justify-center"
               hitSlop={8}
             >
-              <RotateCcw color="#F6C16A" size={22} />
+              <RotateCcw color={colors.secondary.DEFAULT} size={22} />
             </Pressable>
-            <Text className="text-[#F6C16A] text-2xl font-extrabold">
+            <Text className="text-secondary text-2xl font-extrabold">
               {activeWebViewMethod === "paypal" ? "PayPal" : "Pago seguro"}
             </Text>
             <Pressable onPress={handleCloseWebView} className="w-10 h-10 items-center justify-center" hitSlop={8}>
-              <X color="#F6C16A" size={30} />
+              <X color={colors.secondary.DEFAULT} size={30} />
             </Pressable>
           </View>
 
@@ -500,14 +502,14 @@ export default function CreditosScreen() {
               sharedCookiesEnabled={false}
               renderLoading={() => (
                 <View
-                  className="absolute inset-0 items-center justify-center bg-[#0a0000]"
+                  className="absolute inset-0 items-center justify-center bg-surface"
                   style={StyleSheet.absoluteFillObject}
                 >
-                  <ActivityIndicator color="#F6C16A" size="large" />
+                  <ActivityIndicator color={colors.secondary.DEFAULT} size="large" />
                 </View>
               )}
               renderError={(errorName) => (
-                <View className="flex-1 items-center justify-center bg-[#0a0000] px-8">
+                <View className="flex-1 items-center justify-center bg-surface px-8">
                   <AlertCircle color="#ef4444" size={48} />
                   <Text className="text-white text-base font-extrabold mt-4 text-center">
                     No se pudo cargar la página de pago
@@ -518,15 +520,15 @@ export default function CreditosScreen() {
                   <View className="flex-row gap-3 mt-6">
                     <Pressable
                       onPress={() => webViewRef.current?.reload()}
-                      className="bg-[#F6C16A] rounded-2xl px-5 py-3"
+                      className="bg-secondary rounded-2xl px-5 py-3"
                     >
-                      <Text className="text-[#0a0000] font-extrabold">Reintentar</Text>
+                      <Text className="text-white font-extrabold">Reintentar</Text>
                     </Pressable>
                     <Pressable
                       onPress={handleCloseWebView}
-                      className="bg-[#1a0208] border border-[rgba(246,193,106,0.4)] rounded-2xl px-5 py-3"
+                      className="bg-surface-card border border-secondary/40 rounded-2xl px-5 py-3"
                     >
-                      <Text className="text-[#F6C16A] font-extrabold">Cerrar</Text>
+                      <Text className="text-secondary font-extrabold">Cerrar</Text>
                     </Pressable>
                   </View>
                 </View>
@@ -547,12 +549,12 @@ export default function CreditosScreen() {
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           keyboardVerticalOffset={0}
         >
-          <View className="flex-1 bg-[#0a0000]">
-            <View className="flex-row items-center justify-between pt-14 pb-3 px-5 bg-[#1a0208] border-b border-[rgba(246,193,106,0.2)]">
+          <View className="flex-1 bg-surface">
+            <View className="flex-row items-center justify-between pt-14 pb-3 px-5 bg-surface-card border-b border-secondary/20">
               <View className="w-8" />
-              <Text className="text-[#F6C16A] text-xl font-extrabold">Pago con Binance</Text>
+              <Text className="text-secondary text-xl font-extrabold">Pago con Binance</Text>
               <Pressable onPress={handleCloseBinance} className="w-8 h-8 items-center justify-center">
-                <X color="#F6C16A" size={28} />
+                <X color={colors.secondary.DEFAULT} size={28} />
               </Pressable>
             </View>
 
@@ -566,12 +568,12 @@ export default function CreditosScreen() {
               {binanceIntent && (
                 <>
                   {/* Resumen del paquete */}
-                  <View className="bg-[#1a0208] rounded-3xl border border-[rgba(246,193,106,0.25)] px-5 py-4 mb-4">
+                  <View className="bg-surface-card rounded-3xl border border-secondary/25 px-5 py-4 mb-4">
                     <Text className="text-white/50 text-xs uppercase tracking-widest mb-1">Paquete</Text>
                     <Text className="text-white text-lg font-extrabold">{binanceIntent.packageName}</Text>
                     <View className="flex-row items-center mt-2 gap-2">
                       <Gem color="#60d4f7" size={18} fill="#a8edfb" />
-                      <Text className="text-[#F6C16A] text-base font-bold">
+                      <Text className="text-secondary text-base font-bold">
                         {binanceIntent.credits.toLocaleString()} créditos
                       </Text>
                     </View>
@@ -586,9 +588,9 @@ export default function CreditosScreen() {
                       </Text>
                     </View>
                   ) : (
-                    <View className="flex-row items-center justify-center bg-[rgba(246,193,106,0.08)] border border-[rgba(246,193,106,0.3)] rounded-2xl px-4 py-2 mb-4">
-                      <Clock color="#F6C16A" size={16} />
-                      <Text className="text-[#F6C16A] text-sm font-bold ml-2">
+                    <View className="flex-row items-center justify-center bg-secondary/10 border border-secondary/30 rounded-2xl px-4 py-2 mb-4">
+                      <Clock color={colors.secondary.DEFAULT} size={16} />
+                      <Text className="text-secondary text-sm font-bold ml-2">
                         Expira en {formatRemaining(remaining)}
                       </Text>
                     </View>
@@ -612,14 +614,14 @@ export default function CreditosScreen() {
                               }}
                               className="rounded-full px-4 py-2"
                               style={{
-                                backgroundColor: active ? "#F6C16A" : "rgba(246,193,106,0.08)",
+                                backgroundColor: active ? colors.secondary.DEFAULT : "rgba(240,62,179,0.08)",
                                 borderWidth: 1,
-                                borderColor: active ? "#F6C16A" : "rgba(246,193,106,0.3)",
+                                borderColor: active ? colors.secondary.DEFAULT : "rgba(240,62,179,0.3)",
                               }}
                             >
                               <Text
                                 className="text-xs font-extrabold"
-                                style={{ color: active ? "#0a0000" : "#F6C16A" }}
+                                style={{ color: active ? "#ffffff" : colors.secondary.DEFAULT }}
                               >
                                 {n.label}
                               </Text>
@@ -646,7 +648,7 @@ export default function CreditosScreen() {
                         </Text>
                         <Pressable
                           onPress={() => handleCopy(current.wallet, "address")}
-                          className="bg-[#1a0208] border border-[rgba(246,193,106,0.2)] rounded-2xl px-4 py-3 flex-row items-center"
+                          className="bg-surface-card border border-secondary/20 rounded-2xl px-4 py-3 flex-row items-center"
                         >
                           <Text className="text-white text-sm font-mono flex-1" selectable>
                             {current.wallet}
@@ -654,7 +656,7 @@ export default function CreditosScreen() {
                           {copiedField === "address" ? (
                             <CheckCircle2 color="#22c55e" size={20} />
                           ) : (
-                            <Copy color="#F6C16A" size={20} />
+                            <Copy color={colors.secondary.DEFAULT} size={20} />
                           )}
                         </Pressable>
                       </View>
@@ -668,11 +670,11 @@ export default function CreditosScreen() {
                     </Text>
                     <Pressable
                       onPress={() => handleCopy(binanceIntent.amount, "amount")}
-                      className="bg-[#200a10] border-2 border-[#F6C16A] rounded-2xl px-4 py-3 flex-row items-center"
+                      className="bg-surface-card border-2 border-secondary rounded-2xl px-4 py-3 flex-row items-center"
                     >
                       <View className="flex-1">
                         <Text className="text-white text-2xl font-black">
-                          {binanceIntent.amount} <Text className="text-[#F6C16A]">{binanceIntent.coin}</Text>
+                          {binanceIntent.amount} <Text className="text-secondary">{binanceIntent.coin}</Text>
                         </Text>
                         <Text className="text-white/50 text-[11px] mt-0.5">
                           Debe llegar este monto exacto (tolerancia {binanceIntent.tolerancePercent}%).
@@ -681,7 +683,7 @@ export default function CreditosScreen() {
                       {copiedField === "amount" ? (
                         <CheckCircle2 color="#22c55e" size={22} />
                       ) : (
-                        <Copy color="#F6C16A" size={22} />
+                        <Copy color={colors.secondary.DEFAULT} size={22} />
                       )}
                     </Pressable>
                   </View>
@@ -691,7 +693,7 @@ export default function CreditosScreen() {
                     <Text className="text-[#a8edfb] text-xs font-bold mb-1">Cómo pagar</Text>
                     <Text className="text-white/70 text-xs leading-5">
                       1. Abre tu app de Binance.{"\n"}
-                      2. Envía exactamente <Text className="text-[#F6C16A] font-bold">{binanceIntent.amount} {binanceIntent.coin}</Text> a la wallet de arriba en la red elegida.{"\n"}
+                      2. Envía exactamente <Text className="text-secondary font-bold">{binanceIntent.amount} {binanceIntent.coin}</Text> a la wallet de arriba en la red elegida.{"\n"}
                       3. Copia el TXID/hash de la transacción y pégalo aquí abajo.{"\n"}
                       4. Toca "Ya pagué". El sistema valida con Binance y te acredita los créditos.
                     </Text>
@@ -714,12 +716,13 @@ export default function CreditosScreen() {
                         binanceScrollRef.current?.scrollToEnd({ animated: true });
                       }, 250);
                     }}
-                    className="bg-[#1a0208] border border-[rgba(246,193,106,0.25)] rounded-2xl px-4 py-3 text-white text-sm font-mono mb-4"
+                    className="bg-surface-card border border-secondary/25 rounded-2xl px-4 py-3 text-white text-sm font-mono mb-4"
                     style={{ minHeight: 50 }}
                     multiline
                   />
 
-                  <Pressable
+                  <PrimaryButton
+                    title={confirming ? "Confirmando…" : "Ya pagué"}
                     onPress={handleConfirmTxid}
                     disabled={
                       confirming ||
@@ -727,25 +730,7 @@ export default function CreditosScreen() {
                       binanceIntent.status !== "PENDING" ||
                       remaining <= 0
                     }
-                    className="rounded-2xl py-4 items-center justify-center"
-                    style={{
-                      backgroundColor:
-                        confirming ||
-                        txidInput.trim().length < 10 ||
-                        binanceIntent.status !== "PENDING" ||
-                        remaining <= 0
-                          ? "rgba(246,193,106,0.25)"
-                          : "#F6C16A",
-                    }}
-                  >
-                    {confirming ? (
-                      <ActivityIndicator color="#0a0000" />
-                    ) : (
-                      <Text className="text-[#0a0000] text-lg font-black tracking-widest">
-                        YA PAGUÉ
-                      </Text>
-                    )}
-                  </Pressable>
+                  />
 
                   <Text className="text-white/40 text-[11px] text-center mt-3">
                     Si cierras esta pantalla, el sistema sigue intentando confirmar tu pago en segundo plano por unos minutos.

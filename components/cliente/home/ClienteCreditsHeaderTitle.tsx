@@ -9,7 +9,7 @@ export default function ClienteCreditsHeaderTitle({ credits }: Props) {
   return (
     <View className="flex-row items-center pr-2">
       <Image
-        source={require("../../../assets/BlackandWhiteXLetterDigital.jpg")}
+        source={require("../../../assets/logoMonetizaLab.png")}
         className="w-[58px] h-[58px] mr-2"
         resizeMode="contain"
       />

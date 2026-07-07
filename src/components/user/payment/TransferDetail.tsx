@@ -20,10 +20,10 @@ export const TransferDetail = ({ accountNumber, accountName }: Props) => {
     return (
         <View
             className="mx-4 mt-2 rounded-3xl overflow-hidden"
-            style={{ shadowColor: '#A11B1B', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.4, shadowRadius: 16, elevation: 10 }}
+            style={{ shadowColor: '#a844f2', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.4, shadowRadius: 16, elevation: 10 }}
         >
             
-            <View className="bg-[#A11B1B] px-6 py-2">
+            <View className="bg-[#a844f2] px-6 py-2">
                 <Text className="text-white/60 text-[10px] uppercase tracking-widest font-bold">Datos de transferencia</Text>
             </View>
 
@@ -33,32 +33,32 @@ export const TransferDetail = ({ accountNumber, accountName }: Props) => {
                
                 <View>
                     <View className="flex-row items-center mb-2" style={{ gap: 6 }}>
-                        <Hash color="#A11B1B" size={14} strokeWidth={2.5} />
+                        <Hash color="#a844f2" size={14} strokeWidth={2.5} />
                         <Text className="text-zinc-400 text-xs uppercase tracking-widest font-bold">Número de cuenta</Text>
                     </View>
                     <Pressable
                         onPress={() => copyToClipboard(accountNumber, "Número de cuenta")}
                         className="flex-row items-center justify-between bg-black/60 rounded-2xl px-5 py-4 active:opacity-70"
-                        style={{ borderWidth: 1, borderColor: 'rgba(161,27,27,0.3)' }}
+                        style={{ borderWidth: 1, borderColor: 'rgba(168,68,242,0.3)' }}
                     >
                         <Text className="text-white text-lg font-black tracking-widest">{accountNumber}</Text>
-                        <Copy color="#A11B1B" size={18} strokeWidth={2} />
+                        <Copy color="#a844f2" size={18} strokeWidth={2} />
                     </Pressable>
                 </View>
 
           
                 <View>
                     <View className="flex-row items-center mb-2" style={{ gap: 6 }}>
-                        <User color="#A11B1B" size={14} strokeWidth={2.5} />
+                        <User color="#a844f2" size={14} strokeWidth={2.5} />
                         <Text className="text-zinc-400 text-xs uppercase tracking-widest font-bold">Titular de cuenta</Text>
                     </View>
                     <Pressable
                         onPress={() => copyToClipboard(accountName, "Titular de cuenta")}
                         className="flex-row items-center justify-between bg-black/60 rounded-2xl px-5 py-4 active:opacity-70"
-                        style={{ borderWidth: 1, borderColor: 'rgba(161,27,27,0.3)' }}
+                        style={{ borderWidth: 1, borderColor: 'rgba(168,68,242,0.3)' }}
                     >
                         <Text className="text-white text-lg font-black">{accountName}</Text>
-                        <Copy color="#A11B1B" size={18} strokeWidth={2} />
+                        <Copy color="#a844f2" size={18} strokeWidth={2} />
                     </Pressable>
                 </View>
 
