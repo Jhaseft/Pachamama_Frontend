@@ -15,7 +15,7 @@ function BackHandlerGuard() {
   useEffect(() => {
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
       Alert.alert(
-        '¿Salir de Pachamama?',
+        '¿Salir de MonetizaLab?',
         '¿Seguro que quieres salir de la aplicación?',
         [
           { text: 'Cancelar', style: 'cancel', onPress: () => {} },

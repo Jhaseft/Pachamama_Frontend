@@ -1,4 +1,4 @@
-// Colores oficiales de la app Pachamama.
+// Colores oficiales de la app MonetizaLab.
 // Fuente única de verdad: la usa tailwind.config.js (clases) y los componentes
 // que necesitan valores hex crudos (ej. LinearGradient).
 const colors = {

@@ -66,7 +66,7 @@ export default function VersionGuard({ children }: Props) {
         </Text>
         <Text style={{ color: '#aaa', fontSize: 16, textAlign: 'center', lineHeight: 26, marginBottom: 40 }}>
           Esta versión de la app ya no está disponible.{'\n'}
-          Descarga la última versión para seguir disfrutando de Pachamama.
+          Descarga la última versión para seguir disfrutando de MonetizaLab.
         </Text>
         <TouchableOpacity
           onPress={() => Linking.openURL(DOWNLOAD_URL)}

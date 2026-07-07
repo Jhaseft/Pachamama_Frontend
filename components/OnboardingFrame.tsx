@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import Screen from "./Screen";
 import Dots from "./Dots";
 
-const logo = require("../assets/logo.png");
+const logo = require("../assets/logoMonetizaLab.png");
 
 type OnboardingFrameProps = {
   step: number;

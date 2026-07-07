@@ -5,7 +5,7 @@ import ScreenHeader from "@/components/Menu/ScreenHeader";
 const terms = [
     {
         title: "1. Naturaleza del servicio",
-        content: "Pachamama es una plataforma social de entretenimiento digital que permite a los usuarios interactuar con creadores mediante mensajes, contenido multimedia y experiencias en vivo dentro de la aplicación.\n\nLa plataforma no ofrece ni promueve servicios sexuales de ningún tipo.",
+        content: "MonetizaLab es una plataforma social de entretenimiento digital que permite a los usuarios interactuar con creadores mediante mensajes, contenido multimedia y experiencias en vivo dentro de la aplicación.\n\nLa plataforma no ofrece ni promueve servicios sexuales de ningún tipo.",
     },
     {
         title: "2. Edad mínima",
@@ -77,7 +77,7 @@ export default function Terminos() {
                     <Text style={{ color: "white", fontSize: 20, fontWeight: "900", letterSpacing: 1, textTransform: "uppercase" }}>
                         Términos y Condiciones
                     </Text>
-                    <Text style={{ color: "#6b7280", fontSize: 12, marginTop: 4 }}>Pachamama — Plataforma de entretenimiento digital</Text>
+                    <Text style={{ color: "#6b7280", fontSize: 12, marginTop: 4 }}>MonetizaLab — Plataforma de entretenimiento digital</Text>
                 </View>
 
                 {/* SECCIONES */}
@@ -108,7 +108,7 @@ export default function Terminos() {
                 {/* FOOTER */}
                 <View style={{ alignItems: "center", marginTop: 8, opacity: 0.4 }}>
                     <Text style={{ color: "#6b7280", fontSize: 11, letterSpacing: 2, textTransform: "uppercase" }}>
-                        © Pachamama — Todos los derechos reservados
+                        © MonetizaLab — Todos los derechos reservados
                     </Text>
                 </View>
             </ScrollView>

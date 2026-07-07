@@ -3,7 +3,7 @@ import { HistoryItem, CreateHistoryRequest, AnfitrionaStories } from '../types/a
 import { HistoryFeedItem, HistoryFeedResponse } from '../types/historyViewClient';
 
 /**
- * Servicio para la gestión de historias de Anfitrionas en Pachamama
+ * Servicio para la gestión de historias de Anfitrionas en MonetizaLab
  */
 
 // 1. CREAR UNA NUEVA HISTORIA (Sube archivo y datos)

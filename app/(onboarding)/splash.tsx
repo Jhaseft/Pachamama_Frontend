@@ -3,7 +3,7 @@ import { Animated, Easing, Image, View, Text, StyleSheet } from "react-native";
 import { router } from "expo-router";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const logoSplash = require("../../assets/logofull.jpeg");
+const logoSplash = require("../../assets/logoMonetizaLab.png");
 
 export default function Splash() {
   const scaleAnim = useRef(new Animated.Value(1)).current;

@@ -7,12 +7,12 @@ export const setupCallKeep = async (): Promise<void> => {
     try {
         await RNCallKeep.setup({
             ios: {
-                appName: 'Pachamama', // nombre que aparece en la pantalla de llamada
+                appName: 'MonetizaLab', // nombre que aparece en la pantalla de llamada
             },
             // En Android, se muestra un diálogo pidiendo permisos para mostrar llamadas entrantes sobre otras apps
             android: {
                 alertTitle: 'Permisos requeridos',
-                alertDescription: 'Pachamama necesita acceso para mostrar llamadas entrantes',
+                alertDescription: 'MonetizaLab necesita acceso para mostrar llamadas entrantes',
                 cancelButton: 'Cancelar',
                 okButton: 'Aceptar',
                 additionalPermissions: [],
@@ -23,10 +23,10 @@ export const setupCallKeep = async (): Promise<void> => {
         // En Android, registra la app como manejador de llamadas
         if (Platform.OS === 'android') {
             RNCallKeep.registerPhoneAccount({
-                ios: { appName: 'Pachamama' },
+                ios: { appName: 'MonetizaLab' },
                 android: {
                     alertTitle: 'Permisos requeridos',
-                    alertDescription: 'Pachamama necesita acceso para mostrar llamadas entrantes',
+                    alertDescription: 'MonetizaLab necesita acceso para mostrar llamadas entrantes',
                     cancelButton: 'Cancelar',
                     okButton: 'Aceptar',
                     additionalPermissions: [],
