@@ -45,11 +45,32 @@
         "android.permission.ACCESS_NETWORK_STATE",
         "android.permission.BLUETOOTH",
         "android.permission.READ_PHONE_STATE"
+      ],
+      "intentFilters": [
+        {
+          "action": "android.intent.action.VIEW",
+          "data": {
+            "scheme": "https",
+            "host": "tiendamas.vip",
+            "pathPrefix": "/@"
+          },
+          "category": [
+            "android.intent.category.DEFAULT",
+            "android.intent.category.BROWSABLE"
+          ]
+        }
       ]
     },
     "web": {
       "favicon": "./assets/logofull.jpeg"
     },
+    "deeplinks": {
+      "urls": [
+        "pachamama://anfitriona/:username",
+        "https://tiendamas.vip/@:username"
+      ]
+    },
+    "scheme": "pachamama",
     "plugins": [
       "expo-dev-client",
       "expo-router",

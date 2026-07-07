@@ -87,6 +87,17 @@ export async function getPublicHostessById(
   });
 }
 
+export async function getPublicHostessProfileByUsername(
+  username: string,
+): Promise<AnfitrioneProfileDetail> {
+  const data = await apiFetch<AnfitrioneApiDetail>(
+    `/anfitrionas/public/@${username}`,
+    { method: "GET" }
+  );
+  return mapDetailToProfile(data);
+}
+
+
 /**
  * POST /anfitrionas/public/:id/like
  * Requiere autenticación con rol USER.

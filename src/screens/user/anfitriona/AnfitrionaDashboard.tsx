@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   ScrollView, View, Text, Image, TouchableOpacity, FlatList,
-  ActivityIndicator, RefreshControl, Alert, Animated, Easing, AppState, Linking,
+  ActivityIndicator, RefreshControl, Alert, Animated, Easing, AppState, Linking, Share,
 } from 'react-native';
 import notifee from '@notifee/react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -261,6 +261,22 @@ export default function AnfitrionaDashboard() {
     ? [profile.firstName, profile.lastName].filter(Boolean).join(' ') || profile.username
     : '...';
 
+  const handleShareProfile = async () => {
+    if (!profile?.username) {
+      Alert.alert('Error', 'No se pudo obtener tu username');
+      return;
+    }
+    try {
+      await Share.share({
+        message: `¡Hola! Mira mi perfil en Monetiza Lab: https://monetizalab.vip/@${profile.username}`,
+        url: `pachamama://anfitriona/${profile.username}`,
+        title: `Perfil de ${profileName}`,
+      });
+    } catch (error) {
+      Alert.alert('Error', 'No se pudo compartir el perfil');
+    }
+  };
+
   if (loading) {
     return (
       <View style={{ flex: 1, backgroundColor: '#000000', justifyContent: 'center', alignItems: 'center' }}>
@@ -455,6 +471,24 @@ export default function AnfitrionaDashboard() {
               Notificaciones {notificationsEnabled ? '✅' : '❌'}
             </Text>
           </TouchableOpacity>
+
+          {/* Botón compartir perfil */}
+          <AnimatedBorderCard borderColors={PINK_BORDER} borderRadius={12}>
+            <TouchableOpacity
+              onPress={handleShareProfile}
+              activeOpacity={0.8}
+              style={{
+                backgroundColor: '#1a0a1f', borderRadius: 10,
+                paddingVertical: 14, paddingHorizontal: 16,
+                flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
+              }}
+            >
+              <MaterialCommunityIcons name="share-variant" size={18} color="#f03eb3" />
+              <Text style={{ color: '#f03eb3', fontWeight: '700', fontSize: 14 }}>
+                Compartir mi perfil
+              </Text>
+            </TouchableOpacity>
+          </AnimatedBorderCard>
 
           {/* Botón Suscripciones */}
           <AnimatedBorderCard borderColors={PURPLE_BORDER} borderRadius={12}>
