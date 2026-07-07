@@ -27,13 +27,13 @@ import SubscriptionBanner from "../../src/components/anfitriona/SubscriptionBann
 // ─── AnimatedBorderCard ───────────────────────────────────────────────────────
 
 const GOLD_BORDER = [
-  "#F6C16A", "#FFE5A0", "#F6C16A", "#C9933A",
-  "#8B5E1A", "#C9933A", "#FFE5A0", "#F6C16A", "#F6C16A",
+  "#132673", "#1a3a8a", "#132673", "#0e4e8f",
+  "#0c3b6b", "#0e4e8f", "#1a3a8a", "#132673", "#132673",
 ] as const;
 
 const PURPLE_BORDER = [
-  "#a855f7", "#d8b4fe", "#a855f7", "#7c3aed",
-  "#4c1d95", "#7c3aed", "#d8b4fe", "#a855f7", "#a855f7",
+  "#a844f2", "#d8b4fe", "#a844f2", "#9333ea",
+  "#6b21a8", "#9333ea", "#d8b4fe", "#a844f2", "#a844f2",
 ] as const;
 
 function AnimatedBorderCard({
@@ -96,7 +96,7 @@ function AnimatedBorderCard({
 function GlowingCard({
   children,
   borderRadius = 16,
-  glowColor = "#F6A800",
+  glowColor = "#a844f2",
   borderColors = GOLD_BORDER,
   style,
 }: {
@@ -263,7 +263,7 @@ export default function AnfitrianaInicio() {
   );
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#25060E" }}>
+    <View style={{ flex: 1, backgroundColor: "#000000" }}>
       <Stack.Screen options={{ headerShown: false }} />
       <SafeAreaView edges={["top"]} style={{ flex: 1 }}>
         <ScrollView
@@ -273,8 +273,8 @@ export default function AnfitrianaInicio() {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              tintColor="#F6C16A"
-              colors={["#F6C16A"]}
+              tintColor="#a844f2"
+              colors={["#a844f2"]}
             />
           }
         >
@@ -290,7 +290,7 @@ export default function AnfitrianaInicio() {
               </Text>
             </View>
             <Image
-              source={require("../../assets/BlackandWhiteXLetterDigital.jpg")}
+              source={require("../../assets/logoMonetizaLab.png")}
               style={{ width: 100, height: 100 }}
               resizeMode="contain"
             />
@@ -304,7 +304,7 @@ export default function AnfitrianaInicio() {
                   key={i}
                   style={{
                     flex: 1,
-                    backgroundColor: "#5c0018",
+                    backgroundColor: "#1e3a8a",
                     borderRadius: 16,
                     height: 80,
                     alignItems: "center",
@@ -320,12 +320,12 @@ export default function AnfitrianaInicio() {
               {/* Hoy */}
               <AnimatedBorderCard borderRadius={16} style={{ flex: 1 }}>
                 <LinearGradient
-                  colors={["#4a0000", "#8B0000"]}
+                  colors={["#f03eb3", "#132673"]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
                   style={{ borderRadius: 14, paddingHorizontal: 16, paddingVertical: 18 }}
                 >
-                  <Text style={{ color: "#F6C16A", fontSize: 12, marginBottom: 4 }}>
+                  <Text style={{ color: "#f03eb3", fontSize: 12, marginBottom: 4 }}>
                     Hoy
                   </Text>
                   <Text style={{ color: "#FFEE00", fontSize: 20, fontWeight: "900" }}>
@@ -338,9 +338,9 @@ export default function AnfitrianaInicio() {
               </AnimatedBorderCard>
 
               {/* Esta semana */}
-              <GlowingCard borderRadius={16} glowColor="#7c3aed" borderColors={PURPLE_BORDER} style={{ flex: 1 }}>
+              <GlowingCard borderRadius={16} glowColor="#a844f2" borderColors={PURPLE_BORDER} style={{ flex: 1 }}>
                 <LinearGradient
-                  colors={["#3b0764", "#6d28d9"]}
+                  colors={["#5b21b6", "#a844f2"]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
                   style={{ borderRadius: 14, paddingHorizontal: 16, paddingVertical: 18 }}
@@ -370,7 +370,7 @@ export default function AnfitrianaInicio() {
               onPress={() => router.push("/(anfitriona)/chats")}
               style={{
                 flex: 1,
-                backgroundColor: "#5c0018",
+                backgroundColor: "#1e3a8a",
                 borderRadius: 16,
                 paddingVertical: 18,
                 alignItems: "center",
@@ -383,7 +383,7 @@ export default function AnfitrianaInicio() {
               {unreadCount > 0 && (
                 <View
                   style={{
-                    backgroundColor: "#D11B1B",
+                    backgroundColor: "#f03eb3",
                     borderRadius: 99,
                     paddingHorizontal: 10,
                     paddingVertical: 3,
@@ -398,13 +398,13 @@ export default function AnfitrianaInicio() {
             </Pressable>
 
             {/* Ganancias — brillante */}
-            <GlowingCard borderRadius={16} glowColor="#C97B00" style={{ flex: 1 }}>
+            <GlowingCard borderRadius={16} glowColor="#f03eb3" style={{ flex: 1 }}>
               <Pressable
                 onPress={() => router.push("/(anfitriona)/ganancias")}
                 style={{ borderRadius: 14, overflow: "hidden" }}
               >
                 <LinearGradient
-                  colors={["#7c2d00", "#b45309", "#f59e0b"]}
+                  colors={["#132673", "#a844f2", "#f03eb3"]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
                   style={{ paddingVertical: 18, alignItems: "center" }}
@@ -427,7 +427,7 @@ export default function AnfitrianaInicio() {
               onPress={() => router.push("/(anfitriona)/precios")}
               style={{
                 flex: 1,
-                backgroundColor: "#5c0018",
+                backgroundColor: "#1e3a8a",
                 borderRadius: 16,
                 paddingVertical: 18,
                 alignItems: "center",
@@ -449,13 +449,13 @@ export default function AnfitrianaInicio() {
           </Text>
 
           {loadingEarnings && (
-            <ActivityIndicator color="#D11B1B" style={{ marginBottom: 16 }} />
+            <ActivityIndicator color="#f03eb3" style={{ marginBottom: 16 }} />
           )}
 
           {!loadingEarnings && earnings?.transactions.length === 0 && (
             <View
               style={{
-                backgroundColor: "#1a0a10",
+                backgroundColor: "#0c1e4d",
                 borderRadius: 16,
                 padding: 24,
                 alignItems: "center",
@@ -469,7 +469,7 @@ export default function AnfitrianaInicio() {
             earnings?.transactions.map((tx) => (
               <AnimatedBorderCard key={tx.id} style={{ marginBottom: 12 }}>
                 <LinearGradient
-                  colors={["#1a0208", "#3d0010", "#5a0018"]}
+                  colors={["#0c1e4d", "#1e3a8a", "#132673"]}
                   start={{ x: 0, y: 0.5 }}
                   end={{ x: 1, y: 0.5 }}
                   style={{ borderRadius: 16 }}
@@ -487,7 +487,7 @@ export default function AnfitrianaInicio() {
                         width: 44,
                         height: 44,
                         borderRadius: 12,
-                        backgroundColor: "#9E1A34",
+                        backgroundColor: "#a844f2",
                         alignItems: "center",
                         justifyContent: "center",
                         marginRight: 12,

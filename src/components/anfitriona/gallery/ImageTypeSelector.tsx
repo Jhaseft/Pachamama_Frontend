@@ -9,25 +9,43 @@ type Props = {
 
 export default function ImageTypeSelector({ isPremium, onChange }: Props) {
   return (
-    <View className="flex-row gap-3 w-full mt-4">
+    <View style={{ flexDirection: 'row', gap: 12, width: '100%', marginTop: 16 }}>
       <TouchableOpacity
         onPress={() => onChange(false)}
-        className={`flex-1 flex-row items-center justify-center gap-2 py-3 rounded-xl border ${
-          !isPremium ? 'bg-zinc-700 border-white/40' : 'bg-transparent border-zinc-600'
-        }`}
+        style={{
+          flex: 1,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 8,
+          paddingVertical: 12,
+          borderRadius: 12,
+          borderWidth: 1,
+          backgroundColor: !isPremium ? '#132673' : 'rgba(19, 38, 115, 0.1)',
+          borderColor: !isPremium ? '#132673' : 'rgba(19, 38, 115, 0.3)'
+        }}
       >
         <MaterialCommunityIcons name="image-outline" size={18} color="white" />
-        <Text className="text-white font-semibold">Normal</Text>
+        <Text style={{ color: 'white', fontWeight: '600' }}>Normal</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         onPress={() => onChange(true)}
-        className={`flex-1 flex-row items-center justify-center gap-2 py-3 rounded-xl border ${
-          isPremium ? 'bg-red-600 border-red-400' : 'bg-transparent border-zinc-600'
-        }`}
+        style={{
+          flex: 1,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 8,
+          paddingVertical: 12,
+          borderRadius: 12,
+          borderWidth: 1,
+          backgroundColor: isPremium ? '#a844f2' : 'rgba(168, 68, 242, 0.1)',
+          borderColor: isPremium ? '#a844f2' : 'rgba(168, 68, 242, 0.3)'
+        }}
       >
         <MaterialCommunityIcons name="lock" size={18} color="white" />
-        <Text className="text-white font-semibold">Exclusiva</Text>
+        <Text style={{ color: 'white', fontWeight: '600' }}>Exclusiva</Text>
       </TouchableOpacity>
     </View>
   );

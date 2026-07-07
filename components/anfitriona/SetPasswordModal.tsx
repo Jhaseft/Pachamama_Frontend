@@ -50,16 +50,18 @@ export default function SetPasswordModal({ visible, onDone }: Props) {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1, justifyContent: "center", backgroundColor: "rgba(0,0,0,0.8)", paddingHorizontal: 20 }}
       >
-        <View style={{ backgroundColor: "#0f0f0f", borderRadius: 28, overflow: "hidden", borderWidth: 1, borderColor: "rgba(196,24,24,0.2)" }}>
+        <View style={{ backgroundColor: "#0f0f0f", borderRadius: 28, overflow: "hidden", borderWidth: 1, borderColor: "rgba(160, 68, 242, 0.2)" }}>
 
           {/* Header */}
           <LinearGradient
-            colors={["#1a0208", "#6B0A0A", "#0f0f0f"]}
+            colors={["#1a0a2e", "#0f0f1e"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
             style={{ paddingHorizontal: 24, paddingTop: 28, paddingBottom: 20 }}
           >
             <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: "rgba(196,24,24,0.25)", alignItems: "center", justifyContent: "center", marginRight: 12 }}>
-                <Ionicons name="lock-closed" size={18} color="#C41818" />
+              <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: "rgba(160, 68, 242, 0.25)", alignItems: "center", justifyContent: "center", marginRight: 12 }}>
+                <Ionicons name="lock-closed" size={18} color="#a844f2" />
               </View>
               <View>
                 <Text style={{ color: "white", fontSize: 20, fontWeight: "700", letterSpacing: 0.3 }}>
@@ -78,14 +80,14 @@ export default function SetPasswordModal({ visible, onDone }: Props) {
             showsVerticalScrollIndicator={false}
           >
             {/* Info box */}
-            <View style={{ flexDirection: "row", alignItems: "flex-start", backgroundColor: "rgba(196,24,24,0.07)", borderRadius: 12, padding: 14, marginBottom: 22, borderWidth: 1, borderColor: "rgba(196,24,24,0.15)" }}>
-              <Ionicons name="shield-checkmark-outline" size={16} color="rgba(196,24,24,0.8)" style={{ marginRight: 10, marginTop: 1 }} />
+            <View style={{ flexDirection: "row", alignItems: "flex-start", backgroundColor: "rgba(160, 68, 242, 0.07)", borderRadius: 12, padding: 14, marginBottom: 22, borderWidth: 1, borderColor: "rgba(160, 68, 242, 0.15)", borderLeftWidth: 4, borderLeftColor: "#a844f2" }}>
+              <Ionicons name="shield-checkmark-outline" size={16} color="#a844f2" style={{ marginRight: 10, marginTop: 1 }} />
               <Text style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, flex: 1, lineHeight: 19 }}>
                 Podrás usar esta contraseña junto a tu correo para ingresar sin necesidad de Google.
               </Text>
             </View>
 
-            <Text style={{ color: "rgba(196,24,24,0.9)", fontSize: 11, fontWeight: "700", letterSpacing: 1.5, marginBottom: 12, textTransform: "uppercase" }}>
+            <Text style={{ color: "#a844f2", fontSize: 11, fontWeight: "700", letterSpacing: 1.5, marginBottom: 12, textTransform: "uppercase" }}>
               Nueva contraseña
             </Text>
 
@@ -107,9 +109,9 @@ export default function SetPasswordModal({ visible, onDone }: Props) {
             />
 
             {error ? (
-              <View style={{ flexDirection: "row", alignItems: "center", backgroundColor: "rgba(248,113,113,0.1)", borderRadius: 10, padding: 12, marginBottom: 14, borderWidth: 1, borderColor: "rgba(248,113,113,0.2)" }}>
-                <Ionicons name="alert-circle-outline" size={16} color="#f87171" style={{ marginRight: 8 }} />
-                <Text style={{ color: "#f87171", fontSize: 13, flex: 1 }}>{error}</Text>
+              <View style={{ flexDirection: "row", alignItems: "center", backgroundColor: "rgba(240, 62, 179, 0.1)", borderRadius: 10, padding: 12, marginBottom: 14, borderWidth: 1, borderColor: "rgba(240, 62, 179, 0.3)", borderLeftWidth: 4, borderLeftColor: "#f03eb3" }}>
+                <Ionicons name="alert-circle-outline" size={16} color="#f03eb3" style={{ marginRight: 8 }} />
+                <Text style={{ color: "#f03eb3", fontSize: 13, flex: 1 }}>{error}</Text>
               </View>
             ) : null}
 
@@ -119,9 +121,9 @@ export default function SetPasswordModal({ visible, onDone }: Props) {
               style={({ pressed }) => ({ opacity: pressed || loading ? 0.8 : 1, marginTop: 4 })}
             >
               <LinearGradient
-                colors={["#1a0208", "#6B0A0A", "#C41818"]}
+                colors={["#f03eb3", "#a844f2"]}
                 start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
+                end={{ x: 1, y: 1 }}
                 style={{ borderRadius: 14, paddingVertical: 16, alignItems: "center", flexDirection: "row", justifyContent: "center", gap: 8 }}
               >
                 {loading ? (
@@ -130,7 +132,7 @@ export default function SetPasswordModal({ visible, onDone }: Props) {
                   <>
                     <Ionicons name="lock-closed" size={16} color="white" />
                     <Text style={{ color: "white", fontSize: 16, fontWeight: "700", letterSpacing: 0.3 }}>
-                      Guardar contraseña
+                      GUARDAR CONTRASEÑA
                     </Text>
                   </>
                 )}

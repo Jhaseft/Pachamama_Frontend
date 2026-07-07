@@ -1,4 +1,5 @@
-import { Pressable, Text } from "react-native";
+import { Pressable, Text, View } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import type { PressableProps } from "react-native";
 
 type PrimaryButtonProps = {
@@ -15,14 +16,23 @@ export default function PrimaryButton({
   className = "",
 }: PrimaryButtonProps) {
   return (
-    <Pressable
-      onPress={onPress}
-      disabled={disabled}
-      className={`bg-red-600 rounded-full py-4 items-center ${
-        disabled ? "opacity-50" : "opacity-100"
-      } ${className}`}
+    <LinearGradient
+      colors={['#f03eb3', '#a844f2']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={{
+        borderRadius: 24,
+        marginTop: 16,
+        opacity: disabled ? 0.5 : 1,
+      }}
     >
-      <Text className="text-white text-xl font-semibold">{title}</Text>
-    </Pressable>
+      <Pressable
+        onPress={onPress}
+        disabled={disabled}
+        style={{ paddingVertical: 14, alignItems: 'center' }}
+      >
+        <Text className="text-white text-base font-black tracking-wide">{title.toUpperCase()}</Text>
+      </Pressable>
+    </LinearGradient>
   );
 }

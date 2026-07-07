@@ -40,7 +40,7 @@ export default function HeaderTitle({ title, role }: Props) {
 
           <View>
             <Image
-              source={require("../../assets/BlackandWhiteXLetterDigital.jpg")}
+              source={require("../../assets/logoMonetizaLab.png")}
               className="w-[80px] h-[80px]"
               resizeMode="contain"
             />

@@ -74,7 +74,7 @@ function AnimatedBorderCard({
   children: React.ReactNode;
   borderRadius?: number;
   style?: object;
-}) {
+}): React.JSX.Element {
   const spin = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -108,7 +108,7 @@ function AnimatedBorderCard({
         }}
       >
         <LinearGradient
-          colors={["#F6C16A", "#FFE5A0", "#F6C16A", "#C9933A", "#8B5E1A", "#C9933A", "#FFE5A0", "#F6C16A", "#F6C16A"]}
+          colors={["#a844f2", "#d8b4fe", "#9333ea", "#6b21a8", "#a844f2", "#6b21a8", "#9333ea", "#d8b4fe", "#a844f2"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={{ flex: 1 }}
@@ -123,13 +123,13 @@ function TransactionItem({ tx, formatUSD }: { tx: EarningTransaction; formatUSD:
   return (
     <AnimatedBorderCard style={{ marginBottom: 16 }}>
       <LinearGradient
-        colors={["#1a0208", "#6B0A0A", "#C41818"]}
+        colors={["#0d1428", "#1a2d5a", "#2a3d7a"]}
         start={{ x: 0, y: 0.5 }}
         end={{ x: 1, y: 0.5 }}
         style={{ borderRadius: 16 }}
       >
         <View className="flex-row items-center px-4 py-4">
-          <View className="w-11 h-11 rounded-xl bg-[#9E1A34] items-center justify-center mr-4">
+          <View className="w-11 h-11 rounded-xl bg-[#4a3a8b] items-center justify-center mr-4">
             {getServiceIcon(tx.service)}
           </View>
           <View className="flex-1">
@@ -137,14 +137,14 @@ function TransactionItem({ tx, formatUSD }: { tx: EarningTransaction; formatUSD:
               {tx.service}
             </Text>
             {tx.clientName ? (
-              <Text className="text-red-200 text-xs mt-0.5">{tx.clientName}</Text>
+              <Text className="text-purple-300 text-xs mt-0.5">{tx.clientName}</Text>
             ) : null}
           </View>
           <View style={{ alignItems: "flex-end" }}>
-            <Text style={{ color: "#FFEE00", fontWeight: "800", fontSize: 15 }}>
+            <Text style={{ color: "#e9d5ff", fontWeight: "800", fontSize: 15 }}>
               +{Number.isInteger(tx.amount) ? tx.amount : tx.amount.toFixed(2)} créditos
             </Text>
-            <Text style={{ color: "rgba(255,238,0,0.7)", fontWeight: "600", fontSize: 12, marginTop: 2 }}>
+            <Text style={{ color: "rgba(233,213,255,0.7)", fontWeight: "600", fontSize: 12, marginTop: 2 }}>
               ≈ {formatUSD(tx.amount)}
             </Text>
           </View>
@@ -246,8 +246,8 @@ function AddBankAccountModal({
                   key={opt.key}
                   onPress={() => { setMethodType(opt.key); setSelectedBank(null); setAccountNumber(""); }}
                   style={{ width: '47%', borderRadius: 12, padding: 12, alignItems: 'center',
-                    backgroundColor: active ? 'rgba(209,27,27,0.15)' : '#1a1a1a',
-                    borderWidth: 1, borderColor: active ? '#D11B1B' : '#2a2a2a' }}
+                    backgroundColor: active ? 'rgba(168,68,242,0.15)' : '#1a1a1a',
+                    borderWidth: 1, borderColor: active ? '#a844f2' : '#2a2a2a' }}
                 >
                   <Text style={{ color: active ? '#fff' : '#6b7280', fontWeight: '700', fontSize: 13 }}>{opt.label}</Text>
                   <Text style={{ color: active ? 'rgba(255,255,255,0.5)' : '#444', fontSize: 10, marginTop: 2, textAlign: 'center' }}>{opt.sub}</Text>
@@ -339,15 +339,22 @@ function AddBankAccountModal({
             onChangeText={setHolderName}
           />
 
-          <TouchableOpacity
-            className="bg-[#D11B1B] rounded-xl py-4 items-center"
-            onPress={handleSave}
-            disabled={loading}
+          <LinearGradient
+            colors={["#a844f2", "#f03eb3"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={{ borderRadius: 12, overflow: "hidden" }}
           >
-            {loading ? <ActivityIndicator color="#fff" /> : (
-              <Text className="text-white font-bold text-base">Guardar método</Text>
-            )}
-          </TouchableOpacity>
+            <TouchableOpacity
+              className="py-4 items-center"
+              onPress={handleSave}
+              disabled={loading}
+            >
+              {loading ? <ActivityIndicator color="#fff" /> : (
+                <Text className="text-white font-bold text-base">Guardar método</Text>
+              )}
+            </TouchableOpacity>
+          </LinearGradient>
         </View>
 
         {/* Bank picker */}
@@ -367,7 +374,7 @@ function AddBankAccountModal({
                     onPress={() => { setSelectedBank(item); setShowBankPicker(false); }}
                   >
                     <Text className="text-white flex-1">{item.name}</Text>
-                    {selectedBank?.id === item.id && <CheckCircle size={18} color="#D11B1B" />}
+                    {selectedBank?.id === item.id && <CheckCircle size={18} color="#a844f2" />}
                   </TouchableOpacity>
                 )}
                 ListEmptyComponent={
@@ -563,9 +570,9 @@ function WithdrawalModal({
               {belowMinimum && (
                 <View
                   className="rounded-xl px-4 py-2 mb-3 flex-row items-center gap-2"
-                  style={{ backgroundColor: "rgba(239,68,68,0.12)", borderWidth: 1, borderColor: "rgba(239,68,68,0.35)" }}
+                  style={{ backgroundColor: "rgba(240,62,179,0.12)", borderWidth: 1, borderColor: "rgba(240,62,179,0.35)" }}
                 >
-                  <Text style={{ color: "#ef4444", fontSize: 12 }}>
+                  <Text style={{ color: "#f03eb3", fontSize: 12 }}>
                     El mínimo de retiro es USD {MIN_WITHDRAWAL_USD} ({MIN_WITHDRAWAL_CREDITS} créditos · S/ {minSoles} / USD {minUsd})
                   </Text>
                 </View>
@@ -574,20 +581,20 @@ function WithdrawalModal({
               {/* Payout conversion */}
               <View
                 className="rounded-xl px-4 py-3 mb-6"
-                style={{ backgroundColor: "rgba(209,27,27,0.1)", borderWidth: 1, borderColor: "rgba(209,27,27,0.3)" }}
+                style={{ backgroundColor: "rgba(168,68,242,0.1)", borderWidth: 1, borderColor: "rgba(168,68,242,0.3)" }}
               >
                 <Text className="text-gray-400 text-xs mb-2">Recibirás</Text>
                 <View className="flex-row items-center justify-between">
                   <View className="items-center flex-1">
                     <Text className="text-gray-400 text-[10px] uppercase tracking-widest mb-1">Soles</Text>
-                    <Text style={{ color: isUsd ? "#9ca3af" : "#D11B1B", fontWeight: "900", fontSize: isUsd ? 16 : 22 }}>
+                    <Text style={{ color: isUsd ? "#9ca3af" : "#a844f2", fontWeight: "900", fontSize: isUsd ? 16 : 22 }}>
                       S/ {solesAmount}
                     </Text>
                   </View>
-                  <View style={{ width: 1, height: 36, backgroundColor: "rgba(209,27,27,0.3)" }} />
+                  <View style={{ width: 1, height: 36, backgroundColor: "rgba(168,68,242,0.3)" }} />
                   <View className="items-center flex-1">
                     <Text className="text-gray-400 text-[10px] uppercase tracking-widest mb-1">USD</Text>
-                    <Text style={{ color: isUsd ? "#D11B1B" : "#9ca3af", fontWeight: "900", fontSize: isUsd ? 22 : 16 }}>
+                    <Text style={{ color: isUsd ? "#a844f2" : "#9ca3af", fontWeight: "900", fontSize: isUsd ? 22 : 16 }}>
                       USD {usdAmount}
                     </Text>
                   </View>
@@ -603,8 +610,8 @@ function WithdrawalModal({
                   style={{ flexDirection: "row", alignItems: "center", gap: 4 }}
                   onPress={() => setShowAddAccount(true)}
                 >
-                  <Plus size={14} color="#D11B1B" />
-                  <Text className="text-[#D11B1B] text-xs font-semibold">
+                  <Plus size={14} color="#a844f2" />
+                  <Text className="text-[#a844f2] text-xs font-semibold">
                     Agregar
                   </Text>
                 </TouchableOpacity>
@@ -612,7 +619,7 @@ function WithdrawalModal({
 
               {loadingAccounts ? (
                 <ActivityIndicator
-                  color="#D11B1B"
+                  color="#a844f2"
                   style={{ marginVertical: 16 }}
                 />
               ) : accounts.length === 0 ? (
@@ -640,10 +647,10 @@ function WithdrawalModal({
                         className="flex-row items-center rounded-xl px-4 py-3 mb-2"
                         style={{
                           backgroundColor: selected
-                            ? "rgba(209,27,27,0.1)"
+                            ? "rgba(168,68,242,0.1)"
                             : "#1a1a1a",
                           borderWidth: 1,
-                          borderColor: selected ? "#D11B1B" : "#2a2a2a",
+                          borderColor: selected ? "#a844f2" : "#2a2a2a",
                         }}
                         onPress={() => setSelectedAccount(acc)}
                       >
@@ -654,7 +661,7 @@ function WithdrawalModal({
                             borderRadius: 10,
                             borderWidth: 2,
                             marginRight: 12,
-                            borderColor: selected ? "#D11B1B" : "#6b7280",
+                            borderColor: selected ? "#a844f2" : "#6b7280",
                             alignItems: "center",
                             justifyContent: "center",
                           }}
@@ -665,7 +672,7 @@ function WithdrawalModal({
                                 width: 10,
                                 height: 10,
                                 borderRadius: 5,
-                                backgroundColor: "#D11B1B",
+                                backgroundColor: "#a844f2",
                               }}
                             />
                           )}
@@ -699,20 +706,26 @@ function WithdrawalModal({
                 1 crédito = S/ 0.90 · El pago se procesa en 1-3 días hábiles
               </Text>
 
-              <TouchableOpacity
-                className="rounded-xl py-4 items-center"
-                style={{ backgroundColor: loading || belowMinimum ? "#8b0000" : "#D11B1B", opacity: belowMinimum ? 0.5 : 1 }}
-                onPress={handleSubmit}
-                disabled={loading || belowMinimum}
+              <LinearGradient
+                colors={loading || belowMinimum ? ["#6b21a8", "#a844f2"] : ["#a844f2", "#f03eb3"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={[{ borderRadius: 12, overflow: "hidden" }, belowMinimum && { opacity: 0.5 }]}
               >
-                {loading ? (
-                  <ActivityIndicator color="#fff" />
-                ) : (
-                  <Text className="text-white font-bold text-base">
-                    Solicitar S/ {solesAmount} · USD {usdAmount}
-                  </Text>
-                )}
-              </TouchableOpacity>
+                <TouchableOpacity
+                  className="rounded-xl py-4 items-center"
+                  onPress={handleSubmit}
+                  disabled={loading || belowMinimum}
+                >
+                  {loading ? (
+                    <ActivityIndicator color="#fff" />
+                  ) : (
+                    <Text className="text-white font-bold text-base">
+                      Solicitar S/ {solesAmount} · USD {usdAmount}
+                    </Text>
+                  )}
+                </TouchableOpacity>
+              </LinearGradient>
             </ScrollView>
           </View>
         </KeyboardAvoidingView>
@@ -794,12 +807,12 @@ export default function AnfitrianaGanancias() {
   })();
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#25060E" }}>
-      <ScreenHeader title="Mis ganancias" role="anfitriona" backgroundColor="#25060E" />
+    <View style={{ flex: 1, backgroundColor: "#000000" }}>
+      <ScreenHeader title="Mis ganancias" role="anfitriona" backgroundColor="#000000" />
 
       {loading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#D11B1B" size="large" />
+          <ActivityIndicator color="#a844f2" size="large" />
         </View>
       ) : (
         <ScrollView
@@ -809,64 +822,64 @@ export default function AnfitrianaGanancias() {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={() => load(true)}
-              tintColor="#D11B1B"
+              tintColor="#a844f2"
             />
           }
         >
 
           {/* Total Card */}
           <AnimatedBorderCard borderRadius={16} style={{ marginBottom: 24 }}>
-          <View style={{ backgroundColor: "#D11B1B", borderRadius: 14, paddingHorizontal: 24, paddingVertical: 20 }}>
-            <Text className="text-red-200 text-xs font-semibold uppercase tracking-widest mb-1">
+          <View style={{ backgroundColor: "#a844f2", borderRadius: 14, paddingHorizontal: 24, paddingVertical: 20 }}>
+            <Text className="text-purple-200 text-xs font-semibold uppercase tracking-widest mb-1">
               Total acumulado
             </Text>
             <Text
               style={{
-                color: "#FFEE00",
+                color: "#e9d5ff",
                 fontSize: 36,
                 fontWeight: "900",
               }}
             >
               {data?.total ?? 0} créditos
             </Text>
-            <Text style={{ color: "rgba(255,238,0,0.75)", fontSize: 14, fontWeight: "600", marginBottom: 16 }}>
+            <Text style={{ color: "rgba(233,213,255,0.75)", fontSize: 14, fontWeight: "600", marginBottom: 16 }}>
               ≈ {formatUSD(data?.total ?? 0)}
             </Text>
             <View className="flex-row justify-between">
               <View className="items-center">
                 <Text
-                  style={{ color: "#FFEE00", fontSize: 18, fontWeight: "700" }}
+                  style={{ color: "#e9d5ff", fontSize: 18, fontWeight: "700" }}
                 >
                   {data?.today ?? 0} cr
                 </Text>
-                <Text style={{ color: "rgba(255,238,0,0.7)", fontSize: 11 }}>
+                <Text style={{ color: "rgba(233,213,255,0.7)", fontSize: 11 }}>
                   ≈ {formatUSD(data?.today ?? 0)}
                 </Text>
-                <Text className="text-red-200 text-xs mt-0.5">Hoy</Text>
+                <Text className="text-purple-200 text-xs mt-0.5">Hoy</Text>
               </View>
-              <View className="w-px bg-red-400 mx-2" />
+              <View className="w-px bg-purple-400 mx-2" />
               <View className="items-center">
                 <Text
-                  style={{ color: "#FFEE00", fontSize: 18, fontWeight: "700" }}
+                  style={{ color: "#e9d5ff", fontSize: 18, fontWeight: "700" }}
                 >
                   {data?.thisWeek ?? 0} cr
                 </Text>
-                <Text style={{ color: "rgba(255,238,0,0.7)", fontSize: 11 }}>
+                <Text style={{ color: "rgba(233,213,255,0.7)", fontSize: 11 }}>
                   ≈ {formatUSD(data?.thisWeek ?? 0)}
                 </Text>
-                <Text className="text-red-200 text-xs mt-0.5">Esta semana</Text>
+                <Text className="text-purple-200 text-xs mt-0.5">Esta semana</Text>
               </View>
-              <View className="w-px bg-red-400 mx-2" />
+              <View className="w-px bg-purple-400 mx-2" />
               <View className="items-center">
                 <Text
-                  style={{ color: "#FFEE00", fontSize: 18, fontWeight: "700" }}
+                  style={{ color: "#e9d5ff", fontSize: 18, fontWeight: "700" }}
                 >
                   {data?.total ?? 0} cr
                 </Text>
-                <Text style={{ color: "rgba(255,238,0,0.7)", fontSize: 11 }}>
+                <Text style={{ color: "rgba(233,213,255,0.7)", fontSize: 11 }}>
                   ≈ {formatUSD(data?.total ?? 0)}
                 </Text>
-                <Text className="text-red-200 text-xs mt-0.5">Total</Text>
+                <Text className="text-purple-200 text-xs mt-0.5">Total</Text>
               </View>
             </View>
           </View>
@@ -874,8 +887,8 @@ export default function AnfitrianaGanancias() {
 
           {/* Referral Card */}
           <AnimatedBorderCard borderRadius={16} style={{ marginBottom: 20 }}>
-            <View style={{ backgroundColor: "#3D0A14", borderRadius: 14, paddingHorizontal: 18, paddingVertical: 16 }}>
-              <Text className="text-red-200 text-xs font-semibold uppercase tracking-widest mb-1">
+            <View style={{ backgroundColor: "#1a2d5a", borderRadius: 14, paddingHorizontal: 18, paddingVertical: 16 }}>
+              <Text className="text-purple-200 text-xs font-semibold uppercase tracking-widest mb-1">
                 Código de referido
               </Text>
               <Text className="text-white text-[13px] mb-3">
@@ -888,7 +901,7 @@ export default function AnfitrianaGanancias() {
                   alignItems: "center",
                   justifyContent: "space-between",
                   borderWidth: 1,
-                  borderColor: "rgba(246,193,106,0.35)",
+                  borderColor: "rgba(168,68,242,0.35)",
                   borderRadius: 12,
                   paddingHorizontal: 12,
                   paddingVertical: 10,
@@ -897,58 +910,80 @@ export default function AnfitrianaGanancias() {
                 }}
               >
                 <View style={{ flex: 1, marginRight: 10 }}>
-                  <Text className="text-red-200 text-[11px]">Código de referido</Text>
-                  <Text style={{ color: "#FFEE00", fontSize: 20, fontWeight: "900", letterSpacing: 1 }}>
+                  <Text className="text-purple-200 text-[11px]">Código de referido</Text>
+                  <Text style={{ color: "#e9d5ff", fontSize: 20, fontWeight: "900", letterSpacing: 1 }}>
                     {referrals?.referralCode || "—"}
                   </Text>
                 </View>
-                <TouchableOpacity
-                  onPress={handleCopyReferralCode}
-                  disabled={!referrals?.referralCode}
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    gap: 6,
-                    backgroundColor: referrals?.referralCode ? "#D11B1B" : "#6b7280",
-                    borderRadius: 10,
-                    paddingHorizontal: 12,
-                    paddingVertical: 8,
-                  }}
-                >
-                  <Copy size={14} color="#fff" />
-                  <Text className="text-white font-bold text-xs">Copiar</Text>
-                </TouchableOpacity>
+                {referrals?.referralCode ? (
+                  <LinearGradient
+                    colors={["#a844f2", "#f03eb3"]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={{ borderRadius: 10, overflow: "hidden" }}
+                  >
+                    <TouchableOpacity
+                      onPress={handleCopyReferralCode}
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 6,
+                        paddingHorizontal: 12,
+                        paddingVertical: 8,
+                      }}
+                    >
+                      <Copy size={14} color="#fff" />
+                      <Text className="text-white font-bold text-xs">Copiar</Text>
+                    </TouchableOpacity>
+                  </LinearGradient>
+                ) : (
+                  <TouchableOpacity
+                    disabled
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 6,
+                      backgroundColor: "#6b7280",
+                      borderRadius: 10,
+                      paddingHorizontal: 12,
+                      paddingVertical: 8,
+                    }}
+                  >
+                    <Copy size={14} color="#fff" />
+                    <Text className="text-white font-bold text-xs">Copiar</Text>
+                  </TouchableOpacity>
+                )}
               </View>
 
               <View className="flex-row justify-between">
                 <View className="flex-1">
-                  <Text className="text-red-200 text-xs text-center">
+                  <Text className="text-purple-200 text-xs text-center">
                     {"Porcentaje\nacordado"}
                   </Text>
-                  <Text style={{ color: "#FFEE00", fontSize: 16, fontWeight: "800", textAlign: "center" }}>
+                  <Text style={{ color: "#e9d5ff", fontSize: 16, fontWeight: "800", textAlign: "center" }}>
                     {agreedPercent}%
                   </Text>
                 </View>
                 <View className="flex-1">
-                  <Text className="text-red-200 text-xs text-center">
+                  <Text className="text-purple-200 text-xs text-center">
                     {"Creadores\nreferidos"}
                   </Text>
-                  <Text style={{ color: "#FFEE00", fontSize: 16, fontWeight: "800", textAlign: "center" }}>
+                  <Text style={{ color: "#e9d5ff", fontSize: 16, fontWeight: "800", textAlign: "center" }}>
                     {referrals?.totalReferrals ?? 0}
                   </Text>
                 </View>
                 <View className="flex-1">
-                  <Text className="text-red-200 text-xs text-center">
+                  <Text className="text-purple-200 text-xs text-center">
                     {"Ganancias por\nreferidos"}
                   </Text>
-                  <Text style={{ color: "#FFEE00", fontSize: 16, fontWeight: "800", textAlign: "center" }}>
+                  <Text style={{ color: "#e9d5ff", fontSize: 16, fontWeight: "800", textAlign: "center" }}>
                     {Number(referrals?.totalRewardAmount ?? 0).toFixed(2)} cr
                   </Text>
                 </View>
               </View>
 
               {!!referralsError && (
-                <Text style={{ color: "#fca5a5", fontSize: 11, marginTop: 10 }}>
+                <Text style={{ color: "#f97316", fontSize: 11, marginTop: 10 }}>
                   {referralsError}
                 </Text>
               )}
@@ -958,14 +993,21 @@ export default function AnfitrianaGanancias() {
           {/* Action buttons */}
           <View className="mb-3">
             <AnimatedBorderCard borderRadius={12} style={{ marginBottom: 12 }}>
-              <TouchableOpacity
-                style={{ backgroundColor: "#D11B1B", borderRadius: 10, paddingVertical: 16, alignItems: "center" }}
-                onPress={() => setShowWithdrawal(true)}
+              <LinearGradient
+                colors={["#a844f2", "#f03eb3"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={{ borderRadius: 10, overflow: "hidden" }}
               >
-                <Text style={{ color: "#FFEE00", fontSize: 16, fontWeight: "800" }}>
-                  Retirar dinero
-                </Text>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  style={{ paddingVertical: 16, alignItems: "center" }}
+                  onPress={() => setShowWithdrawal(true)}
+                >
+                  <Text style={{ color: "#ffffff", fontSize: 16, fontWeight: "800" }}>
+                    Retirar dinero
+                  </Text>
+                </TouchableOpacity>
+              </LinearGradient>
             </AnimatedBorderCard>
             <TouchableOpacity
               className="flex-row items-center justify-center gap-1.5 bg-[#1a1a1a] rounded-xl py-3 mb-6"

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 
 interface Props {
     initialPrice?: number;
@@ -20,12 +21,12 @@ export default function SubscriptionPriceForm({ initialPrice, saving, onSave }: 
     const canSave = !!price && !saving;
 
     return (
-        <View className="bg-[#141414] rounded-[20px] border border-white/10 p-5 gap-4">
+        <View className="rounded-[20px] border border-white/10 p-5 gap-4" style={{ backgroundColor: '#0d1428' }}>
 
             {/* Header */}
             <View className="flex-row items-center gap-3">
-                <View className="w-11 h-11 rounded-xl bg-[#1a0505] items-center justify-center">
-                    <MaterialCommunityIcons name="pencil-outline" size={20} color="#A11B1B" />
+                <View className="w-11 h-11 rounded-xl items-center justify-center" style={{ backgroundColor: '#2a2a5a' }}>
+                    <MaterialCommunityIcons name="pencil-outline" size={20} color="#a844f2" />
                 </View>
                 <View>
                     <Text className="text-white font-bold text-[15px]">
@@ -38,8 +39,8 @@ export default function SubscriptionPriceForm({ initialPrice, saving, onSave }: 
             </View>
 
             {/* Input */}
-            <View className="bg-[#0f0f0f] rounded-xl border border-white/10 flex-row items-center px-4">
-                <MaterialCommunityIcons name="diamond-stone" size={18} color="#A11B1B" />
+            <View className="rounded-xl border border-white/10 flex-row items-center px-4" style={{ backgroundColor: '#000000' }}>
+                <MaterialCommunityIcons name="diamond-stone" size={18} color="#a844f2" />
                 <TextInput
                     value={price}
                     onChangeText={setPrice}
@@ -52,21 +53,28 @@ export default function SubscriptionPriceForm({ initialPrice, saving, onSave }: 
             </View>
 
             {/* Botón */}
-            <TouchableOpacity
-                onPress={handleSubmit}
-                disabled={!canSave}
-                activeOpacity={0.8}
-                className={`rounded-xl py-4 items-center justify-center flex-row gap-2 ${canSave ? 'bg-[#A11B1B]' : 'bg-[#2a0a0a]'}`}
+            <LinearGradient
+                colors={canSave ? ["#a844f2", "#f03eb3"] : ["#3a2a5a", "#4a3a5a"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={{ borderRadius: 12, overflow: "hidden" }}
             >
-                {saving ? (
-                    <ActivityIndicator size={16} color="white" />
-                ) : (
-                    <MaterialCommunityIcons name="content-save-outline" size={18} color="white" />
-                )}
-                <Text className="text-white font-bold text-[14px]">
-                    {saving ? 'Guardando...' : initialPrice ? 'Guardar cambios' : 'Crear plan'}
-                </Text>
-            </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={handleSubmit}
+                    disabled={!canSave}
+                    activeOpacity={0.8}
+                    className="py-4 items-center justify-center flex-row gap-2"
+                >
+                    {saving ? (
+                        <ActivityIndicator size={16} color="white" />
+                    ) : (
+                        <MaterialCommunityIcons name="content-save-outline" size={18} color="white" />
+                    )}
+                    <Text className="text-white font-bold text-[14px]">
+                        {saving ? 'Guardando...' : initialPrice ? 'Guardar cambios' : 'Crear plan'}
+                    </Text>
+                </TouchableOpacity>
+            </LinearGradient>
         </View>
     );
 }

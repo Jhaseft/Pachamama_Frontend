@@ -14,6 +14,7 @@ import type { ImagePickerAsset } from 'expo-image-picker';
 import type { PublishGalleryForm } from '../../../types/gallery';
 import ImageTypeSelector from './ImageTypeSelector';
 import CreditsInput from './CreditsInput';
+import { LinearGradient } from 'expo-linear-gradient';
 
 type Props = {
   visible: boolean;
@@ -96,24 +97,31 @@ export default function PublishGalleryModal({
               </Text>
 
               {/* Botones */}
-              <View className="flex-row gap-3 w-full mt-6">
+              <View style={{ flexDirection: 'row', gap: 12, width: '100%', marginTop: 24 }}>
                 <TouchableOpacity
                   onPress={onClose}
-                  className="flex-1 bg-zinc-700 py-3 rounded-xl items-center border border-zinc-600"
+                  style={{ flex: 1, backgroundColor: 'rgba(19, 38, 115, 0.2)', paddingVertical: 12, borderRadius: 12, alignItems: 'center', borderWidth: 1, borderColor: '#132673' }}
                 >
-                  <Text className="text-white font-bold">Cancelar</Text>
+                  <Text style={{ color: '#132673', fontWeight: '700' }}>Cancelar</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                   onPress={onPublish}
                   disabled={uploading}
-                  className="flex-1 bg-red-600 py-3 rounded-xl items-center border border-red-400"
+                  style={{ flex: 1 }}
                 >
-                  {uploading ? (
-                    <ActivityIndicator color="white" size="small" />
-                  ) : (
-                    <Text className="text-white font-bold">Publicar</Text>
-                  )}
+                  <LinearGradient
+                    colors={['#f03eb3', '#a844f2']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={{ paddingVertical: 12, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}
+                  >
+                    {uploading ? (
+                      <ActivityIndicator color="white" size="small" />
+                    ) : (
+                      <Text style={{ color: 'white', fontWeight: '700' }}>Publicar</Text>
+                    )}
+                  </LinearGradient>
                 </TouchableOpacity>
               </View>
 

@@ -12,6 +12,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { AntDesign, MaterialCommunityIcons, FontAwesome5, Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import {
   apiGetMyServicePrices,
   apiUpsertServicePrice,
@@ -136,61 +137,101 @@ export default function Precios() {
 
   return (
     <View className="flex-1 bg-black" style={{ paddingTop: insets.top }}>
-
-      <View className="flex-row items-center justify-between px-4 py-3">
+      <LinearGradient
+        colors={['#1a0a2e', '#0f0f1e']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={{ paddingHorizontal: 16, paddingVertical: 12 }}
+      >
         <TouchableOpacity onPress={() => router.back()} className="flex-row items-center gap-2">
-          <AntDesign name="arrow-left" size={22} color="white" />
-          <Text className="text-white text-xl font-black">Configurar Precios</Text>
+          <AntDesign name="arrow-left" size={22} color="#a844f2" />
+          <Text className="text-white text-lg font-black tracking-wide">CONFIGURAR PRECIOS</Text>
         </TouchableOpacity>
-
-      </View>
+      </LinearGradient>
 
       <ScrollView className="flex-1 px-4" showsVerticalScrollIndicator={false}>
-        <View className="gap-3 mt-2">
-          {SERVICES.map((service) => (
-            <View key={service.type} className="bg-red-600 rounded-2xl px-4 py-4">
+        <View className="gap-4 mt-4">
+          {SERVICES.map((service, index) => {
+            const colorSchemes = [
+              { border: '#132673', gradient: ['#132673', '#0a1a4d'] },
+              { border: '#a844f2', gradient: ['#a844f2', '#7a2fb0'] },
+              { border: '#f03eb3', gradient: ['#f03eb3', '#c02a8a'] },
+              { border: '#132673', gradient: ['#132673', '#0a1a4d'] },
+            ];
+            const colorConfig = colorSchemes[index % colorSchemes.length];
 
-              <View className="flex-row items-center gap-2 mb-1">
-                {service.icon}
-                <Text className="text-white text-base font-bold">{service.label}</Text>
+            return (
+              <View
+                key={service.type}
+                style={{
+                  borderLeftWidth: 4,
+                  borderLeftColor: colorConfig.border,
+                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                  borderRadius: 16,
+                  paddingHorizontal: 16,
+                  paddingVertical: 14,
+                }}
+              >
+                <View className="flex-row items-center gap-3 mb-2">
+                  {React.cloneElement(service.icon as React.ReactElement<any>, {
+                    color: colorConfig.border,
+                  })}
+                  <Text className="text-white text-sm font-bold tracking-wide">{service.label.toUpperCase()}</Text>
+                </View>
+                <Text className="text-white/70 text-xs mb-3 leading-4">{service.description}</Text>
+
+                <View className="flex-row items-center gap-2">
+                  <Text className="text-white/80 font-semibold text-sm">S/</Text>
+                  <TextInput
+                    style={{
+                      flex: 1,
+                      backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                      borderRadius: 10,
+                      paddingHorizontal: 12,
+                      paddingVertical: 8,
+                      color: '#fff',
+                      fontWeight: '600',
+                      fontSize: 14,
+                      borderWidth: 1,
+                      borderColor: colorConfig.border,
+                    }}
+                    keyboardType="numeric"
+                    placeholder="0"
+                    placeholderTextColor="#6b7280"
+                    value={prices[service.type]}
+                    onChangeText={(val) =>
+                      setPrices((prev) => ({ ...prev, [service.type]: val }))
+                    }
+                  />
+                  <Text className="text-white/80 font-semibold text-sm">{service.unit}</Text>
+                </View>
               </View>
-              <Text className="text-white/80 text-xs mb-3">{service.description}</Text>
-
-
-              <View className="flex-row items-center gap-2">
-                <Text className="text-white font-semibold text-sm">S/</Text>
-                <TextInput
-                  className="flex-1 bg-white rounded-xl px-3 py-2 text-black font-semibold text-sm"
-                  keyboardType="numeric"
-                  placeholder="0"
-                  placeholderTextColor="#9ca3af"
-                  value={prices[service.type]}
-                  onChangeText={(val) =>
-                    setPrices((prev) => ({ ...prev, [service.type]: val }))
-                  }
-                />
-                <Text className="text-white font-semibold text-sm">{service.unit}</Text>
-              </View>
-            </View>
-          ))}
+            );
+          })}
         </View>
 
         <View style={{ height: 30 }} />
       </ScrollView>
 
-
       <View className="px-4 pb-6" style={{ paddingBottom: insets.bottom + 16 }}>
-        <TouchableOpacity
-          onPress={handleSave}
-          disabled={saving}
-          className="bg-white rounded-2xl py-4 items-center"
+        <LinearGradient
+          colors={['#f03eb3', '#a844f2']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={{ borderRadius: 16 }}
         >
-          {saving ? (
-            <ActivityIndicator color="#000" />
-          ) : (
-            <Text className="text-black text-base font-black">Guardar Cambios</Text>
-          )}
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleSave}
+            disabled={saving}
+            style={{ paddingVertical: 14, alignItems: 'center' }}
+          >
+            {saving ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text className="text-white text-base font-black tracking-wide">GUARDAR CAMBIOS</Text>
+            )}
+          </TouchableOpacity>
+        </LinearGradient>
       </View>
     </View>
   );

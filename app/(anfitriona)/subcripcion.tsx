@@ -62,7 +62,7 @@ export default function SubscriptionScreen() {
     };
 
     return (
-        <View className="flex-1 bg-[#0f0f0f]">
+        <View className="flex-1 bg-[#000000]">
 
             {/* Header */}
             <View
@@ -71,7 +71,7 @@ export default function SubscriptionScreen() {
             >
                 <TouchableOpacity
                     onPress={() => router.back()}
-                    className="w-10 h-10 rounded-xl bg-[#1a1a1a] items-center justify-center"
+                    className="w-10 h-10 rounded-xl bg-[#1a2d5a] items-center justify-center"
                 >
                     <MaterialCommunityIcons name="arrow-left" size={20} color="white" />
                 </TouchableOpacity>
@@ -79,12 +79,12 @@ export default function SubscriptionScreen() {
                     <Text className="text-white font-extrabold text-[18px]">Suscripciones</Text>
                     <Text className="text-zinc-500 text-[12px] mt-0.5">Gestiona tu plan mensual</Text>
                 </View>
-                <MaterialCommunityIcons name="crown" size={22} color="#F6C16A" />
+                <MaterialCommunityIcons name="crown" size={22} color="#f03eb3" />
             </View>
 
             {loading ? (
                 <View className="flex-1 items-center justify-center">
-                    <ActivityIndicator size="large" color="#A11B1B" />
+                    <ActivityIndicator size="large" color="#a844f2" />
                 </View>
             ) : (
                 <ScrollView
@@ -92,12 +92,12 @@ export default function SubscriptionScreen() {
                     contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: 60 }}
                     showsVerticalScrollIndicator={false}
                     refreshControl={
-                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#A11B1B" />
+                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#a844f2" />
                     }
                 >
                     {/* Info banner */}
-                    <View className="bg-[#1a0505] rounded-2xl border border-[#A11B1B]/30 p-4 flex-row items-start gap-3">
-                        <MaterialCommunityIcons name="information-outline" size={18} color="#A11B1B" style={{ marginTop: 1 }} />
+                    <View className="rounded-2xl border border-[#a844f2]/25 p-4 flex-row items-start gap-3" style={{ backgroundColor: 'rgba(168,68,242,0.08)' }}>
+                        <MaterialCommunityIcons name="information-outline" size={18} color="#a844f2" style={{ marginTop: 1 }} />
                         <Text className="text-white/60 text-[12px] flex-1 leading-5">
                             Los clientes que se suscriban pagarán el precio mensual en créditos y tendrán acceso a tu contenido exclusivo.
                         </Text>

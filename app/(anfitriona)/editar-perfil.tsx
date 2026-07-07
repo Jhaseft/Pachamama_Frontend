@@ -15,6 +15,7 @@ import { Stack, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import {
   apiGetMyProfile,
   apiUpdateMyProfile,
@@ -128,16 +129,16 @@ export default function EditarPerfil() {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#111', justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{ flex: 1, backgroundColor: '#000000', justifyContent: 'center', alignItems: 'center' }}>
         <Stack.Screen options={{ headerShown: false }} />
-        <ActivityIndicator size="large" color="#ef4444" />
+        <ActivityIndicator size="large" color="#a844f2" />
       </View>
     );
   }
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: '#111' }}
+      style={{ flex: 1, backgroundColor: '#000000' }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <Stack.Screen options={{ headerShown: false }} />
@@ -151,92 +152,100 @@ export default function EditarPerfil() {
           flexDirection: 'row',
           alignItems: 'center',
           borderBottomWidth: 1,
-          borderBottomColor: '#27272a',
+          borderBottomColor: 'rgba(168, 68, 242, 0.2)',
         }}
       >
         <TouchableOpacity onPress={() => router.back()} style={{ marginRight: 12 }}>
-          <MaterialCommunityIcons name="arrow-left" size={24} color="white" />
+          <MaterialCommunityIcons name="arrow-left" size={24} color="#a844f2" />
         </TouchableOpacity>
-        <Text style={{ color: 'white', fontSize: 18, fontWeight: '700', flex: 1 }}>
+        <Text style={{ color: 'white', fontSize: 18, fontWeight: '800', flex: 1, letterSpacing: 0.5 }}>
           Editar perfil
         </Text>
         <TouchableOpacity
           onPress={handleSave}
           disabled={saving}
-          style={{
-            backgroundColor: '#dc2626',
-            paddingHorizontal: 16,
-            paddingVertical: 8,
-            borderRadius: 8,
-            opacity: saving ? 0.6 : 1,
-          }}
+          style={{ opacity: saving ? 0.6 : 1 }}
         >
-          {saving ? (
-            <ActivityIndicator size="small" color="white" />
-          ) : (
-            <Text style={{ color: 'white', fontWeight: '700' }}>Guardar</Text>
-          )}
+          <LinearGradient
+            colors={['#f03eb3', '#a844f2']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{
+              paddingHorizontal: 16,
+              paddingVertical: 8,
+              borderRadius: 10,
+            }}
+          >
+            {saving ? (
+              <ActivityIndicator size="small" color="white" />
+            ) : (
+              <Text style={{ color: 'white', fontWeight: '800', fontSize: 13 }}>Guardar</Text>
+            )}
+          </LinearGradient>
         </TouchableOpacity>
       </View>
 
       <ScrollView
-        contentContainerStyle={{ padding: 20, paddingBottom: insets.bottom + 32 }}
+        contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 32 }}
         keyboardShouldPersistTaps="handled"
       >
         {/* Banner / Cover */}
-        <View style={{ marginBottom: 20 }}>
-          <Text style={{ color: '#e4e4e7', fontSize: 13, fontWeight: '600', marginBottom: 8 }}>
-            Foto de portada (banner)
-          </Text>
+        <View style={{ marginBottom: 24 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+            <MaterialCommunityIcons name="image-multiple" size={16} color="#a844f2" style={{ marginRight: 6 }} />
+            <Text style={{ color: '#a844f2', fontSize: 12, fontWeight: '700', letterSpacing: 0.5, textTransform: 'uppercase' }}>
+              Foto de portada
+            </Text>
+          </View>
           <TouchableOpacity onPress={pickCover} activeOpacity={0.85} style={{ position: 'relative' }}>
             <Image
               source={coverUri ? { uri: coverUri } : require('../../assets/no_image.jpg')}
-              style={{ width: '100%', height: 160, borderRadius: 12 }}
+              style={{ width: '100%', height: 160, borderRadius: 14, borderWidth: 1, borderColor: 'rgba(168, 68, 242, 0.3)' }}
               resizeMode="cover"
             />
             <View style={{
               position: 'absolute', bottom: 10, right: 10,
-              backgroundColor: '#dc2626', borderRadius: 20, padding: 8,
-              borderWidth: 2, borderColor: '#111',
+              backgroundColor: '#a844f2', borderRadius: 20, padding: 8,
+              borderWidth: 2, borderColor: '#000000',
             }}>
               <MaterialCommunityIcons name="camera" size={18} color="white" />
             </View>
           </TouchableOpacity>
-          <Text style={{ color: '#71717a', fontSize: 12, marginTop: 6 }}>
+          <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, marginTop: 6 }}>
             Toca para cambiar el banner (16:9)
           </Text>
         </View>
 
         {/* Avatar */}
-        <View style={{ alignItems: 'center', marginBottom: 28 }}>
+        <View style={{ alignItems: 'center', marginBottom: 32 }}>
           <TouchableOpacity onPress={pickAvatar} style={{ position: 'relative' }}>
-            <Image
-              source={avatarUri ? { uri: avatarUri } : require('../../assets/no_image.jpg')}
-              style={{
-                width: 100,
-                height: 100,
-                borderRadius: 50,
-                borderWidth: 3,
-                borderColor: '#dc2626',
-              }}
-              resizeMode="cover"
-            />
+            <View style={{ borderRadius: 60, borderWidth: 3, borderColor: '#f03eb3', padding: 2 }}>
+              <Image
+                source={avatarUri ? { uri: avatarUri } : require('../../assets/no_image.jpg')}
+                style={{
+                  width: 100,
+                  height: 100,
+                  borderRadius: 50,
+                }}
+                resizeMode="cover"
+              />
+            </View>
             <View
               style={{
                 position: 'absolute',
                 bottom: 0,
                 right: 0,
-                backgroundColor: '#dc2626',
+                backgroundColor: '#f03eb3',
                 borderRadius: 16,
                 padding: 6,
                 borderWidth: 2,
-                borderColor: '#111',
+                borderColor: '#000000',
               }}
             >
               <MaterialCommunityIcons name="camera" size={16} color="white" />
             </View>
           </TouchableOpacity>
-          <Text style={{ color: '#71717a', fontSize: 13, marginTop: 8 }}>
+          <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13, marginTop: 10, fontWeight: '500' }}>
             Toca para cambiar foto de perfil
           </Text>
         </View>
@@ -263,26 +272,28 @@ export default function EditarPerfil() {
 
         {/* Email — solo lectura */}
         <View style={{ marginBottom: 18 }}>
-          <Text style={{ color: '#e4e4e7', fontSize: 13, fontWeight: '600', marginBottom: 6 }}>
-            Correo electrónico
-          </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+            <MaterialCommunityIcons name="email" size={16} color="#132673" style={{ marginRight: 6 }} />
+            <Text style={{ color: '#e4e4e7', fontSize: 12, fontWeight: '700', letterSpacing: 0.5, textTransform: 'uppercase' }}>
+              Correo electrónico
+            </Text>
+          </View>
           <View style={{
             flexDirection: 'row',
             alignItems: 'center',
-            backgroundColor: '#18181b',
+            backgroundColor: 'rgba(19, 38, 115, 0.1)',
             borderWidth: 1,
-            borderColor: '#3f3f46',
+            borderColor: '#132673',
             borderRadius: 10,
             paddingHorizontal: 14,
             paddingVertical: 12,
           }}>
-            <MaterialCommunityIcons name="email-outline" size={16} color="#52525b" style={{ marginRight: 8 }} />
-            <Text style={{ color: '#71717a', fontSize: 15, flex: 1 }}>
+            <MaterialCommunityIcons name="lock-outline" size={16} color="#132673" style={{ marginRight: 8 }} />
+            <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, flex: 1 }}>
               {user?.email ?? '—'}
             </Text>
-            <MaterialCommunityIcons name="lock-outline" size={14} color="#3f3f46" />
           </View>
-          <Text style={{ color: '#52525b', fontSize: 12, marginTop: 5 }}>
+          <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, marginTop: 5 }}>
             No es posible cambiar el correo desde aquí.
           </Text>
         </View>
@@ -290,17 +301,16 @@ export default function EditarPerfil() {
         {/* Info sobre campos no editables */}
         <View
           style={{
-            marginTop: 16,
-            padding: 14,
-            backgroundColor: '#18181b',
+            marginTop: 20,
+            padding: 12,
+            backgroundColor: 'rgba(168, 68, 242, 0.1)',
             borderRadius: 10,
-            borderWidth: 1,
-            borderColor: '#3f3f46',
+            borderLeftWidth: 3,
+            borderLeftColor: '#a844f2',
           }}
         >
-          <Text style={{ color: '#71717a', fontSize: 12, lineHeight: 18 }}>
-            ℹ️ El número de teléfono, cédula y fecha de nacimiento no son editables.
-            Para cambiar datos de identidad contacta al administrador.
+          <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11, lineHeight: 16 }}>
+            <Text style={{ fontWeight: '700', color: '#a844f2' }}>ℹ️</Text> El número de teléfono, cédula y fecha de nacimiento no son editables. Contacta al administrador para cambios de identidad.
           </Text>
         </View>
       </ScrollView>
@@ -333,27 +343,27 @@ function Field({
 }: FieldProps) {
   return (
     <View style={{ marginBottom: 18 }}>
-      <Text style={{ color: highlight ? '#fca5a5' : '#e4e4e7', fontSize: 13, fontWeight: '600', marginBottom: 6 }}>
+      <Text style={{ color: highlight ? '#f03eb3' : '#a844f2', fontSize: 12, fontWeight: '700', marginBottom: 6, letterSpacing: 0.5, textTransform: 'uppercase' }}>
         {label}
       </Text>
       <TextInput
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor="#52525b"
+        placeholderTextColor="rgba(255,255,255,0.3)"
         keyboardType={keyboardType}
         autoCapitalize={autoCapitalize}
         multiline={multiline}
         numberOfLines={numberOfLines}
         style={{
-          backgroundColor: '#18181b',
+          backgroundColor: 'rgba(168, 68, 242, 0.05)',
           borderWidth: 1,
-          borderColor: highlight ? '#dc2626' : '#3f3f46',
+          borderColor: highlight ? '#f03eb3' : 'rgba(168, 68, 242, 0.3)',
           borderRadius: 10,
           paddingHorizontal: 14,
           paddingVertical: 12,
           color: 'white',
-          fontSize: 15,
+          fontSize: 14,
           textAlignVertical: multiline ? 'top' : 'center',
           minHeight: multiline ? 100 : undefined,
         }}

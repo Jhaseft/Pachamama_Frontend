@@ -37,7 +37,7 @@ function timeAgo(dateStr: string) {
   return `${Math.floor(hrs / 24)}d`;
 }
 
-function GoldAvatar({ name, avatar }: { name: string; avatar: string | null }) {
+function PurpleAvatar({ name, avatar }: { name: string; avatar: string | null }) {
   const spin = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -57,7 +57,7 @@ function GoldAvatar({ name, avatar }: { name: string; avatar: string | null }) {
     <View style={styles.avatarWrapper}>
       <Animated.View style={[styles.borderSpin, { transform: [{ rotate }] }]}>
         <LinearGradient
-          colors={['#F6C16A', '#FFE5A0', '#C9933A', '#8B5E1A', '#F6C16A']}
+          colors={['#a844f2', '#d8b4fe', '#9333ea', '#6b21a8', '#a844f2']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={{ flex: 1 }}
@@ -89,7 +89,7 @@ function ChatRow({
     <TouchableOpacity onPress={onPress} activeOpacity={0.75}>
       <View style={styles.chatRow}>
         <View>
-          <GoldAvatar name={item.otherUserName} avatar={item.otherUserAvatar} />
+          <PurpleAvatar name={item.otherUserName} avatar={item.otherUserAvatar} />
           {isOnline && <View style={styles.onlineDot} />}
         </View>
 
@@ -346,7 +346,9 @@ export default function AnfitrianaChats() {
       <ScreenHeader title="Chats" role="anfitriona" />
 
       <LinearGradient
-        colors={['#1a0000', '#0d0000']}
+        colors={['#132673', '#000000']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
         style={StyleSheet.absoluteFill}
         pointerEvents="none"
       />
@@ -374,11 +376,11 @@ export default function AnfitrianaChats() {
       {activeFilter === 'conversations' ? (
         loading ? (
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <ActivityIndicator size="large" color="#F6C16A" />
+            <ActivityIndicator size="large" color="#a844f2" />
           </View>
         ) : chats.length === 0 ? (
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
-            <MaterialCommunityIcons name="chat-outline" size={56} color="rgba(246,193,106,0.3)" />
+            <MaterialCommunityIcons name="chat-outline" size={56} color="rgba(168,68,242,0.3)" />
             <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 15, textAlign: 'center', marginTop: 16 }}>
               No tienes conversaciones aún.{'\n'}Los clientes te escribirán desde tu perfil.
             </Text>
@@ -391,7 +393,7 @@ export default function AnfitrianaChats() {
               <RefreshControl
                 refreshing={refreshing}
                 onRefresh={() => { setRefreshing(true); void loadChats(); }}
-                tintColor="#F6C16A"
+                tintColor="#a844f2"
               />
             }
             contentContainerStyle={{ paddingBottom: insets.bottom + 80, paddingTop: 8 }}
@@ -414,11 +416,11 @@ export default function AnfitrianaChats() {
       ) : (
         clientsLoading && filteredClients.length === 0 ? (
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <ActivityIndicator size="large" color="#F6C16A" />
+            <ActivityIndicator size="large" color="#a844f2" />
           </View>
         ) : filteredClients.length === 0 ? (
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
-            <MaterialCommunityIcons name="account-group-outline" size={56} color="rgba(246,193,106,0.3)" />
+            <MaterialCommunityIcons name="account-group-outline" size={56} color="rgba(168,68,242,0.3)" />
             <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 15, textAlign: 'center', marginTop: 16 }}>
               No hay clientes disponibles.
             </Text>
@@ -436,7 +438,7 @@ export default function AnfitrianaChats() {
             onEndReachedThreshold={0.3}
             ListFooterComponent={
               clientsLoadingMore ? (
-                <ActivityIndicator color="#F6C16A" style={{ marginVertical: 16 }} />
+                <ActivityIndicator color="#a844f2" style={{ marginVertical: 16 }} />
               ) : null
             }
             renderItem={({ item }) => {
@@ -533,7 +535,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   unreadBadge: {
-    backgroundColor: '#D11B1B',
+    backgroundColor: '#f03eb3',
     borderRadius: 10,
     minWidth: 20,
     height: 20,
@@ -548,16 +550,16 @@ const styles = StyleSheet.create({
   },
   unreadPill: {
     alignSelf: 'flex-start',
-    backgroundColor: 'rgba(209,27,27,0.2)',
+    backgroundColor: 'rgba(240,62,179,0.2)',
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: 'rgba(209,27,27,0.5)',
+    borderColor: 'rgba(240,62,179,0.5)',
     paddingVertical: 3,
     paddingHorizontal: 10,
     marginTop: 2,
   },
   unreadPillText: {
-    color: '#ff6b6b',
+    color: '#f03eb3',
     fontSize: 11,
     fontWeight: '600',
   },
@@ -575,7 +577,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     backgroundColor: '#22c55e',
     borderWidth: 2,
-    borderColor: '#0d0000',
+    borderColor: '#000000',
   },
   filterBar: {
     flexGrow: 0,
@@ -595,8 +597,8 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.12)',
   },
   filterPillActive: {
-    backgroundColor: 'rgba(246,193,106,0.15)',
-    borderColor: '#F6C16A',
+    backgroundColor: 'rgba(168,68,242,0.15)',
+    borderColor: '#a844f2',
   },
   filterPillText: {
     color: 'rgba(255,255,255,0.5)',
@@ -604,7 +606,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   filterPillTextActive: {
-    color: '#F6C16A',
+    color: '#a844f2',
     fontWeight: '700',
   },
   clientAvatarWrapper: {
@@ -614,7 +616,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: '#1a0208',
     borderWidth: 2,
-    borderColor: 'rgba(246,193,106,0.3)',
+    borderColor: 'rgba(168,68,242,0.3)',
   },
   existingConvBadge: {
     backgroundColor: 'rgba(34,197,94,0.15)',

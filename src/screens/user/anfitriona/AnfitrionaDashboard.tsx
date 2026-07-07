@@ -28,20 +28,25 @@ import EditGalleryImageModal from '@/src/components/anfitriona/gallery/EditGalle
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 
-const GOLD_BORDER = [
-  '#F6C16A', '#FFE5A0', '#F6C16A', '#C9933A',
-  '#8B5E1A', '#C9933A', '#FFE5A0', '#F6C16A', '#F6C16A',
+const BLUE_BORDER = [
+  '#132673', '#1e3a8a', '#132673', '#0f1f47',
+  '#0a1428', '#0f1f47', '#1e3a8a', '#132673', '#132673',
 ] as const;
 
-const RED_BORDER = [
-  '#D11B1B', '#FF5A5A', '#D11B1B', '#8B0000',
-  '#5a0000', '#8B0000', '#FF5A5A', '#D11B1B', '#D11B1B',
+const PURPLE_BORDER = [
+  '#a844f2', '#c77dff', '#a844f2', '#7209b7',
+  '#560bad', '#7209b7', '#c77dff', '#a844f2', '#a844f2',
+] as const;
+
+const PINK_BORDER = [
+  '#f03eb3', '#ff6ec7', '#f03eb3', '#d946a6',
+  '#be185d', '#d946a6', '#ff6ec7', '#f03eb3', '#f03eb3',
 ] as const;
 
 // ─── AnimatedBorderCard ───────────────────────────────────────────────────────
 
 function AnimatedBorderCard({
-  children, borderRadius = 16, borderColors = GOLD_BORDER, style,
+  children, borderRadius = 16, borderColors = PURPLE_BORDER, style,
 }: {
   children: React.ReactNode;
   borderRadius?: number;
@@ -258,8 +263,8 @@ export default function AnfitrionaDashboard() {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#25060E', justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#F6C16A" />
+      <View style={{ flex: 1, backgroundColor: '#000000', justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#a844f2" />
       </View>
     );
   }
@@ -267,16 +272,16 @@ export default function AnfitrionaDashboard() {
   return (
     <>
       <ScrollView
-        style={{ flex: 1, backgroundColor: '#25060E' }}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#F6C16A" />}
+        style={{ flex: 1, backgroundColor: '#000000' }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#a844f2" />}
       >
 
         {/* ── Header: avatar + nombre + stats ── */}
         <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: 24, paddingBottom: 20 }}>
           {/* Avatar con borde dorado animado */}
           <View style={{ position: 'relative' }}>
-            <AnimatedBorderCard borderRadius={70} borderColors={GOLD_BORDER} style={{ width: 120, height: 120 }}>
-              <View style={{ width: '100%', height: '100%', borderRadius: 68, overflow: 'hidden', backgroundColor: '#3d0010' }}>
+            <AnimatedBorderCard borderRadius={70} borderColors={PURPLE_BORDER} style={{ width: 120, height: 120 }}>
+              <View style={{ width: '100%', height: '100%', borderRadius: 68, overflow: 'hidden', backgroundColor: '#0f0f1e' }}>
                 <Image
                   source={profile?.avatarUrl ? { uri: profile.avatarUrl } : require('../../../../assets/no_image.jpg')}
                   style={{ width: '100%', height: '100%' }}
@@ -289,7 +294,7 @@ export default function AnfitrionaDashboard() {
               position: 'absolute', bottom: 6, right: 6,
               width: 22, height: 22, borderRadius: 11,
               backgroundColor: profile?.isOnline ? '#22c55e' : '#6b7280',
-              borderWidth: 2, borderColor: '#25060E',
+              borderWidth: 2, borderColor: '#000000',
             }} />
           </View>
 
@@ -308,27 +313,27 @@ export default function AnfitrionaDashboard() {
         <View style={{ paddingHorizontal: 16, gap: 12 }}>
 
           {/* ── Card ganancias ── */}
-          <AnimatedBorderCard borderColors={RED_BORDER} borderRadius={14}>
+          <AnimatedBorderCard borderColors={PINK_BORDER} borderRadius={14}>
             <LinearGradient
-              colors={['#1a0208', '#2d0510']}
+              colors={['#1a0a1f', '#2d1a3d']}
               style={{ borderRadius: 12, paddingVertical: 14, paddingHorizontal: 18, flexDirection: 'row', alignItems: 'center' }}
             >
               <View style={{ flex: 1, alignItems: 'center' }}>
-                <Text style={{ color: '#F6C16A', fontSize: 14, fontWeight: '700' }}>🔥 Ganaste hoy</Text>
-                <Text style={{ color: '#FFEE00', fontSize: 16, fontWeight: '800', marginTop: 2 }}>
+                <Text style={{ color: '#f03eb3', fontSize: 14, fontWeight: '700' }}>🔥 Ganaste hoy</Text>
+                <Text style={{ color: '#a844f2', fontSize: 16, fontWeight: '800', marginTop: 2 }}>
                   {earnings?.today ?? 0} créditos
                 </Text>
-                <Text style={{ color: 'rgba(255,238,0,0.7)', fontSize: 11, fontWeight: '600' }}>
+                <Text style={{ color: 'rgba(168,68,242,0.7)', fontSize: 11, fontWeight: '600' }}>
                   ≈ {formatUSD(earnings?.today ?? 0)}
                 </Text>
               </View>
               <View style={{ width: 1, height: 40, backgroundColor: 'rgba(255,255,255,0.15)', marginHorizontal: 12 }} />
               <View style={{ flex: 1, alignItems: 'center' }}>
                 <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 14, fontWeight: '600' }}>Esta semana</Text>
-                <Text style={{ color: '#FFEE00', fontSize: 16, fontWeight: '800', marginTop: 2 }}>
+                <Text style={{ color: '#a844f2', fontSize: 16, fontWeight: '800', marginTop: 2 }}>
                   {earnings?.thisWeek ?? 0} créditos
                 </Text>
-                <Text style={{ color: 'rgba(255,238,0,0.7)', fontSize: 11, fontWeight: '600' }}>
+                <Text style={{ color: 'rgba(168,68,242,0.7)', fontSize: 11, fontWeight: '600' }}>
                   ≈ {formatUSD(earnings?.thisWeek ?? 0)}
                 </Text>
               </View>
@@ -336,20 +341,20 @@ export default function AnfitrionaDashboard() {
           </AnimatedBorderCard>
 
           {/* ── Card precios + bio ── */}
-          <AnimatedBorderCard borderColors={RED_BORDER} borderRadius={14}>
-            <View style={{ backgroundColor: '#1a0208', borderRadius: 12, paddingVertical: 14, paddingHorizontal: 16, gap: 6 }}>
+          <AnimatedBorderCard borderColors={BLUE_BORDER} borderRadius={14}>
+            <View style={{ backgroundColor: '#0a0f1f', borderRadius: 12, paddingVertical: 14, paddingHorizontal: 16, gap: 6 }}>
               {getPrice('MESSAGE') !== null && (
-                <Text style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13 }}>
+                <Text style={{ color: '#a844f2', fontSize: 13 }}>
                   💬 <Text style={{ fontWeight: '700' }}>Chat:</Text> {getPrice('MESSAGE')} crédito
                 </Text>
               )}
               {getPrice('CALL') !== null && (
-                <Text style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13 }}>
+                <Text style={{ color: '#a844f2', fontSize: 13 }}>
                   📞 <Text style={{ fontWeight: '700' }}>Voz:</Text> {getPrice('CALL')} créditos/min
                 </Text>
               )}
               {getPrice('VIDEO_CALL') !== null && (
-                <Text style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13 }}>
+                <Text style={{ color: '#a844f2', fontSize: 13 }}>
                   🎥 <Text style={{ fontWeight: '700' }}>Video:</Text> {getPrice('VIDEO_CALL')} créditos/min
                 </Text>
               )}
@@ -368,7 +373,7 @@ export default function AnfitrionaDashboard() {
           <View style={{ flexDirection: 'row', gap: 10 }}>
             <Link href="/editar-perfil" asChild style={{ flex: 1 }}>
               <TouchableOpacity activeOpacity={0.8} style={{
-                backgroundColor: '#D11B1B', borderRadius: 12,
+                backgroundColor: '#a844f2', borderRadius: 12,
                 flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
                 paddingVertical: 14, gap: 8,
               }}>
@@ -379,31 +384,31 @@ export default function AnfitrionaDashboard() {
 
             <Link href="/(anfitriona)/vista-previa" asChild style={{ flex: 1 }}>
               <TouchableOpacity activeOpacity={0.8} style={{
-                backgroundColor: '#2a0010', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)',
+                backgroundColor: '#0f1f47', borderRadius: 12, borderWidth: 1, borderColor: '#132673',
                 flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
                 paddingVertical: 14, gap: 8,
               }}>
-                <MaterialCommunityIcons name="eye-outline" size={18} color="rgba(255,255,255,0.7)" />
-                <Text style={{ color: 'rgba(255,255,255,0.7)', fontWeight: '700', fontSize: 14 }}>Ver mi perfil</Text>
+                <MaterialCommunityIcons name="eye-outline" size={18} color="#132673" />
+                <Text style={{ color: '#132673', fontWeight: '700', fontSize: 14 }}>Ver mi perfil</Text>
               </TouchableOpacity>
             </Link>
           </View>
 
           <View style={{ flexDirection: 'row', gap: 10 }}>
             {/* Toggle online = "Activar modo venta" */}
-            <AnimatedBorderCard borderColors={RED_BORDER} borderRadius={12} style={{ flex: 1 }}>
+            <AnimatedBorderCard borderColors={PINK_BORDER} borderRadius={12} style={{ flex: 1 }}>
               <TouchableOpacity
                 onPress={handleToggleOnline}
                 disabled={togglingOnline}
                 activeOpacity={0.8}
                 style={{
-                  backgroundColor: '#1a0208',
+                  backgroundColor: '#1a0a1f',
                   borderRadius: 10, paddingVertical: 14,
                   flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
                 }}
               >
                 <Text style={{ fontSize: 16 }}>🔥</Text>
-                <Text style={{ color: profile?.isOnline ? '#F6C16A' : 'rgba(255,255,255,0.55)', fontWeight: '700', fontSize: 14 }}>
+                <Text style={{ color: profile?.isOnline ? '#f03eb3' : 'rgba(255,255,255,0.55)', fontWeight: '700', fontSize: 14 }}>
                   {profile?.isOnline ? 'En línea' : 'Estar en línea'}
                 </Text>
                 {!profile?.isOnline && <Text style={{ fontSize: 16 }}>🔥</Text>}
@@ -421,12 +426,12 @@ export default function AnfitrionaDashboard() {
               activeOpacity={0.8}
               style={{
                 backgroundColor: 'transparent', borderRadius: 12,
-                borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)',
+                borderWidth: 1, borderColor: '#132673',
                 paddingVertical: 14, paddingHorizontal: 24,
                 alignItems: 'center', justifyContent: 'center',
               }}
             >
-              <Text style={{ color: 'rgba(255,255,255,0.4)', fontWeight: '600', fontSize: 14 }}>Salir</Text>
+              <Text style={{ color: '#132673', fontWeight: '600', fontSize: 14 }}>Salir</Text>
             </TouchableOpacity>
           </View>
 
@@ -435,8 +440,8 @@ export default function AnfitrionaDashboard() {
             onPress={handleNotificationsPress}
             activeOpacity={0.8}
             style={{
-              backgroundColor: '#1a0208', borderRadius: 12,
-              borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)',
+              backgroundColor: '#0a0f1f', borderRadius: 12,
+              borderWidth: 1, borderColor: '#132673',
               paddingVertical: 14, paddingHorizontal: 16,
               flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
             }}
@@ -444,27 +449,27 @@ export default function AnfitrionaDashboard() {
             <MaterialCommunityIcons
               name={notificationsEnabled ? 'bell' : 'bell-off'}
               size={18}
-              color={notificationsEnabled ? '#F6C16A' : 'rgba(255,255,255,0.4)'}
+              color={notificationsEnabled ? '#a844f2' : 'rgba(255,255,255,0.4)'}
             />
-            <Text style={{ color: notificationsEnabled ? '#F6C16A' : 'rgba(255,255,255,0.4)', fontWeight: '600', fontSize: 14 }}>
+            <Text style={{ color: notificationsEnabled ? '#a844f2' : 'rgba(255,255,255,0.4)', fontWeight: '600', fontSize: 14 }}>
               Notificaciones {notificationsEnabled ? '✅' : '❌'}
             </Text>
           </TouchableOpacity>
 
           {/* Botón Suscripciones */}
-          <AnimatedBorderCard borderColors={GOLD_BORDER} borderRadius={12}>
+          <AnimatedBorderCard borderColors={PURPLE_BORDER} borderRadius={12}>
             <TouchableOpacity
               onPress={() => router.push('/(anfitriona)/subcripcion' as any)}
               activeOpacity={0.8}
               style={{
-                backgroundColor: '#1a0208', borderRadius: 10,
+                backgroundColor: '#0f0f1e', borderRadius: 10,
                 paddingVertical: 16, paddingHorizontal: 16,
                 flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
               }}
             >
-              <MaterialCommunityIcons name="crown" size={20} color="#F6C16A" />
+              <MaterialCommunityIcons name="crown" size={20} color="#a844f2" />
               <View>
-                <Text style={{ color: '#F6C16A', fontWeight: '800', fontSize: 15, letterSpacing: 0.5 }}>
+                <Text style={{ color: '#a844f2', fontWeight: '800', fontSize: 15, letterSpacing: 0.5 }}>
                   Suscripciones
                 </Text>
                 <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, marginTop: 1 }}>
@@ -490,10 +495,10 @@ export default function AnfitrionaDashboard() {
             contentContainerStyle={{ gap: 16 }}
             ListHeaderComponent={
               <View style={{ alignItems: 'center' }}>
-                <AnimatedBorderCard borderRadius={36} borderColors={GOLD_BORDER} style={{ width: 72, height: 72 }}>
+                <AnimatedBorderCard borderRadius={36} borderColors={PURPLE_BORDER} style={{ width: 72, height: 72 }}>
                   <TouchableOpacity
                     onPress={pickHistoryImage}
-                    style={{ width: '100%', height: '100%', borderRadius: 34, backgroundColor: '#1a0208', alignItems: 'center', justifyContent: 'center' }}
+                    style={{ width: '100%', height: '100%', borderRadius: 34, backgroundColor: '#0f0f1e', alignItems: 'center', justifyContent: 'center' }}
                   >
                     <Text style={{ color: 'white', fontSize: 28, lineHeight: 30 }}>+</Text>
                   </TouchableOpacity>
@@ -516,8 +521,8 @@ export default function AnfitrionaDashboard() {
               return (
                 <View style={{ alignItems: 'center' }}>
                   <TouchableOpacity onPress={() => handleViewHistory(item)} activeOpacity={0.8}>
-                    <View style={{ padding: 3, borderRadius: 36, borderWidth: 2, borderColor: '#D11B1B' }}>
-                      <View style={{ width: 64, height: 64, borderRadius: 32, overflow: 'hidden', backgroundColor: '#1a0208' }}>
+                    <View style={{ padding: 3, borderRadius: 36, borderWidth: 2, borderColor: '#f03eb3' }}>
+                      <View style={{ width: 64, height: 64, borderRadius: 32, overflow: 'hidden', backgroundColor: '#0f0f1e' }}>
                         <Image source={{ uri: thumbUri }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
                         {item.priceCredits > 0 && (
                           <View style={{ position: 'absolute', inset: 0, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.3)' }}>
@@ -559,10 +564,10 @@ export default function AnfitrionaDashboard() {
         style={{
           position: 'absolute', bottom: 15, right: 15,
           width: 56, height: 56, borderRadius: 28,
-          backgroundColor: '#dc2626',
+          backgroundColor: '#a844f2',
           alignItems: 'center', justifyContent: 'center',
           borderWidth: 2, borderColor: 'rgba(255,255,255,0.2)',
-          shadowColor: '#dc2626', shadowOpacity: 0.6,
+          shadowColor: '#a844f2', shadowOpacity: 0.6,
           shadowRadius: 10, shadowOffset: { width: 0, height: 0 },
           elevation: 8,
         }}

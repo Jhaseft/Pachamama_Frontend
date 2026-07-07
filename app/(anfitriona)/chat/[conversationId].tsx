@@ -368,7 +368,7 @@ export default function AnfitrianaChat() {
       <KeyboardAvoidingView key={kavKey} style={{ flex: 1 }} behavior="padding" keyboardVerticalOffset={0}>
         {loading ? (
           <View style={styles.loadingWrap}>
-            <ActivityIndicator size="large" color="#F6C16A" />
+            <ActivityIndicator size="large" color="#a844f2" />
           </View>
         ) : (
           <FlatList
@@ -446,8 +446,8 @@ export default function AnfitrianaChat() {
 
         {/* Aviso: regalo sin precio configurado */}
         {isLocked && messagePrice === null && (
-          <View className="bg-[rgba(246,193,106,0.1)] border border-[rgba(246,193,106,0.3)] rounded-[10px] mx-3 mb-[6px] px-[14px] py-2">
-            <Text className="text-[#F6C16A] text-xs text-center">
+          <View className="bg-[rgba(168,68,242,0.1)] border border-[rgba(168,68,242,0.3)] rounded-[10px] mx-3 mb-[6px] px-[14px] py-2">
+            <Text className="text-[#a844f2] text-xs text-center">
               ⚠️ Configura el precio de regalos en tu perfil para usar esta función
             </Text>
           </View>
@@ -455,7 +455,7 @@ export default function AnfitrianaChat() {
 
         {/* Emoji picker */}
         {showEmoji && (
-          <View className="bg-[#140008] border-t border-[rgba(246,193,106,0.1)] py-2 px-[6px]">
+          <View className="bg-[#1a2d5a] border-t border-[rgba(168,68,242,0.1)] py-2 px-[6px]">
             <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 140 }}>
               <View className="flex-row flex-wrap gap-[2px]">
                 {EMOJIS.map((e) => (
@@ -470,7 +470,7 @@ export default function AnfitrianaChat() {
 
         {/* Input bar */}
         <View
-          className="flex-row items-center bg-[#140008] border-t border-[rgba(246,193,106,0.1)] px-[10px] pt-[10px] gap-[6px]"
+          className="flex-row items-center bg-[#1a2d5a] border-t border-[rgba(168,68,242,0.1)] px-[10px] pt-[10px] gap-[6px]"
           style={{ paddingBottom: insets.bottom + 10 }}
         >
           <TextInput
@@ -479,9 +479,9 @@ export default function AnfitrianaChat() {
             onChangeText={setText}
             onFocus={() => setShowEmoji(false)}
             placeholder="Escribe un mensaje..."
-            placeholderTextColor="rgba(246,193,106,0.5)"
+            placeholderTextColor="rgba(168,68,242,0.5)"
             multiline
-            className="flex-1 bg-[#1a0208] text-white rounded-[22px] px-[14px] py-[10px] text-sm border border-[rgba(246,193,106,0.18)]"
+            className="flex-1 bg-[#1a2d5a] text-white rounded-[22px] px-[14px] py-[10px] text-sm border border-[rgba(168,68,242,0.18)]"
             style={{ maxHeight: 100 }}
           />
 
@@ -495,7 +495,7 @@ export default function AnfitrianaChat() {
             <Ionicons
               name={showEmoji ? 'happy' : 'happy-outline'}
               size={22}
-              color={showEmoji ? '#F6C16A' : 'rgba(255,255,255,0.45)'}
+              color={showEmoji ? '#a844f2' : 'rgba(255,255,255,0.45)'}
             />
           </TouchableOpacity>
 
@@ -503,7 +503,7 @@ export default function AnfitrianaChat() {
           <TouchableOpacity
             className="w-9 h-9 rounded-full items-center justify-center"
             style={isLocked
-              ? { backgroundColor: 'rgba(246,193,106,0.15)', borderWidth: 1, borderColor: 'rgba(246,193,106,0.4)' }
+              ? { backgroundColor: 'rgba(168,68,242,0.15)', borderWidth: 1, borderColor: 'rgba(168,68,242,0.4)' }
               : { backgroundColor: 'rgba(255,255,255,0.07)' }
             }
             onPress={() => setIsLocked((v) => !v)}
@@ -519,7 +519,7 @@ export default function AnfitrianaChat() {
               width: 40,
               height: 40,
               borderRadius: 20,
-              backgroundColor: sendDisabled ? 'rgba(209,27,27,0.3)' : '#D11B1B',
+              backgroundColor: sendDisabled ? 'rgba(240,62,179,0.3)' : '#f03eb3',
               alignItems: 'center',
               justifyContent: 'center',
             }}
@@ -534,7 +534,7 @@ export default function AnfitrianaChat() {
           behavior="padding"
           style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.75)' }}
         >
-          <View style={{ backgroundColor: '#140008', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, paddingBottom: insets.bottom + 24, gap: 16 }}>
+          <View style={{ backgroundColor: '#1a2d5a', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, paddingBottom: insets.bottom + 24, gap: 16 }}>
 
             {/* Header */}
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -546,7 +546,7 @@ export default function AnfitrianaChat() {
 
             {/* Preview */}
             {pendingImage && (
-              <View style={{ alignSelf: 'center', borderRadius: 16, overflow: 'hidden', borderWidth: 2, borderColor: imageLocked ? 'rgba(246,193,106,0.5)' : 'rgba(255,255,255,0.15)' }}>
+              <View style={{ alignSelf: 'center', borderRadius: 16, overflow: 'hidden', borderWidth: 2, borderColor: imageLocked ? 'rgba(168,68,242,0.5)' : 'rgba(255,255,255,0.15)' }}>
                 <Image
                   source={{ uri: pendingImage.uri }}
                   style={{ width: 200, height: 200 }}
@@ -555,8 +555,8 @@ export default function AnfitrianaChat() {
                 />
                 {imageLocked && (
                   <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.3)' }}>
-                    <MaterialCommunityIcons name="lock" size={36} color="#F6C16A" />
-                    <Text style={{ color: '#F6C16A', fontWeight: '700', fontSize: 12, marginTop: 4 }}>Bloqueada</Text>
+                    <MaterialCommunityIcons name="lock" size={36} color="#a844f2" />
+                    <Text style={{ color: '#a844f2', fontWeight: '700', fontSize: 12, marginTop: 4 }}>Bloqueada</Text>
                   </View>
                 )}
               </View>
@@ -580,25 +580,25 @@ export default function AnfitrianaChat() {
                 onPress={() => setImageLocked(true)}
                 style={{
                   flex: 1, borderRadius: 12, paddingVertical: 12, alignItems: 'center',
-                  backgroundColor: imageLocked ? 'rgba(246,193,106,0.12)' : 'rgba(255,255,255,0.04)',
-                  borderWidth: 1, borderColor: imageLocked ? 'rgba(246,193,106,0.4)' : 'rgba(255,255,255,0.08)',
+                  backgroundColor: imageLocked ? 'rgba(168,68,242,0.12)' : 'rgba(255,255,255,0.04)',
+                  borderWidth: 1, borderColor: imageLocked ? 'rgba(168,68,242,0.4)' : 'rgba(255,255,255,0.08)',
                 }}
               >
-                <MaterialCommunityIcons name="lock-outline" size={22} color={imageLocked ? '#F6C16A' : 'rgba(255,255,255,0.3)'} />
-                <Text style={{ color: imageLocked ? '#F6C16A' : 'rgba(255,255,255,0.4)', fontWeight: '700', fontSize: 13, marginTop: 4 }}>Bloqueada</Text>
+                <MaterialCommunityIcons name="lock-outline" size={22} color={imageLocked ? '#a844f2' : 'rgba(255,255,255,0.3)'} />
+                <Text style={{ color: imageLocked ? '#a844f2' : 'rgba(255,255,255,0.4)', fontWeight: '700', fontSize: 13, marginTop: 4 }}>Bloqueada</Text>
               </TouchableOpacity>
             </View>
 
             {/* Input precio */}
             {imageLocked && (
-              <View style={{ backgroundColor: '#0f0005', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(246,193,106,0.25)', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 14 }}>
-                <MaterialCommunityIcons name="diamond-stone" size={18} color="#F6C16A" style={{ marginRight: 8 }} />
+              <View style={{ backgroundColor: '#1a2d5a', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(168,68,242,0.25)', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 14 }}>
+                <MaterialCommunityIcons name="diamond-stone" size={18} color="#a844f2" style={{ marginRight: 8 }} />
                 <TextInput
                   value={imagePrice}
                   onChangeText={setImagePrice}
                   keyboardType="decimal-pad"
                   placeholder="Precio en créditos"
-                  placeholderTextColor="rgba(246,193,106,0.35)"
+                  placeholderTextColor="rgba(168,68,242,0.35)"
                   style={{ flex: 1, color: 'white', fontSize: 16, fontWeight: '700', paddingVertical: 12 }}
                 />
                 <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12 }}>créditos</Text>
@@ -610,7 +610,7 @@ export default function AnfitrianaChat() {
               onPress={handleConfirmSendImage}
               activeOpacity={0.85}
               style={{
-                backgroundColor: '#D11B1B', borderRadius: 14,
+                backgroundColor: '#f03eb3', borderRadius: 14,
                 paddingVertical: 15, alignItems: 'center',
                 flexDirection: 'row', justifyContent: 'center', gap: 8,
               }}
@@ -631,16 +631,16 @@ export default function AnfitrianaChat() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: '#0a0000',
+    backgroundColor: '#0d1428',
   },
 
   // Header
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#140008',
+    backgroundColor: '#1a2d5a',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(246,193,106,0.12)',
+    borderBottomColor: 'rgba(168,68,242,0.12)',
     paddingBottom: 16,
     paddingHorizontal: 14,
     gap: 10,
@@ -657,7 +657,7 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 24,
     borderWidth: 1.5,
-    borderColor: '#F6C16A',
+    borderColor: '#a844f2',
     overflow: 'hidden',
   },
   avatarImg: { width: '100%', height: '100%' },
@@ -668,7 +668,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   avatarInitial: {
-    color: '#F6C16A',
+    color: '#a844f2',
     fontWeight: '700',
     fontSize: 18,
   },
@@ -678,19 +678,19 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   headerSub: {
-    color: 'rgba(246,193,106,0.6)',
+    color: 'rgba(168,68,242,0.6)',
     fontSize: 12,
   },
   creditsBadge: {
-    backgroundColor: 'rgba(246,193,106,0.15)',
+    backgroundColor: 'rgba(168,68,242,0.15)',
     borderWidth: 1,
-    borderColor: 'rgba(246,193,106,0.35)',
+    borderColor: 'rgba(168,68,242,0.35)',
     borderRadius: 10,
     paddingHorizontal: 7,
     paddingVertical: 2,
   },
   creditsBadgeText: {
-    color: '#F6C16A',
+    color: '#a844f2',
     fontSize: 11,
     fontWeight: '600',
   },
@@ -744,24 +744,24 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   bubbleOwn: {
-    backgroundColor: '#8B1030',
+    backgroundColor: '#8b4a8b',
     borderBottomRightRadius: 4,
   },
   bubbleOwnLocked: {
-    backgroundColor: '#5C3A00',
+    backgroundColor: '#2d3561',
     borderBottomRightRadius: 4,
     borderWidth: 1,
-    borderColor: 'rgba(246,193,106,0.4)',
+    borderColor: 'rgba(168,68,242,0.4)',
   },
   bubbleOther: {
-    backgroundColor: '#1e1010',
+    backgroundColor: '#1a2d5a',
     borderBottomLeftRadius: 4,
   },
   lockedLabel: {
     marginBottom: 4,
   },
   lockedLabelText: {
-    color: '#F6C16A',
+    color: '#a844f2',
     fontSize: 11,
     fontWeight: '700',
   },
@@ -800,9 +800,9 @@ const styles = StyleSheet.create({
 
   // Lock warning
   lockWarning: {
-    backgroundColor: 'rgba(246,193,106,0.1)',
+    backgroundColor: 'rgba(168,68,242,0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(246,193,106,0.3)',
+    borderColor: 'rgba(168,68,242,0.3)',
     borderRadius: 10,
     marginHorizontal: 12,
     marginBottom: 6,
@@ -810,16 +810,16 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   lockWarningText: {
-    color: '#F6C16A',
+    color: '#a844f2',
     fontSize: 12,
     textAlign: 'center',
   },
 
   // Emoji picker
   emojiPanel: {
-    backgroundColor: '#140008',
+    backgroundColor: '#1a2d5a',
     borderTopWidth: 1,
-    borderTopColor: 'rgba(246,193,106,0.1)',
+    borderTopColor: 'rgba(168,68,242,0.1)',
     paddingVertical: 8,
     paddingHorizontal: 6,
   },
@@ -835,16 +835,16 @@ const styles = StyleSheet.create({
   inputBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#140008',
+    backgroundColor: '#1a2d5a',
     borderTopWidth: 1,
-    borderTopColor: 'rgba(246,193,106,0.1)',
+    borderTopColor: 'rgba(168,68,242,0.1)',
     paddingHorizontal: 10,
     paddingVertical: 10,
     gap: 6,
   },
   input: {
     flex: 1,
-    backgroundColor: '#1a0208',
+    backgroundColor: '#1a2d5a',
     color: 'white',
     borderRadius: 22,
     paddingHorizontal: 14,
@@ -852,7 +852,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     maxHeight: 100,
     borderWidth: 1,
-    borderColor: 'rgba(246,193,106,0.18)',
+    borderColor: 'rgba(168,68,242,0.18)',
   },
   iconBtn: { padding: 4 },
   lockBtn: {
@@ -864,20 +864,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   lockBtnActive: {
-    backgroundColor: 'rgba(246,193,106,0.15)',
+    backgroundColor: 'rgba(168,68,242,0.15)',
     borderWidth: 1,
-    borderColor: 'rgba(246,193,106,0.4)',
+    borderColor: 'rgba(168,68,242,0.4)',
   },
   lockBtnIcon: { fontSize: 17 },
   sendBtn: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#D11B1B',
+    backgroundColor: '#f03eb3',
     alignItems: 'center',
     justifyContent: 'center',
   },
   sendBtnDisabled: {
-    backgroundColor: 'rgba(209,27,27,0.3)',
+    backgroundColor: 'rgba(240,62,179,0.3)',
   },
 });

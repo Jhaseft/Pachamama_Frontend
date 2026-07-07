@@ -121,16 +121,18 @@ export default function CompleteProfileModal({ visible, onCompleted }: Props) {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1, justifyContent: "center", backgroundColor: "rgba(0,0,0,0.8)", paddingHorizontal: 20 }}
       >
-        <View style={{ backgroundColor: "#0f0f0f", borderRadius: 28, maxHeight: "90%", overflow: "hidden", borderWidth: 1, borderColor: "rgba(196,24,24,0.2)" }}>
+        <View style={{ backgroundColor: "#0f0f0f", borderRadius: 28, maxHeight: "90%", overflow: "hidden", borderWidth: 1, borderColor: "rgba(160, 68, 242, 0.2)" }}>
 
           {/* Header con gradiente */}
           <LinearGradient
-            colors={["#1a0208", "#6B0A0A", "#0f0f0f"]}
+            colors={["#1a0a2e", "#0f0f1e"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
             style={{ paddingHorizontal: 24, paddingTop: 28, paddingBottom: 20 }}
           >
             <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 6 }}>
-              <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: "rgba(196,24,24,0.25)", alignItems: "center", justifyContent: "center", marginRight: 12 }}>
-                <Ionicons name="person-add" size={18} color="#C41818" />
+              <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: "rgba(160, 68, 242, 0.25)", alignItems: "center", justifyContent: "center", marginRight: 12 }}>
+                <Ionicons name="person-add" size={18} color="#a844f2" />
               </View>
               <View>
                 <Text style={{ color: "white", fontSize: 20, fontWeight: "700", letterSpacing: 0.3 }}>
@@ -149,7 +151,7 @@ export default function CompleteProfileModal({ visible, onCompleted }: Props) {
             showsVerticalScrollIndicator={false}
           >
             {/* Sección: Datos personales */}
-            <Text style={{ color: "rgba(196,24,24,0.9)", fontSize: 11, fontWeight: "700", letterSpacing: 1.5, marginBottom: 12, textTransform: "uppercase" }}>
+            <Text style={{ color: "#a844f2", fontSize: 11, fontWeight: "700", letterSpacing: 1.5, marginBottom: 12, textTransform: "uppercase" }}>
               Datos personales
             </Text>
 
@@ -190,7 +192,7 @@ export default function CompleteProfileModal({ visible, onCompleted }: Props) {
             <View style={{ height: 1, backgroundColor: "rgba(255,255,255,0.05)", marginVertical: 16 }} />
 
             {/* Sección: Extras */}
-            <Text style={{ color: "rgba(196,24,24,0.9)", fontSize: 11, fontWeight: "700", letterSpacing: 1.5, marginBottom: 12, textTransform: "uppercase" }}>
+            <Text style={{ color: "#f03eb3", fontSize: 11, fontWeight: "700", letterSpacing: 1.5, marginBottom: 12, textTransform: "uppercase" }}>
               Extras
             </Text>
 
@@ -210,11 +212,11 @@ export default function CompleteProfileModal({ visible, onCompleted }: Props) {
               onPress={handlePickDoc}
               style={({ pressed }) => ({
                 borderWidth: 1.5,
-                borderColor: idDoc ? "rgba(196,24,24,0.5)" : "rgba(255,255,255,0.08)",
+                borderColor: idDoc ? "rgba(160, 68, 242, 0.5)" : "rgba(255,255,255,0.08)",
                 borderRadius: 16,
                 borderStyle: idDoc ? "solid" : "dashed",
                 marginBottom: 20,
-                backgroundColor: idDoc ? "rgba(196,24,24,0.07)" : "rgba(255,255,255,0.02)",
+                backgroundColor: idDoc ? "rgba(160, 68, 242, 0.07)" : "rgba(255,255,255,0.02)",
                 overflow: "hidden",
                 opacity: pressed ? 0.75 : 1,
               })}
@@ -222,14 +224,14 @@ export default function CompleteProfileModal({ visible, onCompleted }: Props) {
               {idDoc ? (
                 /* Estado: archivo seleccionado */
                 <View style={{ flexDirection: "row", alignItems: "center", padding: 14 }}>
-                  <View style={{ width: 42, height: 42, borderRadius: 12, backgroundColor: "rgba(196,24,24,0.15)", alignItems: "center", justifyContent: "center", marginRight: 14 }}>
-                    <Ionicons name="document-text" size={22} color="#C41818" />
+                  <View style={{ width: 42, height: 42, borderRadius: 12, backgroundColor: "rgba(160, 68, 242, 0.15)", alignItems: "center", justifyContent: "center", marginRight: 14 }}>
+                    <Ionicons name="document-text" size={22} color="#a844f2" />
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={{ color: "#fff", fontSize: 14, fontWeight: "600" }} numberOfLines={1}>
                       {idDoc.name}
                     </Text>
-                    <Text style={{ color: "rgba(196,24,24,0.8)", fontSize: 11, marginTop: 2, fontWeight: "500" }}>
+                    <Text style={{ color: "#a844f2", fontSize: 11, marginTop: 2, fontWeight: "500" }}>
                       Documento listo · Toca para cambiar
                     </Text>
                   </View>
@@ -272,16 +274,16 @@ export default function CompleteProfileModal({ visible, onCompleted }: Props) {
               style={({ pressed }) => ({ opacity: pressed || loading ? 0.8 : 1 })}
             >
               <LinearGradient
-                colors={["#1a0208", "#6B0A0A", "#C41818"]}
+                colors={["#f03eb3", "#a844f2"]}
                 start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
+                end={{ x: 1, y: 1 }}
                 style={{ borderRadius: 14, paddingVertical: 16, alignItems: "center", flexDirection: "row", justifyContent: "center", gap: 8 }}
               >
                 {loading ? (
                   <ActivityIndicator color="white" size="small" />
                 ) : (
                   <>
-                    <Text style={{ color: "white", fontSize: 16, fontWeight: "700", letterSpacing: 0.3 }}>Continuar</Text>
+                    <Text style={{ color: "white", fontSize: 16, fontWeight: "700", letterSpacing: 0.3 }}>CONTINUAR</Text>
                     <Ionicons name="arrow-forward" size={18} color="white" />
                   </>
                 )}

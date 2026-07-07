@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import ProfileHeader from '@/components/cliente/profile/ProfileHeader';
 import GallerySection from '@/components/cliente/profile/GallerySection';
 import IntroCard from '@/components/cliente/profile/IntroCard';
@@ -66,44 +67,57 @@ export default function VistaPrevia() {
   }, []);
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#111' }}>
+    <View style={{ flex: 1, backgroundColor: '#000000' }}>
       <Stack.Screen options={{ headerShown: false }} />
 
       {loading ? (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <ActivityIndicator size="large" color="#ef4444" />
+          <ActivityIndicator size="large" color="#a844f2" />
         </View>
       ) : (
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
         >
-          {/* Banner "Vista previa" */}
-          <View
+          {/* Header: Vista previa */}
+          <LinearGradient
+            colors={['#1a0a2e', '#0f0f1e']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
             style={{
-              backgroundColor: '#1c0a00',
-              borderBottomWidth: 1,
-              borderBottomColor: '#7f1d1d',
-              paddingTop: insets.top + 10,
-              paddingBottom: 12,
+              paddingTop: insets.top + 12,
+              paddingBottom: 14,
               paddingHorizontal: 16,
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 10,
+              borderBottomWidth: 1,
+              borderBottomColor: 'rgba(168, 68, 242, 0.2)',
             }}
           >
-            <TouchableOpacity onPress={() => router.back()}>
-              <MaterialCommunityIcons name="arrow-left" size={22} color="#ef4444" />
-            </TouchableOpacity>
-            <MaterialCommunityIcons name="eye-outline" size={18} color="#ef4444" />
-            <View style={{ flex: 1 }}>
-              <Text style={{ color: '#ef4444', fontWeight: '700', fontSize: 14 }}>
-                Vista previa del cliente
-              </Text>
-              <Text style={{ color: '#a1a1aa', fontSize: 11, marginTop: 1 }}>
-                Así te ve un cliente cuando visita tu perfil
-              </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              <TouchableOpacity onPress={() => router.back()} style={{ padding: 4 }}>
+                <MaterialCommunityIcons name="arrow-left" size={24} color="#a844f2" />
+              </TouchableOpacity>
+              <View style={{ flex: 1 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <MaterialCommunityIcons name="eye" size={18} color="#f03eb3" />
+                  <Text style={{ color: '#a844f2', fontWeight: '800', fontSize: 15, letterSpacing: 0.5 }}>
+                    Vista previa
+                  </Text>
+                </View>
+                <Text style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, marginTop: 2 }}>
+                  Así te ve un cliente en tu perfil
+                </Text>
+              </View>
+              <View style={{ backgroundColor: 'rgba(168, 68, 242, 0.2)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 }}>
+                <Text style={{ color: '#a844f2', fontSize: 10, fontWeight: '700' }}>DEMO</Text>
+              </View>
             </View>
+          </LinearGradient>
+
+          {/* Info box */}
+          <View style={{ marginHorizontal: 16, marginTop: 16, marginBottom: 12, padding: 12, backgroundColor: 'rgba(168, 68, 242, 0.1)', borderRadius: 10, borderLeftWidth: 3, borderLeftColor: '#a844f2' }}>
+            <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11, lineHeight: 16 }}>
+              <Text style={{ fontWeight: '700', color: '#a844f2' }}>💡</Text> Esta es una vista previa de cómo los clientes ven tu perfil. Los cambios se reflejan en tiempo real.
+            </Text>
           </View>
 
           <ProfileHeader
