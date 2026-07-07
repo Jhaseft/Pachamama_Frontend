@@ -5,7 +5,7 @@ import ScreenHeader from "@/components/Menu/ScreenHeader";
 const terms = [
     {
         title: "1. Naturaleza del servicio",
-        content: "Pachamama es una plataforma social de entretenimiento digital que permite a los usuarios interactuar con creadores mediante mensajes, contenido multimedia y experiencias en vivo dentro de la aplicación.\n\nLa plataforma no ofrece ni promueve servicios sexuales de ningún tipo.",
+        content: "MonetizaLab es una plataforma social de entretenimiento digital que permite a los usuarios interactuar con creadores mediante mensajes, contenido multimedia y experiencias en vivo dentro de la aplicación.\n\nLa plataforma no ofrece ni promueve servicios sexuales de ningún tipo.",
     },
     {
         title: "2. Edad mínima",
@@ -73,11 +73,11 @@ export default function Terminos() {
                 }}
             >
                 {/* TÍTULO PRINCIPAL */}
-                <View style={{ marginBottom: 24, borderLeftWidth: 3, borderLeftColor: "#A11B1B", paddingLeft: 12 }}>
+                <View style={{ marginBottom: 24, borderLeftWidth: 3, borderLeftColor: "#a844f2", paddingLeft: 12 }}>
                     <Text style={{ color: "white", fontSize: 20, fontWeight: "900", letterSpacing: 1, textTransform: "uppercase" }}>
                         Términos y Condiciones
                     </Text>
-                    <Text style={{ color: "#6b7280", fontSize: 12, marginTop: 4 }}>Pachamama — Plataforma de entretenimiento digital</Text>
+                    <Text style={{ color: "#6b7280", fontSize: 12, marginTop: 4 }}>MonetizaLab — Plataforma de entretenimiento digital</Text>
                 </View>
 
                 {/* SECCIONES */}
@@ -94,7 +94,7 @@ export default function Terminos() {
                         }}
                     >
                         <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 10 }}>
-                            <View style={{ backgroundColor: "#A11B1B", borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3 }}>
+                            <View style={{ backgroundColor: "#a844f2", borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3 }}>
                                 <Text style={{ color: "white", fontSize: 10, fontWeight: "800", letterSpacing: 1 }}>
                                     {String(i + 1).padStart(2, "0")}
                                 </Text>
@@ -108,7 +108,7 @@ export default function Terminos() {
                 {/* FOOTER */}
                 <View style={{ alignItems: "center", marginTop: 8, opacity: 0.4 }}>
                     <Text style={{ color: "#6b7280", fontSize: 11, letterSpacing: 2, textTransform: "uppercase" }}>
-                        © Pachamama — Todos los derechos reservados
+                        © MonetizaLab — Todos los derechos reservados
                     </Text>
                 </View>
             </ScrollView>

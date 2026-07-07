@@ -12,6 +12,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import colors from "@/constants/colors";
 
 type GalleryImage = { id: string; imageUrl: string };
 
@@ -48,7 +49,7 @@ export default function AlbumScreen() {
   const viewabilityConfig = useRef({ itemVisiblePercentThreshold: 60 }).current;
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#0a0000" }}>
+    <View style={{ flex: 1, backgroundColor: colors.surface.DEFAULT }}>
       <Stack.Screen options={{ headerShown: false }} />
 
       {/* Header */}

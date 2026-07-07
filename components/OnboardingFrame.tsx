@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import Screen from "./Screen";
 import Dots from "./Dots";
 
-const logo = require("../assets/logo.png");
+const logo = require("../assets/logoMonetizaLab.png");
 
 type OnboardingFrameProps = {
   step: number;
@@ -75,9 +75,9 @@ export default function OnboardingFrame({
         <Dots count={3} activeIndex={step} />
         <Pressable
           onPress={onNext}
-          className="w-16 h-16 rounded-full bg-white items-center justify-center"
+          className="w-16 h-16 rounded-full bg-secondary items-center justify-center"
         >
-          <Text className="text-black text-4xl">&gt;</Text>
+          <Text className="text-white text-4xl">&gt;</Text>
         </Pressable>
       </View>
     </Screen>

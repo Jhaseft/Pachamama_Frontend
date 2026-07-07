@@ -33,17 +33,17 @@ export default function MisDatos() {
       <TouchableOpacity
         onPress={() => router.push("/(cliente)/favorites" as any)}
         activeOpacity={0.8}
-        className="mx-4 mt-3 flex-row items-center gap-4 rounded-2xl border border-pink-700 bg-[#2D0A0A] px-5 py-4"
-        style={{ shadowColor: "#A11B1B", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0, shadowRadius: 10, elevation: 6 }}
+        className="mx-4 mt-3 flex-row items-center gap-4 rounded-2xl border border-pink-700 bg-[#150a24] px-5 py-4"
+        style={{ shadowColor: "#a844f2", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0, shadowRadius: 10, elevation: 6 }}
       >
         <View className="w-10 h-10 bg-pink-500/10 items-center justify-center" style={{ borderRadius: 14 }}>
-          <Bookmark size={20} color="#f472b6" fill="#f472b6" />
+          <Bookmark size={20} color="#f03eb3" fill="#f03eb3" />
         </View>
         <View className="flex-1">
           <Text className="text-white font-bold text-[15px] tracking-wide">Mis favoritas</Text>
           <Text className="text-pink-400 text-xs mt-0.5">Anfitrionas guardadas</Text>
         </View>
-        <ChevronRight size={18} color="#f472b6" />
+        <ChevronRight size={18} color="#f03eb3" />
       </TouchableOpacity>
     </View>
   );

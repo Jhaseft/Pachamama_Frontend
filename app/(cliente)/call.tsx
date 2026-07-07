@@ -327,7 +327,7 @@ export default function ClientCallScreen() {
             borderRadius: 16,
             overflow: 'hidden',
             borderWidth: 2,
-            borderColor: '#F6C16A',
+            borderColor: '#f03eb3',
             shadowColor: '#000',
             shadowOpacity: 0.6,
             shadowRadius: 12,
@@ -341,7 +341,7 @@ export default function ClientCallScreen() {
               style={{ flex: 1 }}
             />
             {agora.cameraOff && (
-              <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#1a0208', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+              <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#150a24', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                 <Ionicons name="videocam-off" size={28} color="rgba(255,255,255,0.5)" />
                 <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 10 }}>Cámara apagada</Text>
               </View>

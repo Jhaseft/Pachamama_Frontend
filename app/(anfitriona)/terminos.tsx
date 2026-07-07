@@ -6,7 +6,7 @@ const terms = [
   {
     title: "1. Naturaleza del servicio",
     content:
-      "Pachamama es una plataforma social de entretenimiento digital que permite a los creadores interactuar con usuarios mediante mensajes, contenido multimedia y experiencias en vivo.\n\nLa plataforma no ofrece ni promueve servicios sexuales de ningún tipo.",
+      "MonetizaLab es una plataforma social de entretenimiento digital que permite a los creadores interactuar con usuarios mediante mensajes, contenido multimedia y experiencias en vivo.\n\nLa plataforma no ofrece ni promueve servicios sexuales de ningún tipo.",
   },
   {
     title: "2. Requisitos para ser anfitriona",
@@ -75,7 +75,7 @@ export default function TerminosAnfitriona() {
             Términos y Condiciones
           </Text>
           <Text style={{ color: "#6b7280", fontSize: 12, marginTop: 4 }}>
-            Pachamama — Anfitrionas
+            MonetizaLab — Anfitrionas
           </Text>
         </View>
 
@@ -107,7 +107,7 @@ export default function TerminosAnfitriona() {
 
         <View style={{ alignItems: "center", marginTop: 8, opacity: 0.4 }}>
           <Text style={{ color: "#6b7280", fontSize: 11, letterSpacing: 2, textTransform: "uppercase" }}>
-            © Pachamama — Todos los derechos reservados
+            © MonetizaLab — Todos los derechos reservados
           </Text>
         </View>
       </ScrollView>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, ScrollView, Pressable, Alert, ActivityIndicator, Image } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ArrowLeft, CheckCircle, UploadCloud, Send } from "lucide-react-native";
+import { ArrowLeft, CheckCircle, UploadCloud } from "lucide-react-native";
 import * as ImagePicker from 'expo-image-picker';
 
 import { apiCreateDepositRequest } from "@/src/api/deposits";
@@ -10,6 +10,7 @@ import { apiGetPaymentMethods } from "@/src/api/paymentMethods";
 import { PackageSummary } from "@/src/components/user/payment/PackageSummary";
 import { TransferDetail } from "@/src/components/user/payment/TransferDetail";
 import { QRDetail } from "@/src/components/user/payment/QRDetail";
+import PrimaryButton from "@/components/PrimaryButton";
 
 export default function ConfirmarPagoScreen() {
     const router = useRouter();
@@ -100,7 +101,7 @@ export default function ConfirmarPagoScreen() {
     if (fetchingMethod) {
         return (
             <View className="flex-1 items-center justify-center bg-black">
-                <ActivityIndicator color="#A11B1B" size="large" />
+                <ActivityIndicator color="#a844f2" size="large" />
             </View>
         );
     }
@@ -113,7 +114,7 @@ export default function ConfirmarPagoScreen() {
                     onPress={() => router.back()}
                     disabled={loading}
                     className="w-10 h-10 rounded-full bg-zinc-900 items-center justify-center mr-4 active:opacity-50"
-                    style={{ borderWidth: 1, borderColor: 'rgba(161,27,27,0.3)' }}
+                    style={{ borderWidth: 1, borderColor: 'rgba(168,68,242,0.3)' }}
                 >
                     <ArrowLeft color="white" size={20} />
                 </Pressable>
@@ -139,7 +140,7 @@ export default function ConfirmarPagoScreen() {
             <View className="px-5 mt-6">
                 <View className="items-center mb-3">
                     <Text className="text-white text-[18px] font-black tracking-wide">Sube tu comprobante</Text>
-                    <View className="h-[2px] w-10 bg-[#A11B1B] rounded-full mt-1" />
+                    <View className="h-[2px] w-10 bg-[#a844f2] rounded-full mt-1" />
                 </View>
 
                 <Pressable
@@ -178,7 +179,7 @@ export default function ConfirmarPagoScreen() {
                         </View>
                         <View
                             className="rounded-3xl overflow-hidden"
-                            style={{ shadowColor: '#A11B1B', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.3, shadowRadius: 12, elevation: 8, borderWidth: 1, borderColor: 'rgba(161,27,27,0.25)' }}
+                            style={{ shadowColor: '#a844f2', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.3, shadowRadius: 12, elevation: 8, borderWidth: 1, borderColor: 'rgba(168,68,242,0.25)' }}
                         >
                             <Image source={{ uri: image }} className="w-full h-56" resizeMode="cover" />
                         </View>
@@ -186,21 +187,11 @@ export default function ConfirmarPagoScreen() {
                 )}
 
                 {image && (
-                    <Pressable
+                    <PrimaryButton
                         onPress={handleSendRequest}
                         disabled={loading}
-                        className="py-5 rounded-2xl items-center justify-center flex-row active:opacity-80"
-                        style={{ backgroundColor: '#A11B1B', shadowColor: '#A11B1B', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.5, shadowRadius: 12, elevation: 10 }}
-                    >
-                        {loading ? (
-                            <ActivityIndicator color="white" />
-                        ) : (
-                            <>
-                                <Send color="white" size={20} strokeWidth={2} />
-                                <Text className="text-white text-lg font-black uppercase ml-3 tracking-widest">Confirmar y Enviar</Text>
-                            </>
-                        )}
-                    </Pressable>
+                        title={loading ? "Enviando…" : "Confirmar y Enviar"}
+                    />
                 )}
             </View>
         </ScrollView>

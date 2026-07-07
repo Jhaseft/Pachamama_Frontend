@@ -27,8 +27,8 @@ const tabsByRole = {
 };
 
 const activeColor: Record<Role, string> = {
-  anfitriona: "#F6C16A",
-  cliente: "#F6C16A",
+  anfitriona: "#f03eb3",
+  cliente: "#f03eb3",
 };
 
 export default function BottomNav({ role }: { role: Role }) {

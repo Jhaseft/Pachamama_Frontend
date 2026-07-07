@@ -1,5 +1,6 @@
 import { TouchableOpacity, Text, View, StyleSheet } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import colors from "@/constants/colors";
 
 type Props = {
   label: string;
@@ -16,7 +17,7 @@ export default function ProfileMenuItem({ label, onPress, isLast }: Props) {
     >
       <Text style={styles.label}>{label}</Text>
       <View style={styles.arrow}>
-        <MaterialCommunityIcons name="chevron-right" size={20} color="#F6C16A" />
+        <MaterialCommunityIcons name="chevron-right" size={20} color={colors.secondary.DEFAULT} />
       </View>
     </TouchableOpacity>
   );
@@ -32,7 +33,7 @@ const styles = StyleSheet.create({
   },
   rowBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(246,193,106,0.12)",
+    borderBottomColor: "rgba(240,62,179,0.12)",
   },
   label: {
     color: "white",

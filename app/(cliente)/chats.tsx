@@ -18,6 +18,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import ScreenHeader from '@/components/Menu/ScreenHeader';
+import colors from '@/constants/colors';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const noImage = require('../../assets/no_image.jpg');
@@ -53,7 +54,7 @@ function GoldAvatar({ name, avatar }: { name: string; avatar: string | null }) {
       {/* Borde dorado animado */}
       <Animated.View style={[styles.borderSpin, { transform: [{ rotate }] }]}>
         <LinearGradient
-          colors={['#F6C16A', '#FFE5A0', '#C9933A', '#8B5E1A', '#F6C16A']}
+          colors={['#f03eb3', '#ff8fd4', '#a844f2', '#7a2fb0', '#f03eb3']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={{ flex: 1 }}
@@ -147,22 +148,22 @@ export default function ClienteChats() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#0d0000' }}>
+    <View style={{ flex: 1, backgroundColor: colors.surface.DEFAULT }}>
       <ScreenHeader title="Chats" role="cliente" />
 
       <LinearGradient
-        colors={['#1a0000', '#0d0000']}
+        colors={[colors.surface.card, colors.surface.DEFAULT]}
         style={StyleSheet.absoluteFill}
         pointerEvents="none"
       />
 
       {loading ? (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <ActivityIndicator size="large" color="#F6C16A" />
+          <ActivityIndicator size="large" color={colors.secondary.DEFAULT} />
         </View>
       ) : chats.length === 0 ? (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
-          <MaterialCommunityIcons name="chat-outline" size={56} color="rgba(246,193,106,0.3)" />
+          <MaterialCommunityIcons name="chat-outline" size={56} color="rgba(240,62,179,0.3)" />
           <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 15, textAlign: 'center', marginTop: 16 }}>
             No tienes conversaciones aún.{'\n'}Visita el perfil de una anfitriona para chatear.
           </Text>
@@ -175,7 +176,7 @@ export default function ClienteChats() {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={() => { setRefreshing(true); void loadChats(); }}
-              tintColor="#F6C16A"
+              tintColor={colors.secondary.DEFAULT}
             />
           }
           contentContainerStyle={{ paddingBottom: insets.bottom + 80, paddingTop: 8 }}
@@ -213,7 +214,7 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: AVATAR_SIZE / 2 - 2,
     overflow: 'hidden',
-    backgroundColor: '#1a0208',
+    backgroundColor: colors.surface.card,
   },
   avatarImage: {
     width: '100%',
@@ -264,7 +265,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   unreadBadge: {
-    backgroundColor: '#D11B1B',
+    backgroundColor: colors.primary.purple,
     borderRadius: 10,
     minWidth: 20,
     height: 20,
@@ -279,16 +280,16 @@ const styles = StyleSheet.create({
   },
   unreadPill: {
     alignSelf: 'flex-start',
-    backgroundColor: 'rgba(209,27,27,0.2)',
+    backgroundColor: 'rgba(168,68,242,0.2)',
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: 'rgba(209,27,27,0.5)',
+    borderColor: 'rgba(168,68,242,0.5)',
     paddingVertical: 3,
     paddingHorizontal: 10,
     marginTop: 2,
   },
   unreadPillText: {
-    color: '#ff6b6b',
+    color: '#c98bf5',
     fontSize: 11,
     fontWeight: '600',
   },

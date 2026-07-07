@@ -14,6 +14,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import colors from "@/constants/colors";
 
 type PrivateImage = { id: string; imageUrl: string; unlockCredits: number | null };
 
@@ -47,7 +48,7 @@ export default function DesbloquearScreen() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#0a0000" }}>
+    <View style={{ flex: 1, backgroundColor: colors.surface.DEFAULT }}>
       <Stack.Screen options={{ headerShown: false }} />
 
       {/* Header */}
@@ -73,7 +74,7 @@ export default function DesbloquearScreen() {
             {anfitrionaName} · {lockedCount} foto{lockedCount !== 1 ? "s" : ""} bloqueada{lockedCount !== 1 ? "s" : ""}
           </Text>
         </View>
-        <MaterialCommunityIcons name="crown" size={22} color="#F6C16A" />
+        <MaterialCommunityIcons name="crown" size={22} color={colors.secondary.DEFAULT} />
       </View>
 
       {/* Grid */}
@@ -113,7 +114,7 @@ export default function DesbloquearScreen() {
                     <>
                       <MaterialCommunityIcons name="lock" size={22} color="rgba(255,255,255,0.85)" />
                       {item.unlockCredits != null && (
-                        <Text style={{ color: "#F6C16A", fontSize: 10, fontWeight: "700", marginTop: 4 }}>
+                        <Text style={{ color: colors.secondary.DEFAULT, fontSize: 10, fontWeight: "700", marginTop: 4 }}>
                           {item.unlockCredits} cr
                         </Text>
                       )}
@@ -148,7 +149,7 @@ export default function DesbloquearScreen() {
           onPress={() => setPendingImage(null)}
         >
           <Pressable onPress={() => {}} style={{
-            backgroundColor: "#141414",
+            backgroundColor: colors.surface.card,
             borderRadius: 20,
             overflow: "hidden",
             width: "100%",
@@ -171,7 +172,7 @@ export default function DesbloquearScreen() {
                     backgroundColor: "rgba(0,0,0,0.5)",
                     borderRadius: 999, padding: 14,
                   }}>
-                    <MaterialCommunityIcons name="lock-open-outline" size={32} color="#F6C16A" />
+                    <MaterialCommunityIcons name="lock-open-outline" size={32} color={colors.secondary.DEFAULT} />
                   </View>
                 </View>
               </View>
@@ -184,7 +185,7 @@ export default function DesbloquearScreen() {
               </Text>
               <Text style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, textAlign: "center" }}>
                 Se descontarán{" "}
-                <Text style={{ color: "#F6C16A", fontWeight: "700" }}>
+                <Text style={{ color: colors.secondary.DEFAULT, fontWeight: "700" }}>
                   {pendingImage?.unlockCredits ?? "?"} créditos
                 </Text>{" "}
                 de tu saldo.
@@ -192,10 +193,10 @@ export default function DesbloquearScreen() {
             </View>
 
             {/* Botones */}
-            <View style={{ flexDirection: "row", borderTopWidth: 1, borderTopColor: "#1f1f1f" }}>
+            <View style={{ flexDirection: "row", borderTopWidth: 1, borderTopColor: colors.surface.border }}>
               <TouchableOpacity
                 onPress={() => setPendingImage(null)}
-                style={{ flex: 1, paddingVertical: 16, alignItems: "center", borderRightWidth: 1, borderRightColor: "#1f1f1f" }}
+                style={{ flex: 1, paddingVertical: 16, alignItems: "center", borderRightWidth: 1, borderRightColor: colors.surface.border }}
               >
                 <Text style={{ color: "#9ca3af", fontWeight: "600", fontSize: 15 }}>Cancelar</Text>
               </TouchableOpacity>
@@ -203,7 +204,7 @@ export default function DesbloquearScreen() {
                 onPress={confirmUnlock}
                 style={{ flex: 1, paddingVertical: 16, alignItems: "center" }}
               >
-                <Text style={{ color: "#F6C16A", fontWeight: "800", fontSize: 15 }}>Desbloquear</Text>
+                <Text style={{ color: colors.secondary.DEFAULT, fontWeight: "800", fontSize: 15 }}>Desbloquear</Text>
               </TouchableOpacity>
             </View>
           </Pressable>

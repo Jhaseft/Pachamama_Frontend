@@ -9,7 +9,7 @@ type Props = {
 
 export default function HeaderTitle({ title, role }: Props) {
 
-
+ 
 
   return (
     <View className="flex-1 flex-row items-center bg-black px-2">
@@ -17,7 +17,7 @@ export default function HeaderTitle({ title, role }: Props) {
         <>
           <View>
             <Image
-              source={require("../../assets/BlackandWhiteXLetterDigital.jpg")}
+              source={require("../../assets/logoMonetizaLab.png")}
               className="w-[80px] h-[80px]"
               resizeMode="contain"
             />

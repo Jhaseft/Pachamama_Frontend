@@ -1,15 +1,15 @@
 {
   "expo": {
-    "name": "Pachamama",
+    "name": "MonetizaLab",
     "slug": "Lima",
     "scheme": "pachamama",
-    "version": "21.0",
+    "version": "25.0",
     "orientation": "portrait",
-    "icon": "./assets/logofull.jpeg",
+    "icon": "./assets/logoMonetizaLab.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/logofull.jpeg",
+      "image": "./assets/logoMonetizaLab.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -22,9 +22,9 @@
         "NSMicrophoneUsageDescription": "Se necesita el micrófono para las llamadas de voz y video.",
         "NSCameraUsageDescription": "Se necesita la cámara para las videollamadas."
       },
-      "icon": "./assets/logofull.jpeg",
+      "icon": "./assets/logoMonetizaLab.png",
       "splash": {
-        "image": "./assets/logofull.jpeg",
+        "image": "./assets/logoMonetizaLab.png",
         "resizeMode": "contain",
         "backgroundColor": "#ffffff"
       }
@@ -34,7 +34,7 @@
       "package": "com.pachamama.app",
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/logofull.jpeg",
+        "foregroundImage": "./assets/logoMonetizaLab.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
@@ -62,7 +62,7 @@
       ]
     },
     "web": {
-      "favicon": "./assets/logofull.jpeg"
+      "favicon": "./assets/logoMonetizaLab.png"
     },
     "deeplinks": {
       "urls": [
@@ -84,9 +84,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "8489ade4-9f38-475a-9814-edf6cc88c89c"
+        "projectId": "bcc1d0f3-e302-43b6-a649-4a70db602a36"
       }
     },
-    "owner": "jhaseftsaat"
+    "owner": "luigi777"
   }
 }

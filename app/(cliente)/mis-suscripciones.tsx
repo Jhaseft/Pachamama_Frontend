@@ -15,20 +15,20 @@ function SubscriptionCard({ item }: { item: MySubscription }) {
         <TouchableOpacity
             onPress={() => router.push(`/(cliente)/anfitrionas/${item.anfitrionaId}/verperfil` as any)}
             activeOpacity={0.85}
-            className={`rounded-2xl border overflow-hidden mb-3 ${item.isActive ? 'bg-[#141414] border-[#F6C16A30]' : 'bg-[#111] border-white/5'}`}
+            className={`rounded-2xl border overflow-hidden mb-3 ${item.isActive ? 'bg-[#141414] border-[#f03eb330]' : 'bg-[#111] border-white/5'}`}
         >
             <View className="flex-row items-center p-4 gap-3">
                 {/* Avatar */}
                 <View style={{
                     width: 52, height: 52, borderRadius: 26, overflow: 'hidden',
-                    borderWidth: 2, borderColor: item.isActive ? '#F6C16A' : '#3f3f46',
-                    backgroundColor: '#1a0505',
+                    borderWidth: 2, borderColor: item.isActive ? '#f03eb3' : '#3f3f46',
+                    backgroundColor: '#150a24',
                 }}>
                     {item.anfitrionaAvatar ? (
                         <Image source={{ uri: item.anfitrionaAvatar }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
                     ) : (
                         <View className="flex-1 items-center justify-center">
-                            <Text style={{ color: '#A11B1B', fontSize: 20, fontWeight: 'bold' }}>
+                            <Text style={{ color: '#a844f2', fontSize: 20, fontWeight: 'bold' }}>
                                 {item.anfitrionaName[0]?.toUpperCase() ?? '?'}
                             </Text>
                         </View>
@@ -43,7 +43,7 @@ function SubscriptionCard({ item }: { item: MySubscription }) {
                     <Text className="text-zinc-500 text-[12px] mt-0.5">
                         @{item.anfitrionaUsername}
                     </Text>
-                    <Text className={`text-[11px] mt-1 font-semibold ${item.isActive ? 'text-[#F6C16A]' : 'text-zinc-600'}`}>
+                    <Text className={`text-[11px] mt-1 font-semibold ${item.isActive ? 'text-[#f03eb3]' : 'text-zinc-600'}`}>
                         {item.isActive
                             ? daysLeft > 0 ? `Vence en ${daysLeft} día${daysLeft !== 1 ? 's' : ''}` : 'Vence hoy'
                             : 'Expirada'}
@@ -52,8 +52,8 @@ function SubscriptionCard({ item }: { item: MySubscription }) {
 
                 {/* Precio + badge */}
                 <View className="items-end gap-1">
-                    <View className={`rounded-full px-2 py-0.5 ${item.isActive ? 'bg-[#F6C16A20]' : 'bg-white/5'}`}>
-                        <Text className={`text-[10px] font-bold ${item.isActive ? 'text-[#F6C16A]' : 'text-zinc-600'}`}>
+                    <View className={`rounded-full px-2 py-0.5 ${item.isActive ? 'bg-[#f03eb320]' : 'bg-white/5'}`}>
+                        <Text className={`text-[10px] font-bold ${item.isActive ? 'text-[#f03eb3]' : 'text-zinc-600'}`}>
                             {item.isActive ? '● ACTIVA' : '● EXPIRADA'}
                         </Text>
                     </View>
@@ -101,7 +101,7 @@ export default function MisSuscripcionesScreen() {
     const expired = subs.filter(s => !s.isActive);
 
     return (
-        <View className="flex-1 bg-[#0d0000]">
+        <View className="flex-1 bg-[#0a0613]">
             {/* Header */}
             <View
                 className="flex-row items-center gap-3 px-4 pb-4 border-b border-white/5"
@@ -119,12 +119,12 @@ export default function MisSuscripcionesScreen() {
                         {active.length} activa{active.length !== 1 ? 's' : ''}
                     </Text>
                 </View>
-                <MaterialCommunityIcons name="crown" size={22} color="#F6C16A" />
+                <MaterialCommunityIcons name="crown" size={22} color="#f03eb3" />
             </View>
 
             {loading ? (
                 <View className="flex-1 items-center justify-center">
-                    <ActivityIndicator size="large" color="#A11B1B" />
+                    <ActivityIndicator size="large" color="#a844f2" />
                 </View>
             ) : (
                 <FlatList
@@ -132,7 +132,7 @@ export default function MisSuscripcionesScreen() {
                     keyExtractor={item => item.subscriptionId}
                     contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 32 }}
                     showsVerticalScrollIndicator={false}
-                    refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#A11B1B" />}
+                    refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#a844f2" />}
                     ListHeaderComponent={
                         subs.length > 0 && expired.length > 0 && active.length > 0 ? (
                             <Text className="text-zinc-500 text-[11px] uppercase tracking-widest mb-3">
@@ -142,8 +142,8 @@ export default function MisSuscripcionesScreen() {
                     }
                     ListEmptyComponent={
                         <View className="items-center justify-center py-16 gap-3">
-                            <View className="w-16 h-16 rounded-[20px] bg-[#1a0505] items-center justify-center">
-                                <MaterialCommunityIcons name="crown-outline" size={32} color="#A11B1B" />
+                            <View className="w-16 h-16 rounded-[20px] bg-[#150a24] items-center justify-center">
+                                <MaterialCommunityIcons name="crown-outline" size={32} color="#a844f2" />
                             </View>
                             <Text className="text-white font-bold text-[16px]">Sin suscripciones</Text>
                             <Text className="text-zinc-500 text-[13px] text-center px-8">

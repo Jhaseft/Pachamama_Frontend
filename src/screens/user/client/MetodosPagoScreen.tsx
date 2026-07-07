@@ -48,9 +48,9 @@ export default function MetodosPagosScreen() {
 
             <View
                 className="rounded-3xl mb-6 overflow-hidden"
-                style={{ shadowColor: '#A11B1B', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.45, shadowRadius: 16, elevation: 10 }}
+                style={{ shadowColor: '#a844f2', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.45, shadowRadius: 16, elevation: 10 }}
             >
-                <View className="bg-[#A11B1B] px-6 py-5">
+                <View className="bg-[#a844f2] px-6 py-5">
                     <Text className="text-white/60 text-[10px] uppercase tracking-widest font-bold mb-3">Resumen de compra</Text>
                     <View className="flex-row items-center justify-between">
                         <View className="flex-row items-center">
@@ -77,11 +77,11 @@ export default function MetodosPagosScreen() {
 
             <View className="items-center mb-4">
                 <Text className="text-white text-[20px] tracking-widest font-black text-center">Elija un método de pago</Text>
-                <View className="h-[2px] w-10 bg-[#A11B1B] rounded-full mt-1" />
+                <View className="h-[2px] w-10 bg-[#a844f2] rounded-full mt-1" />
             </View>
 
             {loading ? (
-                <ActivityIndicator color="#D11B1B" size="large" className="mt-10" />
+                <ActivityIndicator color="#a844f2" size="large" className="mt-10" />
             ) : (
                 methods.map((method) => (
                     <Pressable
@@ -100,19 +100,19 @@ export default function MetodosPagosScreen() {
                                 />
                             ) : (
                                 <View className="items-center justify-center">
-                                    <CreditCard color="#A11B1B" size={32} strokeWidth={1.5} />
+                                    <CreditCard color="#a844f2" size={32} strokeWidth={1.5} />
                                 </View>
                             )}
                         </View>
 
 
                         <View className="flex-1 ml-4">
-                            <Text className="text-[#A11B1B] text-[18px] font-black">
+                            <Text className="text-[#a844f2] text-[18px] font-black">
                                 {method.type === "QR" ? "Pago por QR" : `Transferencia bancaria`}
                             </Text>
                             <View className="flex-row items-center mt-1">
-                                <View className="bg-[#A11B1B]/10 px-2 py-0.5 rounded-lg">
-                                    <Text className="text-[#A11B1B] text-[11px] font-bold uppercase tracking-wide">
+                                <View className="bg-[#a844f2]/10 px-2 py-0.5 rounded-lg">
+                                    <Text className="text-[#a844f2] text-[11px] font-bold uppercase tracking-wide">
                                         {method.type === "QR" ? "Escanear QR" : "Datos de cuenta"}
                                     </Text>
                                 </View>
