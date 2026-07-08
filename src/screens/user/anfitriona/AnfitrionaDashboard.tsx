@@ -25,6 +25,7 @@ import PublishGalleryModal from '@/src/components/anfitriona/gallery/PublishGall
 import GalleryItemViewer from '@/src/components/anfitriona/gallery/GalleryItemViewer';
 import EditGalleryImageModal from '@/src/components/anfitriona/gallery/EditGalleryImageModal';
 
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 
@@ -514,6 +515,36 @@ export default function AnfitrionaDashboard() {
             </TouchableOpacity>
           </AnimatedBorderCard>
 
+          {/* Botón Redes Sociales */}
+          <AnimatedBorderCard borderColors={PINK_BORDER} borderRadius={12}>
+            <TouchableOpacity
+              onPress={() => {
+                if (!profile?.id) {
+                  Alert.alert('Error', 'No se pudo cargar tu perfil');
+                  return;
+                }
+                router.push(`/(anfitriona)/socialNetwork?userId=${profile.id}`);
+              }}
+              activeOpacity={0.8}
+              style={{
+                backgroundColor: '#1a0a1f', borderRadius: 10,
+                paddingVertical: 16, paddingHorizontal: 16,
+                flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
+              }}
+            >
+              <MaterialCommunityIcons name="link-variant" size={20} color="#f03eb3" />
+              <View>
+                <Text style={{ color: '#f03eb3', fontWeight: '800', fontSize: 15, letterSpacing: 0.5 }}>
+                  Redes Sociales
+                </Text>
+                <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, marginTop: 1 }}>
+                  Conecta tus perfiles
+                </Text>
+              </View>
+              <MaterialCommunityIcons name="chevron-right" size={20} color="rgba(255,255,255,0.3)" style={{ marginLeft: 'auto' }} />
+            </TouchableOpacity>
+          </AnimatedBorderCard>
+
         </View>
 
         {/* ── Historias ── */}
@@ -652,6 +683,8 @@ export default function AnfitrionaDashboard() {
         onClose={galleryPublish.handleClose}
         onPublish={galleryPublish.handlePublish}
       />
+
+
     </>
   );
 }
