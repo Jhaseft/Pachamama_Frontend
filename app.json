@@ -5,7 +5,7 @@
     "scheme": "pachamama",
     "version": "25.0",
     "orientation": "portrait",
-    "icon": "./assets/logoMonetizaLab.png",
+    "icon": "./assets/monetizaicon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
@@ -17,12 +17,13 @@
       "bundleIdentifier": "com.pachamama.app",
       "googleServicesFile": "./GoogleService-Info.plist",
       "supportsTablet": true,
+      "associatedDomains": ["applinks:monetizalab.vip"],
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSMicrophoneUsageDescription": "Se necesita el micrófono para las llamadas de voz y video.",
         "NSCameraUsageDescription": "Se necesita la cámara para las videollamadas."
       },
-      "icon": "./assets/logoMonetizaLab.png",
+      "icon": "./assets/monetizaicon.png",
       "splash": {
         "image": "./assets/logoMonetizaLab.png",
         "resizeMode": "contain",
@@ -34,7 +35,7 @@
       "package": "com.pachamama.app",
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/logoMonetizaLab.png",
+        "foregroundImage": "./assets/monetizaicon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
@@ -49,9 +50,10 @@
       "intentFilters": [
         {
           "action": "android.intent.action.VIEW",
+          "autoVerify": true,
           "data": {
             "scheme": "https",
-            "host": "tiendamas.vip",
+            "host": "monetizalab.vip",
             "pathPrefix": "/@"
           },
           "category": [
@@ -64,13 +66,6 @@
     "web": {
       "favicon": "./assets/logoMonetizaLab.png"
     },
-    "deeplinks": {
-      "urls": [
-        "pachamama://anfitriona/:username",
-        "https://tiendamas.vip/@:username"
-      ]
-    },
-    "scheme": "pachamama",
     "plugins": [
       "expo-dev-client",
       "expo-router",

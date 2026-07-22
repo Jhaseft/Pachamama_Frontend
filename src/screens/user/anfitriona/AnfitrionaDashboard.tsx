@@ -270,7 +270,7 @@ export default function AnfitrionaDashboard() {
     try {
       await Share.share({
         message: `¡Hola! Mira mi perfil en Monetiza Lab: https://monetizalab.vip/@${profile.username}`,
-        url: `pachamama://anfitriona/${profile.username}`,
+        url: `https://monetizalab.vip/@${profile.username}`,
         title: `Perfil de ${profileName}`,
       });
     } catch (error) {
