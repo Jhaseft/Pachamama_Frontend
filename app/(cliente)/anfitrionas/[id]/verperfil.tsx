@@ -88,7 +88,23 @@ export default function AnfitrioneProfileScreen() {
     }
   };
 
+  // El perfil es público, pero cualquier interacción requiere sesión.
+  // Si no hay usuario, se ofrece iniciar sesión y se corta la acción.
+  const ensureAuth = useCallback(() => {
+    if (user) return true;
+    Alert.alert(
+      "Inicia sesión",
+      "Necesitas iniciar sesión para continuar.",
+      [
+        { text: "Cancelar", style: "cancel" },
+        { text: "Iniciar sesión", onPress: () => router.push("/(auth)/login-client") },
+      ]
+    );
+    return false;
+  }, [user, router]);
+
   const handleViewStories = () => {
+    if (!ensureAuth()) return;
     if (!storyFeedItem || !storyFeedItem.stories.length) return;
     const formattedStories = storyFeedItem.stories.map((s) => ({
       id: s.id,
@@ -113,6 +129,7 @@ export default function AnfitrioneProfileScreen() {
   }
 
   function handleCall(callType: "CALL" | "VIDEO_CALL") {
+    if (!ensureAuth()) return;
     if (!profile) return;
     const price = getPrice(callType);
     if (price === null) return;
@@ -130,6 +147,7 @@ export default function AnfitrioneProfileScreen() {
   }
 
   const handleChat = () => {
+    if (!ensureAuth()) return;
     if (!profile) return;
     router.push({
       pathname: "/(cliente)/chat/[conversationId]" as any,
@@ -385,7 +403,7 @@ export default function AnfitrioneProfileScreen() {
             {/* ── Suscripción ── */}
             {subPlan ? (
               <TouchableOpacity
-                onPress={() => !isSubscribed && setShowSubModal(true)}
+                onPress={() => { if (!ensureAuth()) return; if (!isSubscribed) setShowSubModal(true); }}
                 activeOpacity={isSubscribed ? 1 : 0.85}
                 style={{
                   borderRadius: 16,
@@ -538,7 +556,8 @@ export default function AnfitrioneProfileScreen() {
                       </View>
                     </View>
                     <TouchableOpacity
-                      onPress={() =>
+                      onPress={() => {
+                        if (!ensureAuth()) return;
                         router.push({
                           pathname: "/(cliente)/anfitrionas/[id]/desbloquear" as any,
                           params: {
@@ -552,8 +571,8 @@ export default function AnfitrioneProfileScreen() {
                               }))
                             ),
                           },
-                        })
-                      }
+                        });
+                      }}
                       style={{
                         backgroundColor: colors.secondary.DEFAULT, borderRadius: 999,
                         paddingVertical: 9, paddingHorizontal: 8,

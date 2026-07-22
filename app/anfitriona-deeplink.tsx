@@ -38,9 +38,9 @@ export default function AnfitrionaDeepLink() {
     }
   };
 
-  const handleGoToPlayStore = () => {
-    Linking.openURL("https://play.google.com/store/apps/details?id=com.sanamente.appoficial").catch(() => {
-      setError("No se pudo abrir Play Store");
+  const handleGoToWeb = () => {
+    Linking.openURL("https://monetizalab.vip").catch(() => {
+      setError("No se pudo abrir Monetiza Lab");
     });
   };
 
@@ -62,13 +62,13 @@ export default function AnfitrionaDeepLink() {
             {error}
           </Text>
           <Text style={{ color: "rgba(255,255,255,0.5)", textAlign: "center", fontSize: 13, marginBottom: 24 }}>
-            Descarga la app para ver este perfil
+            Explora más perfiles en Monetiza Lab
           </Text>
           <TouchableOpacity
-            onPress={handleGoToPlayStore}
+            onPress={handleGoToWeb}
             style={{ backgroundColor: "#D11B1B", paddingHorizontal: 24, paddingVertical: 12, borderRadius: 999 }}
           >
-            <Text style={{ color: "white", fontWeight: "600" }}>Descargar App</Text>
+            <Text style={{ color: "white", fontWeight: "600" }}>Ir a Monetiza Lab</Text>
           </TouchableOpacity>
         </>
       )}

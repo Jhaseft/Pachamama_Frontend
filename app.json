@@ -49,17 +49,16 @@
       ],
       "intentFilters": [
         {
-          "action": "android.intent.action.VIEW",
+          "action": "VIEW",
           "autoVerify": true,
-          "data": {
-            "scheme": "https",
-            "host": "monetizalab.vip",
-            "pathPrefix": "/@"
-          },
-          "category": [
-            "android.intent.category.DEFAULT",
-            "android.intent.category.BROWSABLE"
-          ]
+          "data": [
+            {
+              "scheme": "https",
+              "host": "monetizalab.vip",
+              "pathPrefix": "/@"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
         }
       ]
     },
