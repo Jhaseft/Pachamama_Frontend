@@ -91,7 +91,7 @@ export async function getPublicHostessProfileByUsername(
   username: string,
 ): Promise<AnfitrioneProfileDetail> {
   const data = await apiFetch<AnfitrioneApiDetail>(
-    `/anfitrionas/public/@${username}`,
+    `/anfitrionas/public/username/${username}`,
     { method: "GET" }
   );
   return mapDetailToProfile(data);
