@@ -89,7 +89,7 @@ export default function RegisterAnfitriona() {
                     <Text className="text-white text-3xl font-bold">Crear cuenta</Text>
                     <Text className="text-white/70 text-lg mt-2 mb-6">
                         Te enviaremos un código de verificación a tu correo Gmail. {"\n"} {"\n"}
-                        Completa tu registro para crear tu cuenta como anfitriona.
+                        Completa tu registro para crear tu cuenta como creador de contenido.
                     </Text>
 
                     <View className="mt-1">

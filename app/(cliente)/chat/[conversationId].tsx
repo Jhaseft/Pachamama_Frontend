@@ -693,7 +693,7 @@ export default function ChatScreen() {
           >
             <Ionicons name="lock-closed" size={15} color="#a844f2" />
             <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, flex: 1, lineHeight: 17 }}>
-              Enviaste {SPAM_LIMIT} mensajes sin respuesta. Espera a que la anfitriona te conteste.
+              Enviaste {SPAM_LIMIT} mensajes sin respuesta. Espera a que el creador de contenido te conteste.
             </Text>
           </View>
         )}
@@ -709,7 +709,7 @@ export default function ChatScreen() {
             editable={!isSpamBlocked}
             placeholder={
               isSpamBlocked
-                ? 'Chat bloqueado hasta que la anfitriona responda'
+                ? 'Chat bloqueado hasta que el creador de contenido responda'
                 : msgPrice != null
                 ? `Enviar mensaje – ${msgPrice} cr.`
                 : 'Escribe un mensaje...'

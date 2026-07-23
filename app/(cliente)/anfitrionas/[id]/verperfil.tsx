@@ -243,7 +243,7 @@ export default function AnfitrioneProfileScreen() {
 
       {!loading && !error && !profile && (
         <View style={{ flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 24 }}>
-          <Text style={{ color: "#9ca3af", textAlign: "center", fontSize: 16 }}>Anfitriona no encontrada.</Text>
+          <Text style={{ color: "#9ca3af", textAlign: "center", fontSize: 16 }}>Creador de contenido no encontrado.</Text>
         </View>
       )}
 
@@ -436,7 +436,7 @@ export default function AnfitrioneProfileScreen() {
                     <Text style={{ color: 'rgba(255,255,255,0.45)', fontSize: 12, marginTop: 2 }}>
                       {isSubscribed
                         ? `Acceso activo · ${subPlan.price} cr/mes`
-                        : `${subPlan.price} créditos/mes · Acceso a la galeria de la anfitriona`}
+                        : `${subPlan.price} créditos/mes · Acceso a la galeria del creador de contenido`}
                     </Text>
                   </View>
                   {!isSubscribed && (
@@ -618,7 +618,7 @@ export default function AnfitrioneProfileScreen() {
             {/* Info precio */}
             <View style={{ backgroundColor: colors.surface.DEFAULT, borderRadius: 16, padding: 16, gap: 10 }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Text style={{ color: '#9ca3af', fontSize: 13 }}>Anfitriona</Text>
+                <Text style={{ color: '#9ca3af', fontSize: 13 }}>Creador de contenido</Text>
                 <Text style={{ color: 'white', fontWeight: '700', fontSize: 13 }}>{profile?.name}</Text>
               </View>
               <View style={{ height: 1, backgroundColor: '#1f1f1f' }} />

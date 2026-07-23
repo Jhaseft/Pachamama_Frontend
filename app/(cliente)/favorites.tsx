@@ -135,7 +135,7 @@ export default function Favorites() {
                         <View className="items-center justify-center mt-20">
                             <Bookmark size={64} color="#27272a" />
                             <Text className="text-zinc-500 text-base mt-4 text-center px-10">
-                                Aún no tienes anfitrionas guardadas.
+                                Aún no tienes creadores de contenido guardados.
                             </Text>
                         </View>
                     }

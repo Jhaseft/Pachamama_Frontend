@@ -32,7 +32,7 @@ const terms = [
         content: "Los creadores son responsables del contenido que comparten.\n\nLa plataforma podrá eliminar contenido que incumpla las normas o políticas.",
     },
     {
-        title: "8. Cuentas de creadores (anfitrionas)",
+        title: "8. Cuentas de creadores de contenido",
         content: "El registro como creador está sujeto a revisión y aprobación por parte de la plataforma.\n\nLa plataforma se reserva el derecho de:\n\n• Aprobar o rechazar perfiles\n• Suspender cuentas\n• Eliminar contenido",
     },
     {

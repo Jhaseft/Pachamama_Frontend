@@ -110,12 +110,12 @@ export default function AnfitrionaScreen() {
 
     return (
         <View className="px-4 pt-10 flex-1 bg-black">
-            <HeaderBack href="/admin" title="Anfitrionas" />
+            <HeaderBack href="/admin" title="Creadores de contenido" />
 
             <SearchInput
                 value={search}
                 onChangeText={setSearch}
-                placeholder="Buscar anfitriona"
+                placeholder="Buscar creador de contenido"
             />
 
             {isInitialLoading ? (

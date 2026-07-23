@@ -11,8 +11,8 @@ export default function BottomNav() {
     const tabs = [
         { name: "Home", icon: "home", route: "/admin" },
         { name: "Clientes", icon: "users", route: "/admin/userClient" },
-        { name: "Anfitrionas", icon: "user-friends", route: "/admin/anfitriona" },
-        { name: "Crear anfitriona", icon: "user-plus", route: "/(app)/create-hostess-profile" },
+        { name: "Creadores", icon: "user-friends", route: "/admin/anfitriona" },
+        { name: "Crear creador", icon: "user-plus", route: "/(app)/create-hostess-profile" },
     ];
 
     return (

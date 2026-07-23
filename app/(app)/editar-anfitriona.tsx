@@ -79,7 +79,7 @@ export default function EditarAnfitriona() {
           <MaterialCommunityIcons name="arrow-left" size={24} color="white" />
         </TouchableOpacity>
         <Text style={{ color: 'white', fontSize: 18, fontWeight: '700', flex: 1 }}>
-          Editar anfitriona
+          Editar creador de contenido
         </Text>
         <TouchableOpacity
           onPress={handleSave}
@@ -118,7 +118,7 @@ export default function EditarAnfitriona() {
           label="Descripción (bio)"
           value={bio}
           onChangeText={setBio}
-          placeholder="Bio de la anfitriona..."
+          placeholder="Bio del creador de contenido..."
           multiline
           numberOfLines={4}
         />

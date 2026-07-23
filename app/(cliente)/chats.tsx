@@ -165,7 +165,7 @@ export default function ClienteChats() {
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
           <MaterialCommunityIcons name="chat-outline" size={56} color="rgba(240,62,179,0.3)" />
           <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 15, textAlign: 'center', marginTop: 16 }}>
-            No tienes conversaciones aún.{'\n'}Visita el perfil de una anfitriona para chatear.
+            No tienes conversaciones aún.{'\n'}Visita el perfil de un creador de contenido para chatear.
           </Text>
         </View>
       ) : (

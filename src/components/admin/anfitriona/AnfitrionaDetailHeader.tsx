@@ -18,7 +18,7 @@ export default function AnfitrionaDetailHeader({ editing, saving, paddingTop, on
                 <MaterialCommunityIcons name="arrow-left" size={22} color="white" />
             </TouchableOpacity>
 
-            <Text className="text-white text-lg font-black flex-1">Detalle Anfitriona</Text>
+            <Text className="text-white text-lg font-black flex-1">Detalle Creador de contenido</Text>
 
             <TouchableOpacity
                 onPress={editing ? onSave : onEdit}

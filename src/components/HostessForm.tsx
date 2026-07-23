@@ -27,10 +27,10 @@ export default function HostessFormComponent({
 }: HostessFormProps) {
   return (
     <View className="pt-10">
-      <HeaderBack href="/admin" title="Crear anfitriona" />
+      <HeaderBack href="/admin" title="Crear creador de contenido" />
       <View className="mt-4">
         <Text className="text-white text-3xl font-bold">
-          Crear anfitriona
+          Crear creador de contenido
         </Text>
         <Text className="text-white/70 text-base mt-2">
           Completa los datos para habilitar el perfil y acceso en la plataforma.
@@ -169,7 +169,7 @@ export default function HostessFormComponent({
       ) : null}
 
       <PrimaryButton
-        title={loading ? "Creando..." : "Crear anfitriona"}
+        title={loading ? "Creando..." : "Crear creador de contenido"}
         onPress={onSubmit}
         disabled={loading}
         className="mt-5"

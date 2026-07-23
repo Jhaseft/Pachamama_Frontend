@@ -18,7 +18,7 @@ export default function HomeHostess() {
       try {
         const profile = await getProfile();
         if (profile.role !== "ANFITRIONA") {
-          setError("Acceso solo para anfitrionas aprobadas.");
+          setError("Acceso solo para creadores de contenido aprobados.");
           await logout();
           router.replace("/(auth)/choose-access");
           return;
@@ -40,7 +40,7 @@ export default function HomeHostess() {
 
   return (
     <Screen pad={false} className="items-center justify-center">
-      <Text className="text-white text-2xl font-semibold">Home Anfitriona</Text>
+      <Text className="text-white text-2xl font-semibold">Home Creador de contenido</Text>
       <Text className="text-white/60 mt-2">Llegaste OK</Text>
       <Text className="text-white/70 mt-4">
         {user?.firstName ? `Hola, ${user.firstName}` : "Hola"}

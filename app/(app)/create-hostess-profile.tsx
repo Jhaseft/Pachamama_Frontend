@@ -98,11 +98,11 @@ export default function CreateHostessProfile() {
         },
         accessToken,
       );
-      setSuccess("Anfitriona creada correctamente.");
+      setSuccess("Creador de contenido creado correctamente.");
       setShowSuccessModal(true);
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : "No se pudo crear la anfitriona.";
+        err instanceof Error ? err.message : "No se pudo crear el creador de contenido.";
       setError(message);
     } finally {
       setLoading(false);
@@ -133,7 +133,7 @@ export default function CreateHostessProfile() {
         <View className="flex-1 items-center justify-center bg-black/60">
           <View className="bg-white rounded-2xl px-6 py-4">
             <Text className="text-black text-base font-semibold text-center">
-              Anfitriona creada correctamente
+              Creador de contenido creado correctamente
             </Text>
           </View>
         </View>

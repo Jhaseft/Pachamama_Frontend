@@ -61,7 +61,7 @@ export default function LoginHostess() {
       const response = await loginWithEmail(trimmedEmail, trimmedPassword);
 
       if (response.user.role !== "ANFITRIONA") {
-        setError("Acceso solo para anfitrionas aprobadas.");
+        setError("Acceso solo para creadores de contenido aprobados.");
         return;
       }
 

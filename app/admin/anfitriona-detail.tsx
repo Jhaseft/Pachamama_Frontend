@@ -115,7 +115,7 @@ export default function AnfitrionaDetailScreen() {
                     </View>
 
                     <Text className="text-zinc-500 text-center py-4">
-                        Puedes actualizar la información de la anfitriona utilizando el modo edición.
+                        Puedes actualizar la información del creador de contenido utilizando el modo edición.
                     </Text>
 
                     {params.idDocUrl ? (

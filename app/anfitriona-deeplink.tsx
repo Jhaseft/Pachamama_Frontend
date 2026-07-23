@@ -31,7 +31,7 @@ export default function AnfitrionaDeepLink() {
         params: { id: profile.id },
       });
     } catch (err: any) {
-      const message = err?.response?.data?.message || "Anfitriona no encontrada";
+      const message = err?.response?.data?.message || "Creador de contenido no encontrado";
       setError(message);
     } finally {
       setLoading(false);

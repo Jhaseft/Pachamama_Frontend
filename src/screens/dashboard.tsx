@@ -172,9 +172,9 @@ export default function AdminDashboard() {
         </View>
 
         <View className="flex-row flex-wrap justify-between">
-          <StatCard title="Solicitud anfitrionas" value={stats.solicitudesAnf} icon="file-document-edit" />
+          <StatCard title="Solicitud creadores de contenido" value={stats.solicitudesAnf} icon="file-document-edit" />
           <StatCard title="Solicitudes de pago" value={stats.solicitudesPago} icon="cash-clock" onPress={() => router.push('/admin/listWithdrawalRequest' as any)} />
-          <StatCard title="Anfitrionas" value={stats.anfitrionas} icon="account-tie" color="#3b82f6" onPress={() => router.push('/admin/anfitriona' as any)} />
+          <StatCard title="Creadores de contenido" value={stats.anfitrionas} icon="account-tie" color="#3b82f6" onPress={() => router.push('/admin/anfitriona' as any)} />
           <StatCard title="Solicitudes de compra" value={stats.compras} icon="cart-check" color="#8b5cf6" />
         </View>
 

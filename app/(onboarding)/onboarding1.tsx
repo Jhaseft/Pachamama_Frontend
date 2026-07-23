@@ -7,7 +7,7 @@ export default function Onboarding1() {
     <OnboardingFrame
       step={0}
       title="Chat Privado"
-      description="Conecta de manera segura y directa con tus anfitrionas favoritas."
+      description="Conecta de manera segura y directa con tus creadores de contenido favoritos."
       descriptionClassName="text-xl"
       icon={<MessagesSquare size={150} color="white" />}
       onSkip={() => router.replace("/(auth)/choose-access")}

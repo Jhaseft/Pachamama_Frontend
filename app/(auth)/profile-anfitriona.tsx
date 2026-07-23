@@ -82,7 +82,7 @@ export default function ProfileAnfitriona() {
       >
         <Text className="text-white text-3xl font-semibold mt-8">Tu perfil</Text>
         <Text className="text-white/70 text-lg mt-2 mb-6">
-          Completa tu información para registrarte como anfitriona.
+          Completa tu información para registrarte como creador de contenido.
         </Text>
 
         <TextField label="Nombre" placeholder="Camila" value={firstName} onChangeText={setFirstName} autoCapitalize="words" textContentType="givenName" />

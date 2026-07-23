@@ -9,9 +9,9 @@ const terms = [
       "MonetizaLab es una plataforma social de entretenimiento digital que permite a los creadores interactuar con usuarios mediante mensajes, contenido multimedia y experiencias en vivo.\n\nLa plataforma no ofrece ni promueve servicios sexuales de ningún tipo.",
   },
   {
-    title: "2. Requisitos para ser anfitriona",
+    title: "2. Requisitos para ser creador de contenido",
     content:
-      "Para registrarte como anfitriona debes:\n\n• Ser mayor de 18 años\n• Presentar un documento de identidad válido\n• Proporcionar información verídica durante el registro\n\nEl registro está sujeto a revisión y aprobación por parte de la plataforma.",
+      "Para registrarte como creador de contenido debes:\n\n• Ser mayor de 18 años\n• Presentar un documento de identidad válido\n• Proporcionar información verídica durante el registro\n\nEl registro está sujeto a revisión y aprobación por parte de la plataforma.",
   },
   {
     title: "3. Verificación de identidad",
@@ -21,7 +21,7 @@ const terms = [
   {
     title: "4. Sistema de ganancias",
     content:
-      "Las anfitrionas generan ganancias a través de:\n\n• Interacciones mediante mensajes\n• Contenido exclusivo\n• Experiencias en vivo (llamadas y videollamadas)\n\nLas ganancias se acumulan en tu wallet dentro de la plataforma y pueden ser retiradas según las políticas de retiro vigentes.",
+      "Los creadores de contenido generan ganancias a través de:\n\n• Interacciones mediante mensajes\n• Contenido exclusivo\n• Experiencias en vivo (llamadas y videollamadas)\n\nLas ganancias se acumulan en tu wallet dentro de la plataforma y pueden ser retiradas según las políticas de retiro vigentes.",
   },
   {
     title: "5. Retiros",
@@ -29,7 +29,7 @@ const terms = [
       "Los retiros están sujetos a:\n\n• Montos mínimos establecidos por la plataforma\n• Verificación de identidad completada\n• Revisión y aprobación por parte del equipo de la plataforma\n\nLa plataforma se reserva el derecho de retener pagos en caso de incumplimiento de los términos.",
   },
   {
-    title: "6. Conducta de la anfitriona",
+    title: "6. Conducta del creador de contenido",
     content:
       "Está estrictamente prohibido:\n\n• Compartir contenido ilegal o explícito no autorizado\n• Solicitar u ofrecer servicios sexuales\n• Compartir datos personales de usuarios\n• Grabar o distribuir contenido sin autorización\n• Acosar o amenazar a otros usuarios",
   },
@@ -75,7 +75,7 @@ export default function TerminosAnfitriona() {
             Términos y Condiciones
           </Text>
           <Text style={{ color: "#6b7280", fontSize: 12, marginTop: 4 }}>
-            MonetizaLab — Anfitrionas
+            MonetizaLab — Creadores de contenido
           </Text>
         </View>
 

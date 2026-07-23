@@ -148,7 +148,7 @@ export default function ClienteInicio() {
       setPage(1);
       hasMore.current = result.hasMore;
     } catch {
-      setError("No se pudieron cargar las anfitrionas. Verifica tu conexión.");
+      setError("No se pudieron cargar los creadores de contenido. Verifica tu conexión.");
     } finally {
       setLoading(false);
     }
@@ -265,7 +265,7 @@ export default function ClienteInicio() {
       {!loading && !error && anfitrionas.length === 0 && (
         <View className="flex-1 items-center justify-center">
           <Text style={{ color: "#6b7280", fontSize: 16 }}>
-            No hay anfitrionas disponibles por el momento.
+            No hay creadores de contenido disponibles por el momento.
           </Text>
         </View>
       )}

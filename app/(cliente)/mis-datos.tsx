@@ -41,7 +41,7 @@ export default function MisDatos() {
         </View>
         <View className="flex-1">
           <Text className="text-white font-bold text-[15px] tracking-wide">Mis favoritas</Text>
-          <Text className="text-pink-400 text-xs mt-0.5">Anfitrionas guardadas</Text>
+          <Text className="text-pink-400 text-xs mt-0.5">Creadores de contenido guardados</Text>
         </View>
         <ChevronRight size={18} color="#f03eb3" />
       </TouchableOpacity>

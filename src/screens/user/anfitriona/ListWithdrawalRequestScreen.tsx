@@ -87,7 +87,7 @@ export default function ListWithdrawalRequestScreen() {
             <SearchInput
                 value={search}
                 onChangeText={setSearch}
-                placeholder="Buscar anfitriona"
+                placeholder="Buscar creador de contenido"
             />
 
             {isInitialLoading ? (

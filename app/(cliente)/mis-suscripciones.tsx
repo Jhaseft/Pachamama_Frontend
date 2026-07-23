@@ -147,7 +147,7 @@ export default function MisSuscripcionesScreen() {
                             </View>
                             <Text className="text-white font-bold text-[16px]">Sin suscripciones</Text>
                             <Text className="text-zinc-500 text-[13px] text-center px-8">
-                                Aún no te has suscrito a ninguna anfitriona.
+                                Aún no te has suscrito a ningún creador de contenido.
                             </Text>
                         </View>
                     }
