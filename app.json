@@ -3,7 +3,7 @@
     "name": "MonetizaLab",
     "slug": "Lima",
     "scheme": "pachamama",
-    "version": "32.0",
+    "version": "30.0",
     "orientation": "portrait",
     "icon": "./assets/monetizaicon.png",
     "userInterfaceStyle": "light",
