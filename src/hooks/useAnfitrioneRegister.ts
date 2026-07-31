@@ -86,7 +86,8 @@ export function useAnfitrioneRegister() {
       });
       await setSession(result.access_token, result.user);
       await removeTempToken();
-      router.replace("/(anfitriona)");
+      // Anfitriona recién registrada → onboarding guiado (igual que la web).
+      router.replace("/(anfitriona)/onboarding");
     } catch (err: any) {
       const message = typeof err === "string" ? err : "No se pudo completar el registro.";
       const normalized = message.toLowerCase();

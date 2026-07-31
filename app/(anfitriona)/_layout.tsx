@@ -58,7 +58,7 @@ export default function AnfitrianaLayout() {
     pathname.includes("/chat/") ||
     pathname.includes("/precios") ||
     pathname.includes("/call") ||
-
+    pathname.includes("/onboarding") ||
     pathname.includes("/vista-previa") ||
     pathname.includes("/terminos");
 
